@@ -731,7 +731,7 @@ export default function Home() {
           {filters.status !== 'ALL' && ` | สถานะ: ${filters.status}`}
           {activeTab === 'domains' && filters.durationType !== 'ALL' && ` | ประเภท: ${filters.durationType}`}
         </p>
-      </div>*/}
+      </div> GOOD*/ }
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Tab Navigator */}
         <div className="bg-white rounded-lg shadow-sm mb-2">
