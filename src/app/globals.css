@@ -1,26 +1,114 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: whitesmoke;
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Custom Button Colors */
+.btn-emerald {
+  background-color: #10B981;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn-emerald:hover {
+  background-color: #059669;
+  transform: translateY(-1px);
+}
+
+.btn-emerald:active {
+  transform: translateY(0);
+}
+
+.btn-rose {
+  background-color: #EF4444;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn-rose:hover {
+  background-color: #DC2626;
+  transform: translateY(-1px);
+}
+
+.btn-rose:active {
+  transform: translateY(0);
+}
+
+.btn-indigo {
+  background-color: #3B82F6;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn-indigo:hover {
+  background-color: #2563EB;
+  transform: translateY(-1px);
+}
+
+.btn-indigo:active {
+  transform: translateY(0);
+}
+
+.btn-cool-gray {
+  background-color: #9CA3AF;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn-cool-gray:hover {
+  background-color: #6B7280;
+  transform: translateY(-1px);
+}
+
+.btn-cool-gray:active {
+  transform: translateY(0);
+}
+
+/* Button focus states */
+.btn-emerald:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+}
+
+.btn-rose:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+}
+
+.btn-indigo:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.btn-cool-gray:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.3);
+}
+
+/* Disabled states */
+.btn-emerald:disabled,
+.btn-rose:disabled,
+.btn-indigo:disabled,
+.btn-cool-gray:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-emerald:disabled:hover,
+.btn-rose:disabled:hover,
+.btn-indigo:disabled:hover,
+.btn-cool-gray:disabled:hover {
+  background-color: inherit;
+  transform: none;
 }

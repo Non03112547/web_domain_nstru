@@ -1,0 +1,131 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String    @id @default(cuid())
+  username   String    @unique
+  password   String
+  role       Role      @default(USER)
+  positionId String?
+  createdAt  DateTime  @default(now())
+  
+  position        Position? @relation(fields: [positionId], references: [id])
+  domainRequests  DomainRequest[]
+  renewalRequests RenewalRequest[]
+  
+  @@map("users")
+}
+
+model Position {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  
+  users User[]
+  
+  @@map("positions")
+}
+
+model DomainRequest {
+  id                   String         @id @default(cuid())
+  domain               String
+  purpose              String
+  ipAddress            String
+  requesterName        String
+  responsibleName      String
+  department           String
+  contact              String
+  contactType          ContactType    @default(EMAIL)
+  requestedAt          DateTime       @default(now())
+  durationType         DurationType
+  expiresAt            DateTime?
+  status               RequestStatus  @default(PENDING)
+  approvalCooldownAt   DateTime?
+  
+  userId               String
+  user                 User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  domain_record        Domain?
+  
+  @@map("domain_requests")
+}
+
+model Domain {
+  id              String        @id @default(cuid())
+  domainRequestId String        @unique
+  lastUsedAt      DateTime?
+  deletedAt       DateTime?
+  trashExpiresAt  DateTime?
+  status          DomainStatus  @default(ACTIVE)
+  
+  domainRequest   DomainRequest @relation(fields: [domainRequestId], references: [id], onDelete: Cascade)
+  renewalRequests RenewalRequest[]
+  
+  @@map("domains")
+}
+
+model DeletedDomainLog {
+  id              String   @id @default(cuid())
+  domainName      String
+  deletedAt       DateTime @default(now())
+  reason          String
+  
+  @@map("deleted_domain_logs")
+}
+
+model RenewalRequest {
+  id                   String         @id @default(cuid())
+  domainId             String
+  newExpiryDate        DateTime
+  reason               String?
+  requestedAt          DateTime       @default(now())
+  status               RequestStatus  @default(PENDING)
+  approvalCooldownAt   DateTime?
+  
+  userId               String
+  user                 User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  domain               Domain         @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  
+  @@map("renewal_requests")
+}
+
+enum ContactType {
+  EMAIL
+  PHONE
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum DurationType {
+  PERMANENT
+  TEMPORARY
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DomainStatus {
+  ACTIVE
+  EXPIRED
+  TRASHED
+}
