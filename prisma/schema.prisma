@@ -41,28 +41,54 @@ model Position {
 }
 
 model DomainRequest {
-  id                   String         @id @default(cuid())
-  domain               String
-  purpose              String
-  ipAddress            String
-  requesterName        String
-  responsibleName      String
-  department           String
-  contact              String
-  contactType          ContactType    @default(EMAIL)
-  requestedAt          DateTime       @default(now())
-  durationType         DurationType
-  expiresAt            DateTime?
-  status               RequestStatus  @default(PENDING)
-  approvalCooldownAt   DateTime?
-  
-  userId               String
-  user                 User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  domain_record        Domain?
-  
+  id                     String         @id @default(cuid())
+  domain                 String
+  ipAddress              String         @default("unknown")
+  machineType            String         @default("PC/Mac")
+  OS                     String         @default("MS Windows")
+  otherMachineType       String?        @default("NO")
+  otherOS                String?        @default("No")
+
+  requesterName          String
+  responsibleName        String
+  department             String
+  institution            String?
+  contact                String
+  contactType            ContactType    @default(EMAIL)
+
+  responsibleContact     String?        
+  responsibleContactType ContactType    @default(EMAIL)
+
+  //ข้อมูลผู้ดูแลเครื่อง
+  machineAdminType       String         @default("requester")
+  machineAdminName       String?        // ชื่อ-สกุล
+  machineAdminPosition   String?        // ตำแหน่ง
+  machineAdminContact    String?        // โทรศัพท์หรือ E-mail
+  machineAdminContactType ContactType   @default(EMAIL) // ประเภทการติดต่อ (PHONE หรือ EMAIL)
+
+  //ที่ตั้งเครื่อง
+  machineRoom            String?        
+  machinePlace           String?   
+
+  //วัตถุประสงค์
+  property               Purpose        @default(InNSTRU)
+  useType                Purpose        @default(NoSever)
+  purpose                String         @default("NO")
+
+  requestedAt            DateTime       @default(now())
+  durationType           DurationType
+  expiresAt              DateTime?
+  status                 RequestStatus  @default(PENDING)
+  approvalCooldownAt     DateTime?
+
+  userId                 String
+  user                   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  domain_record          Domain?
+
   @@map("domain_requests")
 }
+
 
 model Domain {
   id              String        @id @default(cuid())
@@ -128,4 +154,12 @@ enum DomainStatus {
   ACTIVE
   EXPIRED
   TRASHED
+}
+
+enum Purpose {
+  InNSTRU
+  InOutNSTRU
+  NoSever
+  Sever
+  None
 }

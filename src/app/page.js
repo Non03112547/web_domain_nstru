@@ -63,6 +63,7 @@ export default function Home() {
   // Filter states
 
 
+
   useEffect(() => {
     if (session) {
       fetchMyRequests()
@@ -372,13 +373,29 @@ export default function Home() {
 
   const [requestData, setRequestData] = useState({
     domain: '',
+    machineType: '',
+    OS: '',
+    otherMachineType: '',
+    otherOS: '',
     purpose: '',
     ipAddress: '',
     requesterName: '',
     responsibleName: '',
     department: '',
+    institution: '',
     contact: '',
     contactType: 'EMAIL',
+    responsibleContact: '',
+    responsibleContactType: 'EMAIL',
+    machineAdminType: '',
+    machineAdminName: '',
+    machineAdminPosition: '',
+    machineAdminContact: '',
+    machineAdminContactType: 'EMAIL',
+    machineRoom: '',
+    machinePlace: '',
+    property: '',
+    useType: '',
     durationType: 'PERMANENT',
     expiresAt: ''
   })
@@ -386,6 +403,15 @@ export default function Home() {
   useEffect(() => {
     fetchDomains()
   }, [])
+
+  useEffect(() => {
+    if (requestData.machineAdminType !== 'MachineAdmin') {
+      handleRequestDataChange('machineAdminName', requestData.requesterName);
+      handleRequestDataChange('machineAdminPosition', requestData.department);
+      handleRequestDataChange('machineAdminContact', requestData.contact);
+      handleRequestDataChange('machineAdminContactType', requestData.contactType);
+    }
+  }, [requestData.machineAdminType])
 
   const fetchDomains = async () => {
     try {
@@ -562,11 +588,13 @@ export default function Home() {
 
   const handleRequestSubmit = async () => {
     const {
-      domain, purpose, ipAddress, requesterName,
-      responsibleName, department, contact, durationType, expiresAt
+      domain, ipAddress, machineType, OS,
+      requesterName, responsibleName, department, institution, contact, responsibleContact,
+      machineRoom, machinePlace,
+      property, useType, durationType, expiresAt
     } = requestData
 
-    if (!domain || !purpose || !ipAddress || !requesterName || !responsibleName || !department || !contact) {
+    if (!domain || !machineType || !OS || !requesterName || !responsibleName || !department || !institution || !contact || !responsibleContact || !machineRoom || !machinePlace || !property || !useType) {
       alert('กรุณากรอกข้อมูลให้ครบถ้วน')
       return
     }
@@ -576,6 +604,10 @@ export default function Home() {
       return
     }
 
+    if (durationType === 'TEMPORARY' && new Date(expiresAt) <= new Date()) {
+      alert('วันหมดอายุต้องเป็นวันที่ในอนาคต')
+      return
+    }
     if (durationType === 'TEMPORARY' && new Date(expiresAt) <= new Date()) {
       alert('วันหมดอายุต้องเป็นวันที่ในอนาคต')
       return
@@ -598,13 +630,29 @@ export default function Home() {
         setShowRequestModal(false)
         setRequestData({
           domain: '',
+          machineType: '',
+          OS: '',
+          otherMachineType: '',
+          otherOS: '',
           purpose: '',
           ipAddress: '',
           requesterName: '',
           responsibleName: '',
           department: '',
+          institution: '',
           contact: '',
           contactType: 'EMAIL',
+          responsibleContact: '',
+          responsibleContactType: 'EMAIL',
+          machineAdminType: '',
+          machineAdminName: '',
+          machineAdminPosition: '',
+          machineAdminContact: '',
+          machineAdminContactType: 'EMAIL',
+          machineRoom: '',
+          machinePlace: '',
+          property: '',
+          useType: '',
           durationType: 'PERMANENT',
           expiresAt: ''
         })
@@ -629,6 +677,16 @@ export default function Home() {
       department: '',
       contact: '',
       contactType: 'EMAIL',
+      responsibleContact: '',
+      responsibleContactType: '',
+      machineAdminName: '',
+      machineAdminPosition: '',
+      machineAdminContact: '',
+      machineAdminContactType: '',
+      machineRoom: '',
+      machinePlace: '',
+      property: '',
+      useType: '',
       durationType: 'PERMANENT',
       expiresAt: ''
     })
@@ -708,6 +766,7 @@ export default function Home() {
     setActiveStatus(prevStatus => (prevStatus === status ? '' : status));
   }
 
+
   const statusFilter =
     activeTab === 'domains' && activeStatus === "PENDING" ? pendingRequests
       : activeTab === 'domains' && activeStatus === "REJECTED" ? rejectedRequests
@@ -716,8 +775,6 @@ export default function Home() {
             : activeTab === 'renewals' && activeStatus === "PENDING" ? pendingRenewalRequests
               : activeTab === 'renewals' && activeStatus === "REJECTED" ? rejectedRenewalRequests
                 : activeTab === 'renewals' ? allRenewalRequests : trashedDomains
-
-
   return (
 
     <div>
@@ -1035,7 +1092,7 @@ export default function Home() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      IP Address *
+                      IP Address (ถ้าหากมี)
                     </label>
                     <input
                       type="text"
@@ -1045,38 +1102,112 @@ export default function Home() {
                       placeholder="192.168.1.1"
                     />
                   </div>
-                </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ประเภทเครื่อง
+                    </label>
+                    <select
+                      value={requestData.machineType}
+                      onChange={(e) => handleRequestDataChange('machineType', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option>PC/Mac</option>
+                      <option>Unix Workstation</option>
+                      <option value="other"> อื่นๆ </option>
+                    </select>
+                    {requestData.machineType === "other" && (
+                      <input
+                        type="text"
+                        value={requestData.otherMachineType}
+                        onChange={(e) => handleRequestDataChange('otherMachineType', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    )}
+                  </div>
 
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ระบบปฏิบัติการ
+                    </label>
+                    <select
+                      value={requestData.OS}
+                      onChange={(e) => handleRequestDataChange('OS', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option>Linux</option>
+                      <option>Unix</option>
+                      <option>MS Windows</option>
+                      <option value="other"> อื่นๆ </option>
+                    </select>
+                    {requestData.OS === "other" && (
+                      <input
+                        type="text"
+                        value={requestData.otherOS}
+                        onChange={(e) => handleRequestDataChange('otherOS', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    )}
+                  </div>
+
+                </div>
+                <br></br>
+                <br></br>
+                <hr></hr>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     วัตถุประสงค์ *
                   </label>
-                  <textarea
-                    value={requestData.purpose}
-                    onChange={(e) => handleRequestDataChange('purpose', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    rows={3}
-                    placeholder="ระบุวัตถุประสงค์ในการใช้งาน"
-                  />
-                </div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    คุณสมบัติ
+                  </label>
+                  <select
+                    value={requestData.property}
+                    onChange={(e) => handleRequestDataChange('property', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
 
+                    <option value="InNSTRU">ใช้งานเฉพาะเครือข่ายภายในมหาวิทยาลัยราชภัฏนครศรีธรรมราช (Intranet)</option>
+                    <option value="InOutNSTRU">ใช้งานเฉพาะเครือข่ายภายในและภายนอกมหาวิทยาลัยราชภัฏนครศรีธรรมราช</option>
+                  </select>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    การใช้งาน
+                  </label>
+                  <select
+                    value={requestData.useType}
+                    onChange={(e) => handleRequestDataChange('useType', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                    <option value="NoSever" >ใช้ทั่วไปโดยไม่ได้เป็นเซอร์ฟเวอร์</option>
+                    <option value="Sever">ใช้เป็นเซอร์ฟเวอร์ให้บริการ (โปรดระบุ) </option>
+                  </select>
+                  {requestData.useType === 'Sever' && (
+                    <textarea
+                      value={requestData.purpose}
+                      onChange={(e) => handleRequestDataChange('purpose', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      rows={3}
+                      placeholder="ระบุวัตถุประสงค์ในการใช้เป็นเซอร์ฟเวอร์ให้บริการ"
+                    />)
+                  }
+
+                </div>
+                <br></br>
+                <br></br>
+                <hr></hr>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ชื่อผู้ขอ *
+                      ชื่อผู้ขอโดเมน *
                     </label>
                     <input
                       type="text"
                       value={requestData.requesterName}
                       onChange={(e) => handleRequestDataChange('requesterName', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="นายสมชาย ใจดี"
+                      placeholder="นายสมหมาย รักชาติ"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ชื่อผู้รับผิดชอบ *
+                      ชื่อผู้รับผิดชอบโดเมน *
                     </label>
                     <input
                       type="text"
@@ -1088,9 +1219,80 @@ export default function Home() {
                   </div>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ข้อมูลติดต่อ ผู้ขอโดเมน *
+                    </label>
+                    <input
+                      type="text"
+                      value={requestData.contact}
+                      onChange={(e) => {
+                        const value = e.target.value;
+
+                        // อัปเดตค่าข้อมูลที่กรอก
+                        handleRequestDataChange('contact', value);
+
+                        // ตรวจสอบว่าเป็นตัวเลขอย่างเดียวหรือไม่
+                        const isPhone = /^[0-9\s\-+()]+$/.test(value);
+                        const contactType = isPhone ? 'PHONE' : 'EMAIL';
+
+                        // อัปเดต contactType อัตโนมัติ
+                        handleRequestDataChange('contactType', contactType);
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="example@email.com หรือ 081-234-5678"
+                    />
+
+                    <div className='hidden'>
+                      <input
+                        type="text"
+                        value={requestData.contactType === 'PHONE' ? 'โทรศัพท์' : 'อีเมล'}
+                        disabled
+                        className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ข้อมูลติดต่อ ผู้รับผิดชอบโดเมน *
+                    </label>
+                    <input
+                      type="text"
+                      value={requestData.responsibleContact}
+                      onChange={(e) => {
+                        const value = e.target.value;
+
+                        // อัปเดตค่าข้อมูลที่กรอก
+                        handleRequestDataChange('responsibleContact', value);
+
+                        // ตรวจสอบว่าเป็นตัวเลขอย่างเดียวหรือไม่
+                        const isPhone = /^[0-9\s\-+()]+$/.test(value);
+                        const contactType = isPhone ? 'PHONE' : 'EMAIL';
+
+                        // อัปเดต contactType อัตโนมัติ
+                        handleRequestDataChange('responsibleContactType', responsibleContactType);
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="example@email.com หรือ 081-234-5678"
+                    />
+
+                    <div className='hidden'>
+                      <input
+                        type="text"
+                        value={requestData.contactType === 'PHONE' ? 'โทรศัพท์' : 'อีเมล'}
+                        disabled
+                        className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                  </div>
+
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    หน่วยงาน/ภาควิชา *
+                    ภาควิชา/ฝ่าย/แผนก  *
                   </label>
                   <input
                     type="text"
@@ -1100,68 +1302,150 @@ export default function Home() {
                     placeholder="ภาควิชาวิทยาการคอมพิวเตอร์"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    คณะ/สำนัก/สถาบัน/กอง :   *
+                  </label>
+                  <input
+                    type="text"
+                    value={requestData.institution}
+                    onChange={(e) => handleRequestDataChange('institution', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="คณะวิทยาศาสตร์และเทคโนโลยี"
+                  />
+                </div>
+                <br></br>
+                <br></br>
+                <hr></hr>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ที่ตั้งเครื่อง
+                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ห้อง *
+                  </label>
+                  <input
+                    type="text"
+                    value={requestData.machineRoom}
+                    onChange={(e) => handleRequestDataChange('machineRoom', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="1930"
+                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    อาคาร *
+                  </label>
+                  <input
+                    type="text"
+                    value={requestData.machinePlace}
+                    onChange={(e) => handleRequestDataChange('machinePlace', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="19"
+                  />
+                </div>
+                <br></br>
+                <br></br>
+                <hr></hr>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ผู้ดูแลเครื่อง
+                  </label>
+                  <select
+                    value={requestData.machineAdminType}
+                    onChange={(e) => handleRequestDataChange('machineAdminType', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="requester">บุคคลเดียวกับผู้ขอจดทะเบียน</option>
+                    <option value="MachineAdmin">มีผู้ดูแลเครื่องโดยเฉพาะคือ</option>
+                  </select>
+                </div>
+
+                {requestData.machineAdminType === 'MachineAdmin' ? (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ชื่อ ผู้ดูแลเครื่อง *
+                    </label>
+                    <input
+                      type="text"
+                      value={requestData.machineAdminName}
+                      onChange={(e) => handleRequestDataChange('machineAdminName', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="นายสมศักดิ์ รักษา"
+                    />
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ตำแหน่ง ผู้ดูแลเครื่อง *
+                    </label>
+                    <input
+                      type="text"
+                      value={requestData.machineAdminPosition}
+                      onChange={(e) => handleRequestDataChange('machineAdminPosition', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="นักวิชาการคอมพิวเตอร์"
+                    />
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ช่องทางการติดต่อ ผู้ดูแลเครื่อง *
+                    </label>
+                    <input
+                      type="text"
+                      value={requestData.machineAdminContact}
+                      onChange={(e) => {
+                        const value = e.target.value;
+
+                        // อัปเดตค่าข้อมูลที่กรอก
+                        handleRequestDataChange('machineAdminContact', value);
+
+                        // ตรวจสอบว่าเป็นตัวเลขอย่างเดียวหรือไม่
+                        const machineisPhone = /^[0-9\s\-+()]+$/.test(value);
+                        const machineAdminContactType = machineisPhone ? 'PHONE' : 'EMAIL';
+
+                        // อัปเดต contactType อัตโนมัติ
+                        handleRequestDataChange('machineAdminContactType', machineAdminContactType);
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="example@email.com หรือ 081-234-5678"
+                    />
+                  </div>) : (
+                  <></>
+                )}
+                <br></br>
+                <br></br>
+                <hr></hr>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ข้อมูลติดต่อ *
+                      วันหมดอายุ
                     </label>
                     <input
-                      type="text"
-                      value={requestData.contact}
-                      onChange={(e) => handleRequestDataChange('contact', e.target.value)}
+                      type="date"
+                      value={requestData.expiresAt}
+                      onChange={(e) => {
+                        const date = e.target.value;
+                        handleRequestDataChange('expiresAt', date);
+
+                        // ตั้ง durationType ตามว่ามีวันที่หรือไม่
+                        const newDurationType = date ? 'TEMPORARY' : 'PERMANENT';
+                        handleRequestDataChange('durationType', newDurationType);
+                      }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="example@email.com หรือ 081-234-5678"
+                      min={new Date().toISOString().split('T')[0]}
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ประเภทการติดต่อ *
+                      ประเภทการใช้งาน (อัตโนมัติ)
                     </label>
-                    <select
-                      value={requestData.contactType}
-                      onChange={(e) => handleRequestDataChange('contactType', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="EMAIL">อีเมล</option>
-                      <option value="PHONE">โทรศัพท์</option>
-                    </select>
+                    <input
+                      type="text"
+                      value={requestData.durationType === 'TEMPORARY' ? 'ชั่วคราว' : 'ถาวร'}
+                      disabled
+                      className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg"
+                    />
                   </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ประเภทการใช้งาน *
-                    </label>
-                    <select
-                      value={requestData.durationType}
-                      onChange={(e) => handleRequestDataChange('durationType', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="PERMANENT">ถาวร</option>
-                      <option value="TEMPORARY">ชั่วคราว</option>
-                    </select>
-                  </div>
-
-                  {requestData.durationType === 'TEMPORARY' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        วันหมดอายุ *
-                      </label>
-                      <input
-                        type="date"
-                        value={requestData.expiresAt}
-                        onChange={(e) => handleRequestDataChange('expiresAt', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        min={new Date().toISOString().split('T')[0]}
-                      />
-                    </div>
-                  )}
                 </div>
               </div>
-
+              <br></br>
+              <hr></hr>
               <div className="flex justify-end space-x-3 mt-6">
                 <button
                   onClick={handleRequestCancel}
