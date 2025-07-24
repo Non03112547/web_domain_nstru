@@ -670,19 +670,25 @@ export default function Home() {
     setShowRequestModal(false)
     setRequestData({
       domain: '',
+      machineType: '',
+      OS: '',
+      otherMachineType: '',
+      otherOS: '',
       purpose: '',
       ipAddress: '',
       requesterName: '',
       responsibleName: '',
       department: '',
+      institution: '',
       contact: '',
       contactType: 'EMAIL',
       responsibleContact: '',
-      responsibleContactType: '',
+      responsibleContactType: 'EMAIL',
+      machineAdminType: '',
       machineAdminName: '',
       machineAdminPosition: '',
       machineAdminContact: '',
-      machineAdminContactType: '',
+      machineAdminContactType: 'EMAIL',
       machineRoom: '',
       machinePlace: '',
       property: '',
@@ -960,6 +966,7 @@ export default function Home() {
                   value=""
                   placeholder="ชื่อโดเมน, ผู้ขอ, หน่วยงาน..."
                   className="w-full px-3 py-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                 />
               </div>
 
@@ -972,6 +979,7 @@ export default function Home() {
                 <select
                   value=""
                   className="w-full px-3 py-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  onChange={(e) => setFilters(prev => ({ ...prev, durationType: e.target.value }))}
                 >
                   <option value="ALL">ทั้งหมด</option>
                   <option value="PERMANENT">ถาวร</option>
@@ -988,6 +996,7 @@ export default function Home() {
                 <select
                   value=""
                   className="w-full px-3 py-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
                 >
                   <option value="requestedAt">วันที่ขอ</option>
                   <option value="domain">ชื่อโดเมน</option>
@@ -1003,6 +1012,7 @@ export default function Home() {
                 <select
                   value=""
                   className="w-full px-3 py-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  onChange={(e) => setFilters(prev => ({ ...prev, sortOrder: e.target.value }))}
                 >
                   <option value="desc">ใหม่ไปเก่า</option>
                   <option value="asc">เก่าไปใหม่</option>
