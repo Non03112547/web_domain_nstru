@@ -34,16 +34,6 @@ export default function NavBar() {
                                 {/* Navigation buttons */}
 
                                 <Link
-                                    href="/my-tickets"
-                                    className="btn-indigo px-4 py-2 rounded-lg transition-colors flex items-center"
-                                >
-                                    <Ticket className="w-4 h-4 mr-2" />
-                                    คำขอของฉัน
-                                </Link>
-
-
-
-                                <Link
                                     href="/admin"
                                     className="btn-indigo px-4 py-2 rounded-lg transition-colors flex items-center"
                                 >
