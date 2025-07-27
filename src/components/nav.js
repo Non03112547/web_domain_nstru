@@ -9,8 +9,9 @@ import {
     LogOut,
     Globe
 } from 'lucide-react'
-//import LogoutButton from '@/components/LogoutButton'
+import LogoutButton from '@/components/LogoutButton'
 export default function NavBar() {
+    const { data: session } = useSession()
     return (
         <header className="bg-white shadow-sm mb-3 ">
             <div className="max-w-7xl mx-auto px-4 py-6 ">
@@ -25,41 +26,46 @@ export default function NavBar() {
                         </Link>
                     </div>
                     <div className="flex items-center space-x-4">
+                        {session ? (
+                            <div className="flex items-center space-x-4">
+                                <span className="text-sm text-gray-700">
+                                    สวัสดี,{session.user.username}
+                                </span>
+                                <div className="flex space-x-2">
+                                    {/* Navigation buttons */}
 
-                        <div className="flex items-center space-x-4">
-                            <span className="text-sm text-gray-700">
-                                สวัสดี,
-                            </span>
-                            <div className="flex space-x-2">
-                                {/* Navigation buttons */}
+                                    <Link
+                                        href="/admin"
+                                        className="btn-indigo px-4 py-2 rounded-lg transition-colors flex items-center"
+                                    >
+                                        <Shield className="w-4 h-4 mr-2" />
+                                        จัดการระบบ
+                                    </Link>
 
-                                <Link
-                                    href="/admin"
-                                    className="btn-indigo px-4 py-2 rounded-lg transition-colors flex items-center"
-                                >
-                                    <Shield className="w-4 h-4 mr-2" />
-                                    จัดการระบบ
-                                </Link>
-
-                                <Link
-                                    href="/change-password"
-                                    className="btn-indigo px-4 py-2 rounded-lg transition-colors flex items-center"
-                                >
-                                    <Key className="w-4 h-4 mr-2" />
-                                    เปลี่ยนรหัสผ่าน
-                                </Link>
-
-                                <Link
-                                    href="/login"
-                                    className="btn-indigo px-4 py-2 rounded-lg transition-colors flex items-center"
-                                >
-                                    เข้าสู่ระบบ
-                                </Link>
+                                    <Link
+                                        href="/change-password"
+                                        className="btn-indigo px-4 py-2 rounded-lg transition-colors flex items-center"
+                                    >
+                                        <Key className="w-4 h-4 mr-2" />
+                                        เปลี่ยนรหัสผ่าน
+                                    </Link><LogoutButton className="btn-rose px-4 py-2 rounded-lg transition-colors" />
+                                </div>
                             </div>
-                        </div>
+                        ) : (
+                            <Link
+                                href="/login"
+                                className="btn-indigo px-4 py-2 rounded-lg transition-colors flex items-center"
+                            >
+                                <LogOut className="w-4 h-4 mr-2" />
+                                เข้าสู่ระบบ
+                            </Link>
+
+                        )
+                        }
+
                     </div>
                 </div>
             </div>
-        </header>
+        </header >
     );
 }
