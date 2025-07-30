@@ -46,24 +46,24 @@ model DomainRequest {
   ipAddress              String         @default("unknown")
   machineType            String         @default("PC/Mac")
   OS                     String         @default("MS Windows")
-  otherMachineType       String?        @default("NO")
-  otherOS                String?        @default("No")
+  otherMachineType       String         @default("NO")
+  otherOS                String         @default("No")
 
   requesterName          String
   responsibleName        String
   department             String
-  institution            String?
+  institution            String
   contact                String
   contactType            ContactType    @default(EMAIL)
 
-  responsibleContact     String?        
+  responsibleContact     String        
   responsibleContactType ContactType    @default(EMAIL)
 
   //ข้อมูลผู้ดูแลเครื่อง
   machineAdminType       String         @default("requester")
-  machineAdminName       String?        // ชื่อ-สกุล
-  machineAdminPosition   String?        // ตำแหน่ง
-  machineAdminContact    String?        // โทรศัพท์หรือ E-mail
+  machineAdminName       String        // ชื่อ-สกุล
+  machineAdminPosition   String        // ตำแหน่ง
+  machineAdminContact    String        // โทรศัพท์หรือ E-mail
   machineAdminContactType ContactType   @default(EMAIL) // ประเภทการติดต่อ (PHONE หรือ EMAIL)
 
   //ที่ตั้งเครื่อง

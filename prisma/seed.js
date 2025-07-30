@@ -3,28 +3,45 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-    // ลบข้อมูลเก่าทั้งหมด
+    // ล้างข้อมูลเก่าก่อน
     await prisma.renewalRequest.deleteMany()
     await prisma.domain.deleteMany()
     await prisma.domainRequest.deleteMany()
     await prisma.user.deleteMany()
+    await prisma.position.deleteMany()
     await prisma.deletedDomainLog.deleteMany()
 
-    // สร้าง Admin user
+    // 🧑‍💼 เพิ่มตำแหน่ง
+    const adminPosition = await prisma.position.create({
+        data: {
+            name: 'ผู้ดูแลระบบ',
+            description: 'มีสิทธิ์จัดการทุกอย่าง',
+        }
+    })
+
+    const userPosition = await prisma.position.create({
+        data: {
+            name: 'เจ้าหน้าที่ทั่วไป',
+            description: 'สามารถส่งคำขอใช้โดเมน',
+        }
+    })
+
+    // 👤 เพิ่มผู้ใช้
     const admin = await prisma.user.create({
         data: {
             username: 'admin',
             password: 'admin123',
-            role: 'ADMIN'
+            role: 'ADMIN',
+            positionId: adminPosition.id,
         }
     })
 
-    // สร้าง User accounts
     const user01 = await prisma.user.create({
         data: {
             username: 'user01',
             password: 'passuser01',
-            role: 'USER'
+            role: 'USER',
+            positionId: userPosition.id,
         }
     })
 
@@ -32,171 +49,175 @@ async function main() {
         data: {
             username: 'user02',
             password: 'passuser02',
-            role: 'USER'
+            role: 'USER',
+            positionId: userPosition.id,
         }
     })
 
-    // สร้าง Domain Requests
-    const request1 = await prisma.domainRequest.create({
+    // 🌐 คำขอโดเมน APPROVED
+    const approvedRequest = await prisma.domainRequest.create({
         data: {
             domain: 'library.nstru.ac.th',
-            purpose: 'ระบบห้องสมุดดิจิทัล',
-            ipAddress: '192.168.1.100',
+            ipAddress: '192.168.0.10',
+            machineType: 'Server',
+            OS: 'Linux',
+            otherMachineType: 'NO',
+            otherOS: 'NO',
             requesterName: 'นายสมชาย ใจดี',
             responsibleName: 'นายสมศักดิ์ รักษาดี',
             department: 'ห้องสมุดกลาง',
+            institution: 'NSTRU',
             contact: 'somchai@nstru.ac.th',
+            contactType: 'EMAIL',
+            responsibleContact: 'somk@nstru.ac.th',
+            responsibleContactType: 'EMAIL',
+            machineAdminType: 'requester',
+            machineAdminName: 'นายสมชาย ใจดี',
+            machineAdminPosition: 'เจ้าหน้าที่',
+            machineAdminContact: 'somchai@nstru.ac.th',
+            machineAdminContactType: 'EMAIL',
+            machineRoom: 'ห้อง 101',
+            machinePlace: 'อาคารห้องสมุด',
+            property: 'InNSTRU',
+            useType: 'Sever',
+            purpose: 'ให้บริการภายในมหาวิทยาลัย',
             durationType: 'PERMANENT',
             status: 'APPROVED',
-            userId: user01.id,
-        }
-    })
-
-    const request2 = await prisma.domainRequest.create({
-        data: {
-            domain: 'event.nstru.ac.th',
-            purpose: 'ระบบจัดการกิจกรรม',
-            ipAddress: '192.168.1.200',
-            requesterName: 'นางสาวมาลี สวยงาม',
-            responsibleName: 'นายประสิทธิ์ ทำงานดี',
-            department: 'งานกิจการนักศึกษา',
-            contact: 'malee@nstru.ac.th',
-            durationType: 'TEMPORARY',
-            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 วันจากตอนนี้
-            status: 'PENDING',
-            userId: user02.id,
-        }
-    })
-
-    const request3 = await prisma.domainRequest.create({
-        data: {
-            domain: 'old.nstru.ac.th',
-            purpose: 'เว็บไซต์เก่า',
-            ipAddress: '192.168.1.50',
-            requesterName: 'นายเก่า หมดสมัย',
-            responsibleName: 'นายเก่า หมดสมัย',
-            department: 'ฝ่ายเทคโนโลยี',
-            contact: 'old@nstru.ac.th',
-            durationType: 'TEMPORARY',
-            expiresAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // หมดอายุแล้ว 7 วัน
-            status: 'APPROVED',
-            userId: user01.id,
-        }
-    })
-
-    const request4 = await prisma.domainRequest.create({
-        data: {
-            domain: 'rejected.nstru.ac.th',
-            purpose: 'ระบบที่ถูกปฏิเสธ',
-            ipAddress: '192.168.1.999',
-            requesterName: 'นายไม่ผ่าน อนุมัติ',
-            responsibleName: 'นายไม่ผ่าน อนุมัติ',
-            department: 'ฝ่ายทดสอบ',
-            contact: 'reject@nstru.ac.th',
-            durationType: 'PERMANENT',
-            status: 'REJECTED',
-            userId: user02.id,
-        }
-    })
-
-    // สร้าง Domain records สำหรับ request ที่ approved
-    await prisma.domain.create({
-        data: {
-            domainRequestId: request1.id,
-            status: 'ACTIVE',
-            lastUsedAt: new Date()
-        }
-    })
-
-    // สร้าง Domain ที่หมดอายุ (ในถังขยะ)
-    await prisma.domain.create({
-        data: {
-            domainRequestId: request3.id,
-            status: 'TRASHED',
-            deletedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 วันที่แล้ว
-            trashExpiresAt: new Date(Date.now() + 85 * 24 * 60 * 60 * 1000), // อีก 85 วัน
-            lastUsedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000)
-        }
-    })
-
-    // สร้าง Request สำหรับโดเมนที่หมดอายุ
-    const expiredRequest = await prisma.domainRequest.create({
-        data: {
-            domain: 'expired.nstru.ac.th',
-            purpose: 'ระบบที่หมดอายุแล้ว',
-            ipAddress: '192.168.1.150',
-            requesterName: 'นายหมดอายุ ต้องต่อ',
-            responsibleName: 'นายหมดอายุ ต้องต่อ',
-            department: 'ฝ่ายทดสอบ',
-            contact: 'expired@nstru.ac.th',
-            durationType: 'TEMPORARY',
-            expiresAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // หมดอายุ 3 วันแล้ว
-            status: 'APPROVED',
-            userId: user01.id,
-        }
-    })
-
-    // สร้าง Domain ที่หมดอายุ
-    const expiredDomain = await prisma.domain.create({
-        data: {
-            domainRequestId: expiredRequest.id,
-            status: 'EXPIRED',
-            lastUsedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
-        }
-    })
-
-    // สร้าง Renewal Requests ตัวอย่าง
-    await prisma.renewalRequest.create({
-        data: {
-            domainId: expiredDomain.id,
-            newExpiryDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 วันจากตอนนี้
-            reason: 'ยังคงใช้งานอยู่ ขอต่ออายุอีก 90 วัน',
-            status: 'PENDING',
             userId: user01.id
         }
     })
 
-    // สร้าง Renewal Request ที่อนุมัติแล้ว
-    const approvedRenewal = await prisma.renewalRequest.create({
+    await prisma.domain.create({
         data: {
-            domainId: expiredDomain.id,
-            newExpiryDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 วันจากตอนนี้
-            reason: 'ต่ออายุครั้งที่ 2',
-            status: 'APPROVED',
-            userId: user02.id,
-            approvalCooldownAt: new Date(Date.now() + 60 * 60 * 1000) // 1 ชั่วโมง
+            domainRequestId: approvedRequest.id,
+            lastUsedAt: new Date(),
+            status: 'ACTIVE',
         }
     })
 
-    // สร้าง Renewal Request ที่ไม่อนุมัติ
+    // 🕒 คำขอโดเมน EXPIRED
+    const expiredRequest = await prisma.domainRequest.create({
+        data: {
+            domain: 'expired.nstru.ac.th',
+            ipAddress: '192.168.0.20',
+            machineType: 'PC',
+            OS: 'Windows',
+            requesterName: 'นางสาวลืมต่อ',
+            responsibleName: 'นายลืมต่อ',
+            department: 'ฝ่ายไอที',
+            institution: 'NSTRU',
+            contact: 'expire@nstru.ac.th',
+            contactType: 'EMAIL',
+            responsibleContact: 'resp@nstru.ac.th',
+            responsibleContactType: 'EMAIL',
+            machineAdminType: 'other',
+            machineAdminName: 'นายช่วยดูแล',
+            machineAdminPosition: 'จนท.',
+            machineAdminContact: 'support@nstru.ac.th',
+            machineAdminContactType: 'EMAIL',
+            machineRoom: 'ห้อง 202',
+            machinePlace: 'อาคารบริการ',
+            property: 'InOutNSTRU',
+            useType: 'NoSever',
+            purpose: 'ใช้จัดเก็บข้อมูลภายใน',
+            durationType: 'TEMPORARY',
+            expiresAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+            status: 'APPROVED',
+            userId: user02.id
+        }
+    })
+
+    const expiredDomain = await prisma.domain.create({
+        data: {
+            domainRequestId: expiredRequest.id,
+            lastUsedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+            status: 'EXPIRED',
+        }
+    })
+
+    // 🔄 Renewal Requests
     await prisma.renewalRequest.create({
         data: {
             domainId: expiredDomain.id,
-            newExpiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 ปี
-            reason: 'ขอต่ออายุยาวๆ',
-            status: 'REJECTED',
-            userId: user02.id,
-            approvalCooldownAt: new Date(Date.now() + 60 * 60 * 1000) // 1 ชั่วโมง
+            newExpiryDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+            reason: 'จำเป็นต้องใช้งานต่อ',
+            status: 'PENDING',
+            userId: user02.id
         }
     })
 
-    console.log('✅ Database seeded successfully!')
-    console.log('📝 Created users:')
-    console.log('   - Admin: username=admin, password=admin123')
-    console.log('   - User01: username=user01, password=passuser01')
-    console.log('   - User02: username=user02, password=passuser02')
-    console.log('📋 Created sample domain requests with different statuses')
-    console.log('🗑️ Created sample trashed domain')
-    console.log('⏰ Created sample expired domain')
-    console.log('🔄 Created sample renewal requests (pending, approved, rejected)')
+    await prisma.renewalRequest.create({
+        data: {
+            domainId: expiredDomain.id,
+            newExpiryDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+            reason: 'ต่ออายุอีกครั้ง',
+            status: 'APPROVED',
+            approvalCooldownAt: new Date(Date.now() + 60 * 60 * 1000),
+            userId: user01.id
+        }
+    })
+
+    await prisma.renewalRequest.create({
+        data: {
+            domainId: expiredDomain.id,
+            newExpiryDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000),
+            reason: 'ขอต่อยาว',
+            status: 'REJECTED',
+            approvalCooldownAt: new Date(Date.now() + 60 * 60 * 1000),
+            userId: user01.id
+        }
+    })
+
+    // 🗑️ โดเมนในถังขยะ
+    const trashedRequest = await prisma.domainRequest.create({
+        data: {
+            domain: 'old.nstru.ac.th',
+            ipAddress: '192.168.0.30',
+            requesterName: 'นายเก่า',
+            responsibleName: 'นายเก่า',
+            department: 'เก่า',
+            institution: 'NSTRU',
+            contact: 'old@nstru.ac.th',
+            contactType: 'EMAIL',
+            responsibleContact: 'oldr@nstru.ac.th',
+            responsibleContactType: 'EMAIL',
+            machineAdminType: 'requester',
+            machineAdminName: 'นายเก่า',
+            machineAdminPosition: 'เจ้าหน้าที่',
+            machineAdminContact: 'old@nstru.ac.th',
+            machineAdminContactType: 'EMAIL',
+            durationType: 'TEMPORARY',
+            expiresAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+            status: 'APPROVED',
+            userId: user01.id
+        }
+    })
+
+    await prisma.domain.create({
+        data: {
+            domainRequestId: trashedRequest.id,
+            deletedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+            trashExpiresAt: new Date(Date.now() + 85 * 24 * 60 * 60 * 1000),
+            lastUsedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
+            status: 'TRASHED',
+        }
+    })
+
+    // 🧹 ล็อกการลบโดเมน
+    await prisma.deletedDomainLog.create({
+        data: {
+            domainName: 'archive.nstru.ac.th',
+            reason: 'ไม่ใช้งานแล้ว ลบทิ้ง',
+        }
+    })
+
+    console.log('✅ Database seeded successfully with full schema!')
 }
 
 main()
-    .then(async () => {
-        await prisma.$disconnect()
-    })
+    .then(() => prisma.$disconnect())
     .catch(async (e) => {
-        console.error(e)
+        console.error('❌ Error seeding data:', e)
         await prisma.$disconnect()
         process.exit(1)
     })

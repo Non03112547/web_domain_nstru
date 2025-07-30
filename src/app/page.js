@@ -46,7 +46,6 @@ const StatusBadge = (status) => {
 
 
 export default function Home() {
-
   const { data: session } = useSession()
   const [domains, setDomains] = useState([])
   const [loading, setLoading] = useState(true)
@@ -67,8 +66,6 @@ export default function Home() {
 
 
   // Filter states
-
-
 
   useEffect(() => {
     if (session) {
