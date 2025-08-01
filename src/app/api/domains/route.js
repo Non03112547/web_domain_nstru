@@ -16,6 +16,20 @@ export async function GET(request) {
                             }
                         }
                     }
+                },
+                renewalRequests: {
+                    include: {
+                        user: {
+                            select: {
+                                username: true
+                            }
+                        },
+                        domain: {
+                            include: {
+                                domainRequest: true
+                            }
+                        }
+                    }
                 }
             },
             orderBy: {

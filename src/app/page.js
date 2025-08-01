@@ -66,6 +66,103 @@ export default function Home() {
 
 
   // Filter states
+  const [filters, setFilters] = useState({
+    search: '',
+    status: 'ALL',
+    durationType: 'ALL',
+    sortBy: 'requestedAt',
+    sortOrder: 'desc'
+  })
+  // Filter and sort domain requests
+  const filteredRequests = requests.filter(request => {
+    const matchesSearch = request.domain.toLowerCase().includes(filters.search.toLowerCase()) ||
+      request.requesterName.toLowerCase().includes(filters.search.toLowerCase()) ||
+      request.department.toLowerCase().includes(filters.search.toLowerCase())
+
+    const matchesStatus = filters.status === 'ALL' || request.status === filters.status
+    const matchesDurationType = filters.durationType === 'ALL' || request.durationType === filters.durationType
+
+    return matchesSearch && matchesStatus && matchesDurationType
+  }).sort((a, b) => {
+    const field = filters.sortBy
+    let aValue = ''
+    let bValue = ''
+
+    switch (field) {
+      case 'domain':
+        aValue = a.domain
+        bValue = b.domain
+        break
+      case 'requesterName':
+        aValue = a.requesterName
+        bValue = b.requesterName
+        break
+      case 'department':
+        aValue = a.department
+        bValue = b.department
+        break
+      case 'requestedAt':
+        aValue = a.requestedAt
+        bValue = b.requestedAt
+        break
+      default:
+        aValue = a.requestedAt
+        bValue = b.requestedAt
+    }
+
+    if (filters.sortOrder === 'asc') {
+      return aValue.localeCompare(bValue)
+    } else {
+      return bValue.localeCompare(aValue)
+    }
+  })
+
+  // Filter and sort renewal requests
+  const filteredRenewalRequests = renewalRequests.filter(request => {
+    const matchesSearch = request.domain.domainRequest.domain.toLowerCase().includes(filters.search.toLowerCase()) ||
+      request.user.username.toLowerCase().includes(filters.search.toLowerCase()) ||
+      request.domain.domainRequest.department.toLowerCase().includes(filters.search.toLowerCase())
+
+    const matchesStatus = filters.status === 'ALL' || request.status === filters.status
+
+    return matchesSearch && matchesStatus
+  }).sort((a, b) => {
+    const field = filters.sortBy
+    let aValue = ''
+    let bValue = ''
+
+    switch (field) {
+      case 'domain':
+        aValue = a.domain.domainRequest.domain
+        bValue = b.domain.domainRequest.domain
+        break
+      case 'requesterName':
+        aValue = a.user.username
+        bValue = b.user.username
+        break
+      case 'department':
+        aValue = a.domain.domainRequest.department
+        bValue = b.domain.domainRequest.department
+        break
+      case 'requestedAt':
+        aValue = a.requestedAt
+        bValue = b.requestedAt
+        break
+      case 'newExpiryDate':
+        aValue = a.newExpiryDate
+        bValue = b.newExpiryDate
+        break
+      default:
+        aValue = a.requestedAt
+        bValue = b.requestedAt
+    }
+
+    if (filters.sortOrder === 'asc') {
+      return aValue.localeCompare(bValue)
+    } else {
+      return bValue.localeCompare(aValue)
+    }
+  })
 
   useEffect(() => {
     if (session) {
@@ -240,96 +337,7 @@ export default function Home() {
     }
   }
 
-  // Filter and sort domain requests
-  const filteredRequests = requests.filter(request => {
-    const matchesSearch = request.domain.toLowerCase().includes(filters.search.toLowerCase()) ||
-      request.requesterName.toLowerCase().includes(filters.search.toLowerCase()) ||
-      request.department.toLowerCase().includes(filters.search.toLowerCase())
 
-    const matchesStatus = filters.status === 'ALL' || request.status === filters.status
-    const matchesDurationType = filters.durationType === 'ALL' || request.durationType === filters.durationType
-
-    return matchesSearch && matchesStatus && matchesDurationType
-  }).sort((a, b) => {
-    const field = filters.sortBy
-    let aValue = ''
-    let bValue = ''
-
-    switch (field) {
-      case 'domain':
-        aValue = a.domain
-        bValue = b.domain
-        break
-      case 'requesterName':
-        aValue = a.requesterName
-        bValue = b.requesterName
-        break
-      case 'department':
-        aValue = a.department
-        bValue = b.department
-        break
-      case 'requestedAt':
-        aValue = a.requestedAt
-        bValue = b.requestedAt
-        break
-      default:
-        aValue = a.requestedAt
-        bValue = b.requestedAt
-    }
-
-    if (filters.sortOrder === 'asc') {
-      return aValue.localeCompare(bValue)
-    } else {
-      return bValue.localeCompare(aValue)
-    }
-  })
-
-  // Filter and sort renewal requests
-  const filteredRenewalRequests = renewalRequests.filter(request => {
-    const matchesSearch = request.domain.domainRequest.domain.toLowerCase().includes(filters.search.toLowerCase()) ||
-      request.user.username.toLowerCase().includes(filters.search.toLowerCase()) ||
-      request.domain.domainRequest.department.toLowerCase().includes(filters.search.toLowerCase())
-
-    const matchesStatus = filters.status === 'ALL' || request.status === filters.status
-
-    return matchesSearch && matchesStatus
-  }).sort((a, b) => {
-    const field = filters.sortBy
-    let aValue = ''
-    let bValue = ''
-
-    switch (field) {
-      case 'domain':
-        aValue = a.domain.domainRequest.domain
-        bValue = b.domain.domainRequest.domain
-        break
-      case 'requesterName':
-        aValue = a.user.username
-        bValue = b.user.username
-        break
-      case 'department':
-        aValue = a.domain.domainRequest.department
-        bValue = b.domain.domainRequest.department
-        break
-      case 'requestedAt':
-        aValue = a.requestedAt
-        bValue = b.requestedAt
-        break
-      case 'newExpiryDate':
-        aValue = a.newExpiryDate
-        bValue = b.newExpiryDate
-        break
-      default:
-        aValue = a.requestedAt
-        bValue = b.requestedAt
-    }
-
-    if (filters.sortOrder === 'asc') {
-      return aValue.localeCompare(bValue)
-    } else {
-      return bValue.localeCompare(aValue)
-    }
-  })
 
   // Domain requests by status
   const pendingRequests = filteredRequests.filter(r => r.status === 'PENDING')
@@ -355,13 +363,7 @@ export default function Home() {
   const rejectedRenewalRequests = filteredRenewalRequests.filter(r => r.status === 'REJECTED')
 
 
-  const [filters, setFilters] = useState({
-    search: '',
-    status: 'ALL',
-    durationType: 'ALL',
-    sortBy: 'requestedAt',
-    sortOrder: 'desc'
-  })
+
 
   const [restoreData, setRestoreData] = useState({
     durationType: 'PERMANENT',
@@ -760,8 +762,7 @@ export default function Home() {
   ]
 
   const allRenewalRequests = [
-    ...pendingRenewalRequests,
-    ...rejectedRenewalRequests
+    renewalRequests
   ]
   const trashedExpired = [
     ...expiredDomains,
@@ -784,7 +785,7 @@ export default function Home() {
       : activeTab === 'domains' && activeStatus === "REJECTED" ? rejectedRequests
         : activeTab === 'domains' && activeStatus === "ACTIVE" ? activeDomains
           : activeTab === 'domains' ? allStatusRequests
-            : activeTab === 'renewals' && activeStatus === "PENDING" ? pendingRenewalRequests
+            : activeTab === 'renewals' && activeStatus === "PENDING" ? allRenewalRequests
               : activeTab === 'renewals' && activeStatus === "REJECTED" ? rejectedRenewalRequests
                 : activeTab === 'renewals' ? allRenewalRequests : trashedExpired
   return (
@@ -829,7 +830,7 @@ export default function Home() {
               >
                 <div className="flex items-center">
                   <RefreshCw className="w-4 h-4 mr-2" />
-                  คำขอต่ออายุ ({renewalRequests.length})
+                  คำขอต่ออายุ ({allRenewalRequests.length})
                 </div>
               </button>
 
@@ -1059,10 +1060,10 @@ export default function Home() {
                   <h3 className="text-sm font-semibold text-gray-700">{index + 1}</h3>
                 </div>
                 <p className="text-sm text-gray-600">
-                  <strong>{domain.domainRequest?.domain}</strong>
+                  <strong>{domain.domainRequest?.domain || domain.renewalRequests?.domain.domainRequest?.domain}</strong>
                 </p>
                 <p className="text-sm text-gray-600">
-                  <strong> {domain.domainRequest?.ipAddress}</strong>
+                  <strong> {domain.domainRequest?.ipAddress || domain.renewalRequests?.domain.domainRequest?.ipAddress}</strong>
                 </p>
                 <span
                   className={`px-2 py-1 rounded-full font-medium ${domain.status === 'ACTIVE'
