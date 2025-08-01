@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/db'
 
-export async function GET(request) {
+export async function GET() {
     try {
         // ไม่ต้อง check session สำหรับหน้าแรก - ให้ทุกคนดูได้
         const domains = await prisma.domain.findMany({
@@ -17,20 +17,7 @@ export async function GET(request) {
                         }
                     }
                 },
-                renewalRequests: {
-                    include: {
-                        user: {
-                            select: {
-                                username: true
-                            }
-                        },
-                        domain: {
-                            include: {
-                                domainRequest: true
-                            }
-                        }
-                    }
-                }
+
             },
             orderBy: {
                 domainRequest: {

@@ -59,6 +59,42 @@ export default function Home() {
   const [activeStatus, setActiveStatus] = useState('')
   const [policy, setPolicy] = useState(false); // false = ยังไม่ยอมรับ
 
+  useEffect(() => {
+    if (session) {
+      fetchMyRequests()
+      fetchMyRenewalRequests()
+    }
+  }, [session])
+
+  const fetchMyRequests = async () => {
+    try {
+      const response = await fetch('/api/my-requests')
+      if (response.ok) {
+        const data = await response.json()
+        setRequests(data)
+      }
+    } catch (error) {
+      console.error('Error fetching my requests:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchMyRenewalRequests = async () => {
+    try {
+      const response = await fetch('/api/renewal-requests:')
+      if (response.ok) {
+        const data = await response.json()
+        setRenewalRequests(data)
+      } else {
+        const errorData = await response.json()
+        console.error('Failed to fetch renewal requests:', errorData.error)
+      }
+    } catch (error) {
+      console.error('Error fetching renewal requests:', error)
+    }
+  }
+
   const handlePolicyChange = (e) => {
     setPolicy(e.target.checked);
   };
@@ -164,41 +200,7 @@ export default function Home() {
     }
   })
 
-  useEffect(() => {
-    if (session) {
-      fetchMyRequests()
-      fetchMyRenewalRequests()
-    }
-  }, [session])
 
-  const fetchMyRequests = async () => {
-    try {
-      const response = await fetch('/api/my-requests')
-      if (response.ok) {
-        const data = await response.json()
-        setRequests(data)
-      }
-    } catch (error) {
-      console.error('Error fetching my requests:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const fetchMyRenewalRequests = async () => {
-    try {
-      const response = await fetch('/api/renewal-requests?my=true')
-      if (response.ok) {
-        const data = await response.json()
-        setRenewalRequests(data)
-      } else {
-        const errorData = await response.json()
-        console.error('Failed to fetch renewal requests:', errorData.error)
-      }
-    } catch (error) {
-      console.error('Error fetching renewal requests:', error)
-    }
-  }
 
   const handleDeleteRequest = async (requestId) => {
     const request = requests.find(r => r.id === requestId)
@@ -761,16 +763,15 @@ export default function Home() {
     ...rejectedRequests
   ]
 
-  const allRenewalRequests = [
-    renewalRequests
-  ]
+  const allRenewalRequests = renewalRequests
+
   const trashedExpired = [
     ...expiredDomains,
     ...trashedDomains
   ]
   const tab = activeTab === 'trashedExpired' ? trashedExpired : activeTab === 'renewals' ? allRenewalRequests : allStatusRequests
 
-  const P = activeTab === "domains" ? pendingRequests : pendingRenewalRequests
+  const P = activeTab === "domains" ? pendingRequests : allRenewalRequests
   const A = activeTab === "domains" ? activeDomains : []
   const R = activeTab === "domains" ? rejectedRequests : rejectedRenewalRequests
   const t = activeTab === "domains" ? "" : "การต่ออายุ"
@@ -787,7 +788,9 @@ export default function Home() {
           : activeTab === 'domains' ? allStatusRequests
             : activeTab === 'renewals' && activeStatus === "PENDING" ? allRenewalRequests
               : activeTab === 'renewals' && activeStatus === "REJECTED" ? rejectedRenewalRequests
-                : activeTab === 'renewals' ? allRenewalRequests : trashedExpired
+                : activeTab === 'renewals' ? allRenewalRequests : trashedExpired;
+
+  console.log('statusFilter:', statusFilter)
   return (
 
     <div>
@@ -1060,10 +1063,10 @@ export default function Home() {
                   <h3 className="text-sm font-semibold text-gray-700">{index + 1}</h3>
                 </div>
                 <p className="text-sm text-gray-600">
-                  <strong>{domain.domainRequest?.domain || domain.renewalRequests?.domain.domainRequest?.domain}</strong>
+                  <strong>{domain.domainRequest?.domain}</strong>
                 </p>
                 <p className="text-sm text-gray-600">
-                  <strong> {domain.domainRequest?.ipAddress || domain.renewalRequests?.domain.domainRequest?.ipAddress}</strong>
+                  <strong> {domain.domainRequest?.ipAddress}</strong>
                 </p>
                 <span
                   className={`px-2 py-1 rounded-full font-medium ${domain.status === 'ACTIVE'
