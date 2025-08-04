@@ -1,134 +1,152 @@
-import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/lib/auth'
-import prisma from '@/lib/db'
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+import prisma from '@/lib/db';
 
 export async function PUT(request, { params }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { action } = await request.json()
-    const renewalRequestId = params.id
+    const body = await request.json();
+    const { action } = body;
+    const renewalRequestId = params.id;
 
-    // Get the renewal request
+    if (!['approve', 'reject'].includes(action)) {
+      return NextResponse.json({ error: 'Action ต้องเป็น approve หรือ reject เท่านั้น' }, { status: 400 });
+    }
+
     const renewalRequest = await prisma.renewalRequest.findUnique({
       where: { id: renewalRequestId },
       include: {
         domain: {
           include: {
-            domainRequest: true
-          }
-        }
-      }
-    })
+            domainRequest: true,
+          },
+        },
+      },
+    });
 
     if (!renewalRequest) {
-      return NextResponse.json({ error: 'Renewal request not found' }, { status: 404 })
+      return NextResponse.json({ error: 'ไม่พบคำขอต่ออายุ' }, { status: 404 });
     }
 
     if (action === 'approve') {
-      // Update renewal request status
+      if (!renewalRequest.newExpiryDate) {
+        return NextResponse.json({ error: 'ไม่พบวันหมดอายุใหม่ในคำขอ' }, { status: 400 });
+      }
+
+      // อัปเดตสถานะเป็น APPROVED
       await prisma.renewalRequest.update({
         where: { id: renewalRequestId },
         data: {
           status: 'APPROVED',
-          approvalCooldownAt: new Date(Date.now() + 60 * 60 * 1000) // 1 hour cooldown
-        }
-      })
+          approvalCooldownAt: new Date(Date.now() + 60 * 60 * 1000), // 1 ชั่วโมง
+        },
+      });
 
-      // Update domain expiry date
+      // อัปเดตวันหมดอายุของ domain
       await prisma.domainRequest.update({
         where: { id: renewalRequest.domain.domainRequestId },
         data: {
-          expiresAt: new Date(renewalRequest.newExpiryDate)
-        }
-      })
+          expiresAt: new Date(renewalRequest.newExpiryDate),
+        },
+      });
 
-      // If domain was expired or trashed, make it active again
+      // คืนสถานะ ACTIVE ให้ domain ถ้าเคยถูกลบหรือย้ายถังขยะ
       await prisma.domain.update({
         where: { id: renewalRequest.domainId },
         data: {
           status: 'ACTIVE',
           deletedAt: null,
-          trashExpiresAt: null
-        }
-      })
-
-      return NextResponse.json({
-        message: 'Renewal request approved successfully',
-        action: 'approved'
-      })
+          trashExpiresAt: null,
+        },
+      });
 
     } else if (action === 'reject') {
-      // Update renewal request status
       await prisma.renewalRequest.update({
         where: { id: renewalRequestId },
         data: {
           status: 'REJECTED',
-          approvalCooldownAt: new Date(Date.now() + 60 * 60 * 1000) // 1 hour cooldown
-        }
-      })
-
-      return NextResponse.json({
-        message: 'Renewal request rejected successfully',
-        action: 'rejected'
-      })
-
-    } else {
-      return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
+          approvalCooldownAt: new Date(Date.now() + 60 * 60 * 1000), // 1 ชั่วโมง
+        },
+      });
     }
 
+    // ดึงข้อมูลล่าสุดกลับไป
+    const updatedRequest = await prisma.renewalRequest.findUnique({
+      where: { id: renewalRequestId },
+      include: {
+        user: { select: { username: true } },
+        domain: {
+          include: {
+            domainRequest: {
+              select: {
+                domain: true,
+                durationType: true,
+                expiresAt: true,
+                requesterName: true,
+                department: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({
+      message: `Renewal request ${action}ed successfully`,
+      action,
+      data: updatedRequest,
+    });
+
   } catch (error) {
-    console.error('Error processing renewal request:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Error processing renewal request:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function DELETE(request, { params }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const renewalRequestId = params.id
+    const renewalRequestId = params.id;
 
-    // Get the renewal request to check ownership
     const renewalRequest = await prisma.renewalRequest.findUnique({
-      where: { id: renewalRequestId }
-    })
+      where: { id: renewalRequestId },
+    });
 
     if (!renewalRequest) {
-      return NextResponse.json({ error: 'Renewal request not found' }, { status: 404 })
+      return NextResponse.json({ error: 'ไม่พบคำขอต่ออายุ' }, { status: 404 });
     }
 
-    // Check if user has permission to delete this request
     if (session.user.role !== 'ADMIN' && renewalRequest.userId !== session.user.id) {
-      return NextResponse.json({ error: 'ไม่มีสิทธิ์ลบคำขอนี้' }, { status: 403 })
+      return NextResponse.json({ error: 'ไม่มีสิทธิ์ลบคำขอนี้' }, { status: 403 });
     }
 
-    // Only allow deletion of pending requests
     if (renewalRequest.status !== 'PENDING') {
-      return NextResponse.json({ error: 'สามารถลบได้เฉพาะคำขอที่ยังรอพิจารณา' }, { status: 400 })
+      return NextResponse.json({ error: 'สามารถลบได้เฉพาะคำขอที่ยังรอพิจารณา' }, { status: 400 });
     }
 
-    // Delete the renewal request
     await prisma.renewalRequest.delete({
-      where: { id: renewalRequestId }
-    })
+      where: { id: renewalRequestId },
+    });
 
     return NextResponse.json({
       message: 'ลบคำขอต่ออายุสำเร็จ',
-      action: 'deleted'
-    })
+      action: 'deleted',
+      id: renewalRequestId,
+    });
 
   } catch (error) {
-    console.error('Error deleting renewal request:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Error deleting renewal request:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

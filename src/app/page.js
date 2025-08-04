@@ -101,18 +101,33 @@ export default function Home() {
 
   const fetchMyRenewalRequests = async () => {
     try {
-      const response = await fetch('/api/renewal-requests?my=true')
-      if (response.ok) {
-        const data = await response.json()
-        setRenewalRequests(data)
-      } else {
-        const errorData = await response.json()
-        console.error('Failed to fetch renewal requests:', errorData.error)
+      const response = await fetch('/api/renewal-requests?my=true');
+      const text = await response.text();
+
+      if (!response.ok) {
+        let errorData;
+        try {
+          errorData = JSON.parse(text);
+        } catch {
+          errorData = { error: text || 'Unknown error' };
+        }
+        console.error('Failed to fetch renewal requests:', errorData.error);
+        return;
       }
+
+      if (!text) {
+        console.error('Response body is empty');
+        return;
+      }
+
+      const data = JSON.parse(text);
+      setRenewalRequests(data);
     } catch (error) {
-      console.error('Error fetching renewal requests:', error)
+      console.error('Error fetching renewal requests:', error);
     }
   }
+
+
 
   const handlePolicyChange = (e) => {
     setPolicy(e.target.checked);
@@ -1082,10 +1097,10 @@ export default function Home() {
                   <h3 className="text-sm font-semibold text-gray-700">{index + 1}</h3>
                 </div>
                 <p className="text-sm text-gray-600">
-                  <strong>{domain.domainRequest?.domain}</strong>
+                  <strong>{domain.domainRequest?.domain || domain.domain?.domainRequest?.domain}</strong>
                 </p>
                 <p className="text-sm text-gray-600">
-                  <strong> {domain.domainRequest?.ipAddress}</strong>
+                  <strong> {domain.domainRequest?.ipAddress || domain.domain?.domainRequest?.ipAddress}</strong>
                 </p>
                 <span
                   className={`px-2 py-1 rounded-full font-medium ${domain.status === 'ACTIVE'
