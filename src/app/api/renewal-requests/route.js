@@ -19,7 +19,7 @@ export async function GET(request) {
     let whereClause = {};
 
     if (!isAdmin && my) {
-      // กรองเฉพาะของ user เอง และ domainId ต้องไม่เป็น null
+      // กรองเฉพาะของ user เอง 
       whereClause = {
         userId
       };

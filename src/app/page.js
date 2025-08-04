@@ -440,20 +440,6 @@ export default function Home() {
     durationType: 'PERMANENT',
     expiresAt: ''
   })
-
-  useEffect(() => {
-    fetchDomains()
-  }, [])
-
-  useEffect(() => {
-    if (requestData.machineAdminType !== 'MachineAdmin') {
-      handleRequestDataChange('machineAdminName', requestData.requesterName);
-      handleRequestDataChange('machineAdminPosition', requestData.department);
-      handleRequestDataChange('machineAdminContact', requestData.contact);
-      handleRequestDataChange('machineAdminContactType', requestData.contactType);
-    }
-  }, [requestData.machineAdminType])
-
   const fetchDomains = async () => {
     try {
       const response = await fetch('/api/domains')
@@ -469,6 +455,21 @@ export default function Home() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    fetchDomains()
+  }, [])
+
+  useEffect(() => {
+    if (requestData.machineAdminType !== 'MachineAdmin') {
+      handleRequestDataChange('machineAdminName', requestData.requesterName);
+      handleRequestDataChange('machineAdminPosition', requestData.department);
+      handleRequestDataChange('machineAdminContact', requestData.contact);
+      handleRequestDataChange('machineAdminContactType', requestData.contactType);
+    }
+  }, [requestData.machineAdminType])
+
+
   const handleDeleteDomain = async (domainId, domainName, isInTrash) => {
     const confirmMessage = isInTrash
       ? `คุณแน่ใจหรือไม่ที่จะลบโดเมน "${domainName}" ถาวร? การดำเนินการนี้ไม่สามารถยกเลิกได้!`
