@@ -53,6 +53,7 @@ export default function Home() {
   const [showRestoreModal, setShowRestoreModal] = useState(false)
   const [showRenewalModal, setShowRenewalModal] = useState(false)
   const [showRequestModal, setShowRequestModal] = useState(false)
+  const [showDetailModal, setshowDetailModal] = useState(false)
   const [selectedDomain, setSelectedDomain] = useState(null)
   const [requests, setRequests] = useState([])
   const [renewalRequests, setRenewalRequests] = useState([])
@@ -1093,6 +1094,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="grid grid-cols-1  border border-gray-300 rounded-lg p-4 shadow-sm  hover:shadow-md transition md:grid-cols-4"
+                onClick={() => setshowDetailModal(true)}
               >
                 <div className="items-center justify-center ">
                   <h3 className="text-sm font-semibold text-gray-700">{index + 1}</h3>
