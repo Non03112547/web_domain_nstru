@@ -135,7 +135,8 @@ async function main() {
         }
     })
 
-    // 🔄 Renewal Requests
+    // 🔄 Renewal Requests — แก้ไข: มีแค่ 1 คำขอที่เป็น PENDING หรือ APPROVED เท่านั้น
+    // เอาเฉพาะคำขอ PENDING อันเดียวไว้ (หรือจะเลือกอัน APPROVED ก็ได้)
     await prisma.renewalRequest.create({
         data: {
             domainId: expiredDomain.id,
@@ -146,27 +147,7 @@ async function main() {
         }
     })
 
-    await prisma.renewalRequest.create({
-        data: {
-            domainId: expiredDomain.id,
-            newExpiryDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
-            reason: 'ต่ออายุอีกครั้ง',
-            status: 'APPROVED',
-            approvalCooldownAt: new Date(Date.now() + 60 * 60 * 1000),
-            userId: user01.id
-        }
-    })
-
-    await prisma.renewalRequest.create({
-        data: {
-            domainId: expiredDomain.id,
-            newExpiryDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000),
-            reason: 'ขอต่อยาว',
-            status: 'REJECTED',
-            approvalCooldownAt: new Date(Date.now() + 60 * 60 * 1000),
-            userId: user01.id
-        }
-    })
+    // คำขอ APPROVED กับ REJECTED เอาออก (ถ้าต้องการแค่ 1 request ที่ยังไม่ปฏิเสธ)
 
     // 🗑️ โดเมนในถังขยะ
     const trashedRequest = await prisma.domainRequest.create({
