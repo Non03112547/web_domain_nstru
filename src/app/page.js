@@ -993,14 +993,15 @@ export default function Home() {
               แสดงผล ค้นหา: สถานะ: ประเภท:
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
 
+          <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
             <div className="grid grid-cols-1 gap-2 md:grid-cols-5">
               {/* Search */}
               <h3 className="text-base font-semibold text-gray-900 flex items-center">
                 <Filter className="w-8 h-8 mr-2 text-blue-600" />
                 กรองข้อมูล
               </h3>
+
               <div>
                 <label className="text-sm font-semibold text-gray-700 mb-1 flex items-center">
                   <Search className="w-4 h-4 mr-1" />
@@ -1008,7 +1009,7 @@ export default function Home() {
                 </label>
                 <input
                   type="text"
-                  value=""
+                  value={filters.search}
                   placeholder="ชื่อโดเมน, ผู้ขอ, หน่วยงาน..."
                   className="w-full px-3 py-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
@@ -1022,7 +1023,7 @@ export default function Home() {
                   ประเภท
                 </label>
                 <select
-                  value=""
+                  value={filters.durationType}
                   className="w-full px-3 py-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   onChange={(e) => setFilters(prev => ({ ...prev, durationType: e.target.value }))}
                 >
@@ -1039,7 +1040,7 @@ export default function Home() {
                   เรียงตาม
                 </label>
                 <select
-                  value=""
+                  value={filters.sortBy}
                   className="w-full px-3 py-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
                 >
@@ -1055,7 +1056,7 @@ export default function Home() {
               <div>
                 <label className="text-sm font-semibold text-gray-700 mb-1">ลำดับ</label>
                 <select
-                  value=""
+                  value={filters.sortOrder}
                   className="w-full px-3 py-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   onChange={(e) => setFilters(prev => ({ ...prev, sortOrder: e.target.value }))}
                 >
@@ -1064,7 +1065,6 @@ export default function Home() {
                 </select>
               </div>
             </div>
-
           </div>
         </div>
 
