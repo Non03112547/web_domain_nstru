@@ -82,7 +82,7 @@ export default function Home() {
 
   const fetchMyRenewalRequests = async () => {
     try {
-      const response = await fetch('/api/renewal-requests:')
+      const response = await fetch('/api/renewal-requests?my=true')
       if (response.ok) {
         const data = await response.json()
         setRenewalRequests(data)
