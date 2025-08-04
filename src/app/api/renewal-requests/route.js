@@ -19,12 +19,9 @@ export async function GET(request) {
     let whereClause = {};
 
     if (!isAdmin && my) {
-      // กรองเฉพาะของ user เอง และ domainId ไม่เป็น null
+      // กรองเฉพาะของ user เอง และ domainId ต้องไม่เป็น null
       whereClause = {
-        userId,
-        domainId: {
-          not: null
-        },
+        userId
       };
     }
 
@@ -33,7 +30,7 @@ export async function GET(request) {
       include: {
         domain: {
           include: {
-            domainRequest: true, // หรือเลือก fields ที่ต้องการ
+            domainRequest: true,
           }
         },
         user: {
@@ -46,8 +43,6 @@ export async function GET(request) {
         requestedAt: "desc"
       }
     });
-
-
 
     return NextResponse.json(renewalRequests);
   } catch (error) {
