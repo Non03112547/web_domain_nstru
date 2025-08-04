@@ -59,6 +59,25 @@ export default function Home() {
   const [activeStatus, setActiveStatus] = useState('')
   const [policy, setPolicy] = useState(false); // false = ยังไม่ยอมรับ
 
+  const fetchRenewalRequests = async () => {
+    try {
+      const isAdmin = session?.user?.role === 'ADMIN'; // หรือดึงจาก context / state
+      const url = isAdmin
+        ? '/api/renewal-requests'         // ✅ admin เห็นทั้งหมด
+        : '/api/renewal-requests?my=true'; // ✅ user เห็นเฉพาะของตัวเอง
+
+      const response = await fetch(url);
+      if (response.ok) {
+        const data = await response.json();
+        setRenewalRequests(data);
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to fetch:', errorData.error);
+      }
+    } catch (err) {
+      console.error('Error fetching:', err);
+    }
+  }
   useEffect(() => {
     if (session) {
       fetchMyRequests()
