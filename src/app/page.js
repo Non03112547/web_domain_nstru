@@ -53,7 +53,7 @@ export default function Home() {
   const [showRestoreModal, setShowRestoreModal] = useState(false)
   const [showRenewalModal, setShowRenewalModal] = useState(false)
   const [showRequestModal, setShowRequestModal] = useState(false)
-  const [showDetailModal, setshowDetailModal] = useState(false)
+  const [showDetailModal, setShowDetailModal] = useState(false)
   const [selectedDomain, setSelectedDomain] = useState(null)
   const [requests, setRequests] = useState([])
   const [renewalRequests, setRenewalRequests] = useState([])
@@ -516,6 +516,15 @@ export default function Home() {
         : ''
     })
     setShowRestoreModal(true)
+  }
+
+  const handleSelect = async (domainId, domainName) => {
+    const domain = domains.find(d => d.id === domainId)
+    if (!domain) {
+      alert('ไม่พบโดเมนที่ต้องการเลือก')
+      return
+    }
+    setSelectedDomain(domain)
   }
 
   const handleRestoreSubmit = async () => {
@@ -1087,14 +1096,14 @@ export default function Home() {
           </div>
 
 
-          <div className="grid grid-col-1 gap-4 mx-4 text-center">
+          <div className="grid grid-cols-1 gap-4 mx-4 text-center">
             {statusFilter.map((domain, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="grid grid-cols-1  border border-gray-300 rounded-lg p-4 shadow-sm  hover:shadow-md transition md:grid-cols-4"
-                onClick={() => setshowDetailModal(true)}
+                onClick={() => { setShowDetailModal(true); setSelectedDomain(domain); }}
               >
                 <div className="items-center justify-center ">
                   <h3 className="text-sm font-semibold text-gray-700">{index + 1}</h3>
@@ -1618,6 +1627,84 @@ export default function Home() {
           </div>
         </div>
       )}
+      {/*show detail model */}
+      {showDetailModal && selectedDomain && (() => {
+        const domainData = selectedDomain.domainRequest || selectedDomain.domain?.domainRequest;
+        return (
+          < div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+              <h1 className="text-xl font-semibold text-gray-900 mb-4">
+                <strong>รายการโดเมน ที่</strong>
+              </h1>
+              <div className="space-y-4">
+                <h2 ><strong>ข้อมูลโดเมน</strong></h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <p><strong>ชื่อโดเมน:</strong><p className="inline text-blue-500">{domainData?.domain || '-'}</p></p>
+                  <p><strong>IP Address:</strong><p className="inline text-blue-500"> {domainData?.ipAddress || '-'}</p></p>
+                  <p><strong>ประเภทเครื่อง:</strong><p className="inline text-blue-500"> {domainData?.machineType || '-'}</p></p>
+                  <p><strong>ระบบปฏิบัติการ:</strong><p className="inline text-blue-500"> {domainData?.OS || '-'}</p></p>
+                  <p><strong>ประเภทเครื่อง:</strong><p className="inline text-blue-500"> {domainData?.machineAdminType || '-'}</p></p>
+                </div>
+
+                <hr className="my-4" />
+                <h2 ><strong>ข้อมูลผู้ขอและผู้รับผิดชอบ</strong></h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <p><strong>ชื่อผู้ขอ:</strong><p className="inline text-blue-500"> {domainData?.requesterName || '-'}</p></p>
+                  <p><strong>ชื่อผู้รับผิดชอบ:</strong><p className="inline text-blue-500"> {domainData?.responsibleName || '-'}</p></p>
+                  <p><strong>ข้อมูลติดต่อผู้ขอ:</strong><p className="inline text-blue-500"> {domainData?.contact || '-'}</p></p>
+                  <p><strong>ข้อมูลติดต่อผู้รับผิดชอบ:</strong><p className="inline text-blue-500"> {domainData?.responsibleContact || '-'}</p></p>
+                  <p><strong>ภาควิชา/ฝ่าย/แผนก:</strong><p className="inline text-blue-500"> {domainData?.department || '-'}</p></p>
+                  <p><strong>คณะ/สำนัก/สถาบัน/กอง:</strong><p className="inline text-blue-500"> {domainData?.institution || '-'}</p></p>
+                </div>
+
+                <hr className="my-4" />
+                <h2 ><strong>ที่ตั้งเครื่อง</strong></h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <p><strong>อาคาร:</strong><p className="inline text-blue-500">  {domainData?.machinePlace || '-'}</p></p>
+                  <p><strong>ห้อง:</strong><p className="inline text-blue-500">  {domainData?.machineRoom || '-'}</p></p>
+                </div>
+
+                <hr className="my-4" />
+                <h2 ><strong>ผู้ดูแลเครื่อง</strong></h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <p><strong>ผู้ดูแลเครื่อง:</strong><p className="inline text-blue-500">  {domainData?.machineAdminType || '-'}</p></p>
+                  <p><strong>ชื่อผู้ดูแลเครื่อง:</strong><p className="inline text-blue-500">  {domainData?.machineAdminName || '-'}</p></p>
+                  <p><strong>ตำแหน่ง:</strong><p className="inline text-blue-500">  {domainData?.machineAdminPosition || '-'}</p></p>
+                  <p><strong>ช่องทางติดต่อ:</strong><p className="inline text-blue-500">  {domainData?.machineAdminContact || '-'}</p></p>
+                </div>
+
+                <hr className="my-4" />
+                <h2 ><strong>วัตถุประสงค์</strong></h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <p><strong>คุณสมบัติ:</strong><p className="inline text-blue-500">  {domainData?.property || '-'}</p></p>
+                  <p><strong>การใช้งาน:</strong><p className="inline text-blue-500">  {domainData?.useType || '-'}</p></p>
+                  <p><strong>รายละเอียด:</strong><p className="inline text-blue-500">  {domainData?.purpose || '-'}</p></p>
+                </div>
+
+                <hr className="my-4" />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <p><strong>วันที่ขอ:</strong> {domainData?.requestedAt ? new Date(domainData.requestedAt).toLocaleString() : '-'}</p>
+                  <p><strong>ระยะเวลาใช้งาน:</strong> {domainData?.durationType || '-'}</p>
+                  <p><strong>วันหมดอายุ:</strong> {domainData?.expiresAt ? new Date(domainData.expiresAt).toLocaleDateString() : '-'}</p>
+                  <p><strong>สถานะ:</strong> {domainData?.status || '-'}</p>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  onClick={() => setShowDetailModal(false)}
+                  className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
+                >
+                  ยกเลิก
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )
+      })()}
+
     </div >
   );
 }

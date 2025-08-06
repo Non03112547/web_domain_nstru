@@ -30,6 +30,7 @@ export async function POST(request, { params })
                 domain_record: true
             }
         })
+    
 
         if (!domainRequest) {
             return NextResponse.json({ error: 'Domain request not found' }, { status: 404 })
