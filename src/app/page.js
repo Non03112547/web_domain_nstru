@@ -653,7 +653,7 @@ export default function Home() {
 
   const handleRequestSubmit = async () => {
     const {
-      domain, ipAddress, machineType, OS,
+      domain, machineType, OS,
       requesterName, responsibleName, department, institution, contact, responsibleContact,
       machineRoom, machinePlace,
       property, useType, durationType, expiresAt
@@ -1189,6 +1189,7 @@ export default function Home() {
                       value={requestData.machineType}
                       onChange={(e) => handleRequestDataChange('machineType', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value=" " >--เลือก--</option>
                       <option>PC/Mac</option>
                       <option>Unix Workstation</option>
                       <option value="other"> อื่นๆ </option>
@@ -1211,6 +1212,7 @@ export default function Home() {
                       value={requestData.OS}
                       onChange={(e) => handleRequestDataChange('OS', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value=" " >--เลือก--</option>
                       <option>Linux</option>
                       <option>Unix</option>
                       <option>MS Windows</option>
@@ -1241,7 +1243,7 @@ export default function Home() {
                     value={requestData.property}
                     onChange={(e) => handleRequestDataChange('property', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-
+                    <option value="" >--เลือก--</option>
                     <option value="InNSTRU">ใช้งานเฉพาะเครือข่ายภายในมหาวิทยาลัยราชภัฏนครศรีธรรมราช (Intranet)</option>
                     <option value="InOutNSTRU">ใช้งานเฉพาะเครือข่ายภายในและภายนอกมหาวิทยาลัยราชภัฏนครศรีธรรมราช</option>
                   </select>
@@ -1252,7 +1254,7 @@ export default function Home() {
                     value={requestData.useType}
                     onChange={(e) => handleRequestDataChange('useType', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-
+                    <option value="" >--เลือก--</option>
                     <option value="NoSever" >ใช้ทั่วไปโดยไม่ได้เป็นเซอร์ฟเวอร์</option>
                     <option value="Sever">ใช้เป็นเซอร์ฟเวอร์ให้บริการ (โปรดระบุ) </option>
                   </select>
@@ -1349,7 +1351,7 @@ export default function Home() {
 
                         // ตรวจสอบว่าเป็นตัวเลขอย่างเดียวหรือไม่
                         const isPhone = /^[0-9\s\-+()]+$/.test(value);
-                        const responsiblecontactType = isPhone ? 'PHONE' : 'EMAIL';
+                        const responsibleContactType = isPhone ? 'PHONE' : 'EMAIL';
 
                         // อัปเดต contactType อัตโนมัติ
                         handleRequestDataChange('responsibleContactType', responsibleContactType);
@@ -1433,6 +1435,7 @@ export default function Home() {
                     onChange={(e) => handleRequestDataChange('machineAdminType', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
+                    <option value=" " >--เลือก--</option>
                     <option value="requester">บุคคลเดียวกับผู้ขอจดทะเบียน</option>
                     <option value="MachineAdmin">มีผู้ดูแลเครื่องโดยเฉพาะคือ</option>
                   </select>
@@ -1549,7 +1552,6 @@ export default function Home() {
                   <button
                     onClick={() => {
                       handleRequestSubmit();
-                      window.location.reload();
                     }}
                     className="px-4 py-2 btn-emerald rounded-lg transition-colors"
                   >
