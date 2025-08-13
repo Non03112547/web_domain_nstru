@@ -4,6 +4,12 @@ import React, { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { motion } from 'framer-motion'
 import {
+  ClipboardList,
+  UserRound,
+  ShieldUser,
+  HardDrive,
+  Flag,
+  FileChartColumn,
   Globe,
   Clock,
   Trash2,
@@ -443,19 +449,26 @@ export default function Home() {
   })
   const fetchDomains = async () => {
     try {
-      const response = await fetch('/api/domains')
+      const response = await fetch('/api/domains');
+
       if (response.ok) {
-        const data = await response.json()
-        setDomains(data)
+        const data = await response.json();
+        setDomains(data);
+      } else if (response.status === 401) {
+        alert('คุณยังไม่ได้เข้าสู่ระบบ กรุณาเข้าสู่ระบบก่อน');
+        // หรือ redirect ไปหน้า login ก็ได้ เช่น:
+        // window.location.href = '/auth/login';
+      } else if (response.status === 403) {
+        alert('คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้');
       } else {
-        console.error('API Error:', response.status, response.statusText)
+        console.error('API Error:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('Fetch Error:', error)
+      console.error('Fetch Error:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     fetchDomains()
@@ -1109,18 +1122,18 @@ export default function Home() {
                   <h3 className="text-sm font-semibold text-gray-700">{index + 1}</h3>
                 </div>
                 <p className="text-sm text-gray-600">
-                  <strong>{domain.domainRequest?.domain || domain.domain?.domainRequest?.domain}</strong>
+                  <strong>{domain.domainRequest?.domain || domain.domain?.domainRequest?.domain || domain.domain || "-"}</strong>
                 </p>
                 <p className="text-sm text-gray-600">
-                  <strong> {domain.domainRequest?.ipAddress || domain.domain?.domainRequest?.ipAddress}</strong>
+                  <strong> {domain.domainRequest?.ipAddress || domain.domain?.domainRequest?.ipAddress || domain.ipAddress || "-"}</strong>
                 </p>
                 <span
                   className={`px-2 py-1 rounded-full font-medium ${domain.status === 'ACTIVE'
                     ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
+                    : domain.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
                     }`}
                 >
-                  {domain.status === 'ACTIVE' ? 'ใช้งานอยู่' : 'ไม่ใช้งาน'}
+                  {domain.status === 'ACTIVE' ? 'ใช้งานอยู่' : domain.status === 'PENDING' ? 'รอการอนุมัติ' : 'ไม่ใช้งาน'}
                 </span>
               </motion.div>
             ))}
@@ -1629,79 +1642,124 @@ export default function Home() {
       )}
       {/*show detail model */}
       {showDetailModal && selectedDomain && (() => {
-        const domainData = selectedDomain.domainRequest || selectedDomain.domain?.domainRequest;
+        const domainData = selectedDomain.domainRequest || selectedDomain.domain?.domainRequest || selectedDomain;
         return (
-          < div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-              <h1 className="text-xl font-semibold text-gray-900 mb-4">
-                <strong>รายการโดเมน ที่</strong>
-              </h1>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900 mb-4">
+                  <strong>รายการโดเมน</strong>
+                </h1>
+              </div>
               <div className="space-y-4">
-                <h2 ><strong>ข้อมูลโดเมน</strong></h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <p><strong>ชื่อโดเมน:</strong><p className="inline text-blue-500">{domainData?.domain || '-'}</p></p>
-                  <p><strong>IP Address:</strong><p className="inline text-blue-500"> {domainData?.ipAddress || '-'}</p></p>
-                  <p><strong>ประเภทเครื่อง:</strong><p className="inline text-blue-500"> {domainData?.machineType || '-'}</p></p>
-                  <p><strong>ระบบปฏิบัติการ:</strong><p className="inline text-blue-500"> {domainData?.OS || '-'}</p></p>
-                  <p><strong>ประเภทเครื่อง:</strong><p className="inline text-blue-500"> {domainData?.machineAdminType || '-'}</p></p>
-                </div>
 
-                <hr className="my-4" />
-                <h2 ><strong>ข้อมูลผู้ขอและผู้รับผิดชอบ</strong></h2>
+                {/* ข้อมูลโดเมน */}
+                <h2 className='flex items-center gap-2'><ClipboardList /><strong> ข้อมูลโดเมน</strong></h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <p><strong>ชื่อผู้ขอ:</strong><p className="inline text-blue-500"> {domainData?.requesterName || '-'}</p></p>
-                  <p><strong>ชื่อผู้รับผิดชอบ:</strong><p className="inline text-blue-500"> {domainData?.responsibleName || '-'}</p></p>
-                  <p><strong>ข้อมูลติดต่อผู้ขอ:</strong><p className="inline text-blue-500"> {domainData?.contact || '-'}</p></p>
-                  <p><strong>ข้อมูลติดต่อผู้รับผิดชอบ:</strong><p className="inline text-blue-500"> {domainData?.responsibleContact || '-'}</p></p>
-                  <p><strong>ภาควิชา/ฝ่าย/แผนก:</strong><p className="inline text-blue-500"> {domainData?.department || '-'}</p></p>
-                  <p><strong>คณะ/สำนัก/สถาบัน/กอง:</strong><p className="inline text-blue-500"> {domainData?.institution || '-'}</p></p>
-                </div>
-
-                <hr className="my-4" />
-                <h2 ><strong>ที่ตั้งเครื่อง</strong></h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <p><strong>อาคาร:</strong><p className="inline text-blue-500">  {domainData?.machinePlace || '-'}</p></p>
-                  <p><strong>ห้อง:</strong><p className="inline text-blue-500">  {domainData?.machineRoom || '-'}</p></p>
-                </div>
-
-                <hr className="my-4" />
-                <h2 ><strong>ผู้ดูแลเครื่อง</strong></h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <p><strong>ผู้ดูแลเครื่อง:</strong><p className="inline text-blue-500">  {domainData?.machineAdminType || '-'}</p></p>
-                  <p><strong>ชื่อผู้ดูแลเครื่อง:</strong><p className="inline text-blue-500">  {domainData?.machineAdminName || '-'}</p></p>
-                  <p><strong>ตำแหน่ง:</strong><p className="inline text-blue-500">  {domainData?.machineAdminPosition || '-'}</p></p>
-                  <p><strong>ช่องทางติดต่อ:</strong><p className="inline text-blue-500">  {domainData?.machineAdminContact || '-'}</p></p>
-                </div>
-
-                <hr className="my-4" />
-                <h2 ><strong>วัตถุประสงค์</strong></h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <p><strong>คุณสมบัติ:</strong><p className="inline text-blue-500">  {domainData?.property || '-'}</p></p>
-                  <p><strong>การใช้งาน:</strong><p className="inline text-blue-500">  {domainData?.useType || '-'}</p></p>
-                  <p><strong>รายละเอียด:</strong><p className="inline text-blue-500">  {domainData?.purpose || '-'}</p></p>
+                  <div><strong>ชื่อโดเมน:</strong> <span className="text-blue-500">{domainData?.domain || '-'}</span></div>
+                  <div><strong>IP Address:</strong> <span className="text-blue-500">{domainData?.ipAddress || '-'}</span></div>
+                  <div><strong>ระบบปฏิบัติการ:</strong> <span className="text-blue-500">{domainData?.OS || '-'}</span></div>
                 </div>
 
                 <hr className="my-4" />
 
+                {/* ข้อมูลผู้ขอและผู้รับผิดชอบ */}
+                <h2 className='flex items-center gap-2'><UserRound /><strong> ข้อมูลผู้ขอและผู้รับผิดชอบ</strong></h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <p><strong>วันที่ขอ:</strong> {domainData?.requestedAt ? new Date(domainData.requestedAt).toLocaleString() : '-'}</p>
-                  <p><strong>ระยะเวลาใช้งาน:</strong> {domainData?.durationType || '-'}</p>
-                  <p><strong>วันหมดอายุ:</strong> {domainData?.expiresAt ? new Date(domainData.expiresAt).toLocaleDateString() : '-'}</p>
-                  <p><strong>สถานะ:</strong> {domainData?.status || '-'}</p>
+                  <div><strong>ชื่อผู้ขอ:</strong> <span className="text-blue-500">{domainData?.requesterName || '-'}</span></div>
+                  <div><strong>ชื่อผู้รับผิดชอบ:</strong> <span className="text-blue-500">{domainData?.responsibleName || '-'}</span></div>
+                  <div><strong>ข้อมูลติดต่อผู้ขอ:</strong> <span className="text-blue-500">{domainData?.contact || '-'}</span></div>
+                  <div><strong>ข้อมูลติดต่อผู้รับผิดชอบ:</strong> <span className="text-blue-500">{domainData?.responsibleContact || '-'}</span></div>
+                  <div><strong>ภาควิชา/ฝ่าย/แผนก:</strong> <span className="text-blue-500">{domainData?.department || '-'}</span></div>
+                  <div><strong>คณะ/สำนัก/สถาบัน/กอง:</strong> <span className="text-blue-500">{domainData?.institution || '-'}</span></div>
+                </div>
+
+                <hr className="my-4" />
+
+                {/* ที่ตั้งเครื่อง */}
+                <h2 className='flex items-center gap-2'><HardDrive /><strong> ที่ตั้งเครื่อง</strong></h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><strong>อาคาร:</strong> <span className="text-blue-500">{domainData?.machinePlace || '-'}</span></div>
+                  <div><strong>ห้อง:</strong> <span className="text-blue-500">{domainData?.machineRoom || '-'}</span></div>
+                </div>
+
+                <hr className="my-4" />
+
+                {/* ผู้ดูแลเครื่อง */}
+                <h2 className='flex items-center gap-2'><ShieldUser /><strong> ผู้ดูแลเครื่อง</strong></h2>
+                {(domainData?.machineAdminType === 'requester') ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><strong>ผู้ดูแลเครื่อง:</strong> <span className="text-blue-500">บุคคลเดียวกับผู้ขอจดทะเบียน</span></div>
+                  </div>
+
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><strong>ผู้ดูแลเครื่อง:</strong> <span className="text-blue-500">มีผู้ดูแลเครื่องโดยเฉพาะคือ</span></div>
+                    <div><strong>ชื่อผู้ดูแลเครื่อง:</strong> <span className="text-blue-500">{domainData?.machineAdminName || '-'}</span></div>
+                    <div><strong>ตำแหน่ง:</strong> <span className="text-blue-500">{domainData?.machineAdminPosition || '-'}</span></div>
+                    <div><strong>ช่องทางติดต่อ:</strong> <span className="text-blue-500">{domainData?.machineAdminContact || '-'}</span></div>
+                  </div>
+                )}
+                <hr className="my-4" />
+
+                {/* วัตถุประสงค์ */}
+                <h2 className='flex items-center gap-2'><Flag /><strong> วัตถุประสงค์</strong></h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><strong>คุณสมบัติ:</strong> <span className="text-blue-500">{domainData?.property === "InNSTRU"
+                    ? "ใช้งานเฉพาะเครือข่ายภายในมหาวิทยาลัยราชภัฏนครศรีธรรมราช (Intranet)"
+                    : "ใช้งานเฉพาะเครือข่ายภายในและภายนอกมหาวิทยาลัยราชภัฏนครศรีธรรมราช" || '-'}</span></div>
+                  <div><strong>การใช้งาน:</strong> <span className="text-blue-500">{domainData?.useType === "NoSever"
+                    ? "ใช้ทั่วไปโดยไม่ได้เป็นเซอร์ฟเวอร์"
+                    : "ใช้เป็นเซอร์ฟเวอร์ให้บริการ " + "( " + domainData?.purpose + " )" || '-'}</span></div>
+                </div>
+
+                <hr className="my-4" />
+
+                {/* รายละเอียดการขอ */}
+                <h2 className='flex items-center gap-2'><FileChartColumn /><strong> รายละเอียด</strong></h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><strong>วันที่ขอ:</strong> {domainData?.requestedAt ? new Date(domainData.requestedAt).toLocaleString() : '-'}</div>
+                  <div><strong>ระยะเวลาใช้งาน:</strong> {domainData?.durationType === "PERMANENT" ? "ถาวร" : "ชั่วคราว" || '-'}</div>
+                  <div><strong>วันหมดอายุ:</strong> {domainData?.expiresAt ? new Date(domainData.expiresAt).toLocaleDateString() : '-'}</div>
+                  <div><strong>สถานะ:</strong> {selectedDomain.status === "ACTIVE"
+                    ? <span className="text-green-500">ใช้งานอยู่</span>
+                    : selectedDomain.status === "PENDING" ? <span className="text-yellow-500">กำลังรอการอนุมัติ</span>
+                      : selectedDomain.status === "REJECTED" ? <span className="text-gray-500">ไม่อนุมัติ</span>
+                        : selectedDomain.status === "EXPIRED" ? <span className="text-blue-500">หมดอายุ</span>
+                          : <span className="text-red-500">อยู่ในถังขยะ</span> || '-'}</div>
+                  <div><strong>บัญชี :</strong> {domainData?.username || domainData?.user?.username || '-'}</div>
+                </div>
+              </div >
+              <br></br>
+              <div>
+                {session?.user?.role === 'ADMIN' && selectedDomain.status === "PENDING" && (
+                  <div className="flex justify-start space-x-3 mt-6">
+                    <button
+                      onClick={() => handleApproveRequest(domainData?.id, approve) || handleApproveRenewalRequest(domainData?.id, approve)}
+                      className="px-4 py-2 btn-emerald rounded-lg transition-colors"
+                    >
+                      อนุมัติคำขอ
+                    </button>
+                    <button
+                      onClick={() => handleApproveRequest(domainData?.id, reject) || handleApproveRenewalRequest(domainData?.id, reject)}
+                      className="px-4 py-2 btn-rose rounded-lg transition-colors"
+                    >
+                      ไม่อนุมัติคำขอ
+                    </button>
+                  </div>
+                )}
+                <div className="flex justify-end space-x-3 mt-6">
+                  <button
+                    onClick={() => setShowDetailModal(false)}
+                    className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
+                  >
+                    ยกเลิก
+                  </button>
                 </div>
               </div>
+            </div >
+          </div >
 
-              <div className="flex justify-end space-x-3 mt-6">
-                <button
-                  onClick={() => setShowDetailModal(false)}
-                  className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
-                >
-                  ยกเลิก
-                </button>
-              </div>
-
-            </div>
-          </div>
         )
       })()}
 
