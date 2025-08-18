@@ -54,13 +54,21 @@ export default function AdminPage() {
             color: '#10B981',
             hoverColor: '#059669'
         },
+        {
+            title: 'จัดคำขอใช้โดเมน',
+            description: 'พิจรณาคำขอใช้โดเมน',
+            icon: FileText,
+            href: '/',
+            color: '#4f46e5',
+            hoverColor: '#352f98ff'
+        }
 
     ]
 
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Navigation */}
-            <NavBarBar />
+            <NavBar />
 
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 py-8">
