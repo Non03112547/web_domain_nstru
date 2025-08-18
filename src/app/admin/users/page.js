@@ -309,22 +309,7 @@ export default function UsersManagementPage() {
                                 </select>
                             </div>
 
-                            {/* Sort By */}
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-                                    <SortAsc className="w-4 h-4 mr-1" />
-                                    เรียงตาม
-                                </label>
-                                <select
-                                    value={filters.sortBy}
-                                    onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <option value="createdAt">วันที่สร้าง</option>
-                                    <option value="username">ชื่อผู้ใช้</option>
-                                    <option value="role">บทบาท</option>
-                                </select>
-                            </div>
+
 
                             {/* Sort Order */}
                             <div>
