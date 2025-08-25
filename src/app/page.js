@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { motion } from 'framer-motion'
 import {
+  Printer,
   ClipboardList,
   UserRound,
   ShieldUser,
@@ -65,6 +66,43 @@ export default function Home() {
   const [renewalRequests, setRenewalRequests] = useState([])
   const [activeStatus, setActiveStatus] = useState('')
   const [policy, setPolicy] = useState(false); // false = ยังไม่ยอมรับ
+  const [showPreview, setShowPreview] = useState(false)
+  const [preview, setPreview] = useState(null);
+
+
+  const handleGenerateWord = async (id) => {
+    try {
+      const res = await fetch(`/api/generate-word/${id}`);
+      if (!res.ok) throw new Error("ไม่สามารถสร้าง Word ได้");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `domainRequest_${id}.docx`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
+  const handlePreview = async (id) => {
+    try {
+      const res = await fetch(`/api/generate-word/${id}?mode=preview`);
+      if (!res.ok) throw new Error("ไม่สามารถโหลดตัวอย่างได้");
+
+      const data = await res.json();
+      console.log("Preview Data:", data); // debug ดูใน console
+      setPreview(data);
+      setShowPreview(true);
+    } catch (err) {
+      console.error(err);
+      setPreview({ error: err.message });
+      setShowPreview(true);
+    }
+  };
 
   const fetchRenewalRequests = async () => {
     try {
@@ -483,6 +521,10 @@ export default function Home() {
     }
   }, [requestData.machineAdminType])
 
+  useEffect(() => {
+    // ทุกครั้งที่เลือก domain ใหม่ → ปิด preview ไปก่อน
+    setShowPreview(false);
+  }, [selectedDomain?.id]);
 
   const handleDeleteDomain = async (domainId, domainName, isInTrash) => {
     const confirmMessage = isInTrash
@@ -847,6 +889,10 @@ export default function Home() {
             : activeTab === 'renewals' && activeStatus === "PENDING" ? allRenewalRequests
               : activeTab === 'renewals' && activeStatus === "REJECTED" ? rejectedRenewalRequests
                 : activeTab === 'renewals' ? allRenewalRequests : trashedExpired;
+
+
+
+
 
   console.log('statusFilter:', statusFilter)
   return (
@@ -1741,6 +1787,44 @@ export default function Home() {
                     <div><strong>บัญชี :</strong> {domainData?.username || domainData?.user?.username || '-'}</div>
                   </div>
                 </div >
+
+                <div>
+                  <button
+                    onClick={() => {
+                      if (showPreview) {
+                        // ถ้ากำลังโชว์ → ปิด
+                        setShowPreview(false);
+                      }
+                      else {
+                        // ถ้ายังไม่โชว์ → เปิดและโหลด preview
+                        setShowPreview(true);
+                        handlePreview(selectedDomain.id);
+                      }
+                    }}
+                    className="px-4 py-2 btn-cool-gray rounded-lg transition-colors flex items-center gap-2"
+                  >
+                    <Printer /> {/* icon */}
+                  </button>
+
+                  {showPreview && preview && (
+                    <div style={{ border: "1px solid #ccc", padding: "16px", borderRadius: "8px" }}>
+                      <h2>{preview?.title}</h2>
+                      <p><strong>Requester:</strong> {preview?.requester}</p>
+                      <p><strong>Domain:</strong> {preview?.domain}</p>
+                      <p><strong>Status:</strong> {preview?.status}</p>
+                      <p><strong>Requested At:</strong> {preview?.requestedAt}</p>
+                      <p><strong>Purpose:</strong> {preview?.purpose}</p>
+                      <button
+                        className="px-4 py-2 btn-indigo rounded-lg transition-colors flex items-center gap-2"
+                        onClick={() => handleGenerateWord(selectedDomain.id)}
+                      >
+                        ดาวน์โหลด Word
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+
                 <br></br>
                 <div>
                   {session?.user?.role === 'ADMIN' && selectedDomain.status === "PENDING" && (
