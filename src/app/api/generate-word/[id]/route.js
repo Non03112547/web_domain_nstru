@@ -3,15 +3,14 @@ import prisma from "@/lib/db";
 
 export async function GET(req, context) {
     try {
-        // Next App Router: params ต้อง await
-        const { params } = await context;
+        // ⚠️ Next.js App Router: ต้อง await context.params
+        const params = await context.params;
         const rawId = params.id;
 
-        // mode = preview | download (default download)
         const { searchParams } = new URL(req.url);
         const mode = searchParams.get("mode") || "download";
 
-        // 1) พยายามมองว่า rawId คือ Domain.id
+        // 1) ลองหา Domain ก่อน
         let domain = await prisma.domain.findUnique({
             where: { id: rawId },
             include: {
@@ -19,15 +18,15 @@ export async function GET(req, context) {
             },
         });
 
-        // 2) ถ้าไม่ใช่ Domain.id ให้ลองมองว่าเป็น DomainRequest.id
         let request = domain?.domainRequest || null;
+
+        // 2) ถ้าไม่เจอ domain → อาจเป็น DomainRequest.id
         if (!domain) {
-            // หา DomainRequest ก่อน
             request = await prisma.domainRequest.findUnique({
                 where: { id: rawId },
                 include: {
                     user: true,
-                    domain_record: true, // ชื่อ relation ตาม schema ของคุณ
+                    domain_record: true,
                 },
             });
 
@@ -35,16 +34,14 @@ export async function GET(req, context) {
                 return new Response("ไม่พบ Domain หรือ DomainRequest", { status: 404 });
             }
 
-            // หา Domain จากความสัมพันธ์ย้อนกลับ
-            domain =
-                request.domain_record
-                    ? await prisma.domain.findUnique({
-                        where: { id: request.domain_record.id },
-                    })
-                    : await prisma.domain.findUnique({
-                        where: { domainRequestId: request.id },
-                    });
-            // *หมายเหตุ: domain อาจไม่มี (ยังไม่ถูกสร้าง) ก็ให้ไปต่อได้ในโหมด preview
+            // หา Domain จากความสัมพันธ์
+            domain = request.domain_record
+                ? await prisma.domain.findUnique({
+                    where: { id: request.domain_record.id },
+                })
+                : await prisma.domain.findUnique({
+                    where: { domainRequestId: request.id },
+                });
         }
 
         // ----- PREVIEW -----
@@ -52,7 +49,7 @@ export async function GET(req, context) {
             const preview = {
                 title: "Domain Request Preview",
                 domainId: domain?.id || null,
-                domainName: request?.domain || "-",                 // จาก DomainRequest.domain (string)
+                domainName: request?.domain || "-",
                 requester: request?.requesterName || "-",
                 responsible: request?.responsibleName || "-",
                 department: request?.department || "-",
@@ -77,7 +74,7 @@ export async function GET(req, context) {
 
         // ----- DOWNLOAD WORD -----
         if (!request) {
-            return new Response("ไม่พบข้อมูลคำขอ (DomainRequest)", { status: 404 });
+            return new Response("ไม่พบ DomainRequest สำหรับสร้าง Word", { status: 404 });
         }
 
         const doc = new Document({
