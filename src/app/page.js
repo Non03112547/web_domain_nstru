@@ -1808,12 +1808,9 @@ export default function Home() {
 
                   {showPreview && preview && (
                     <div style={{ border: "1px solid #ccc", padding: "16px", borderRadius: "8px" }}>
-                      <h2>{preview?.title}</h2>
-                      <p><strong>Requester:</strong> {preview?.requester}</p>
-                      <p><strong>Domain:</strong> {preview?.domain}</p>
-                      <p><strong>Status:</strong> {preview?.status}</p>
-                      <p><strong>Requested At:</strong> {preview?.requestedAt}</p>
-                      <p><strong>Purpose:</strong> {preview?.purpose}</p>
+                      <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit" }}>
+                        {preview?.preview}  {/* ใช้ preview.preview เพราะ server ส่ง key ชื่อ preview */}
+                      </pre>
                       <button
                         className="px-4 py-2 btn-indigo rounded-lg transition-colors flex items-center gap-2"
                         onClick={() => handleGenerateWord(selectedDomain.id)}

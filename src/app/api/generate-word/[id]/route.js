@@ -95,27 +95,19 @@ export async function GET(req, context) {
 
         // ----- PREVIEW MODE -----
         if (mode === "preview") {
-            const preview = {
-                title: "Domain Request Preview",
-                domainId: domain?.id || null,
-                domainName: request?.domain || "-",
-                requester: request?.requesterName || "-",
-                responsible: request?.responsibleName || "-",
-                department: request?.department || "-",
-                institution: request?.institution || "-",
-                contact: request?.contact || "-",
-                contactType: request?.contactType || "-",
-                ipAddress: request?.ipAddress || "-",
-                machineType: request?.machineType || "-",
-                OS: request?.OS || "-",
-                purpose: request?.purpose || "-",
-                status: request?.status || "-",
-                requestedAt: request?.requestedAt
-                    ? new Date(request.requestedAt).toLocaleString()
-                    : "-",
-            };
+            const templatePath = path.join(__dirname, "(nstru-arit-05) web.docx");
+            const templateContent = fs.readFileSync(templatePath, "binary");
 
-            return new Response(JSON.stringify(preview, null, 2), {
+            const zip = new PizZip(templateContent);
+            const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
+
+            const dbData = mapToTemplateData(request);
+            doc.render(dbData);
+
+            // เอา text ทั้งหมดเป็น array
+            const text = doc.getFullText();
+
+            return new Response(JSON.stringify({ preview: text }, null, 2), {
                 status: 200,
                 headers: { "Content-Type": "application/json" },
             });
