@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import PizZip from "pizzip";
 import Docxtemplater from "docxtemplater";
 import prisma from "@/lib/db";
+import mammoth from "mammoth";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -103,11 +104,22 @@ export async function GET(req, context) {
 
             const dbData = mapToTemplateData(request);
             doc.render(dbData);
+            /** 
+                     * // เอา text ทั้งหมดเป็น array
+                                const text = doc.getFullText();
+                                return new Response(JSON.stringify({ preview: text }, null, 2), {
+                                    status: 200,
+                                    headers: { "Content-Type": "application/json" },
+                                }); 
+                                */
 
-            // เอา text ทั้งหมดเป็น array
-            const text = doc.getFullText();
+            // สร้าง buffer จาก doc ที่ render แล้ว
+            const buffer = doc.getZip().generate({ type: "nodebuffer" });
 
-            return new Response(JSON.stringify({ preview: text }, null, 2), {
+            // แปลง Word → HTML ด้วย mammoth
+            const { value: html } = await mammoth.convertToHtml({ buffer });
+
+            return new Response(JSON.stringify({ html }), {
                 status: 200,
                 headers: { "Content-Type": "application/json" },
             });

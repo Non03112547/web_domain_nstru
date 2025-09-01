@@ -68,7 +68,7 @@ export default function Home() {
   const [policy, setPolicy] = useState(false); // false = ยังไม่ยอมรับ
   const [showPreview, setShowPreview] = useState(false)
   const [preview, setPreview] = useState(null);
-
+  const [html, setHtml] = useState("");
 
   const handleGenerateWord = async (id) => {
     try {
@@ -94,15 +94,21 @@ export default function Home() {
       if (!res.ok) throw new Error("ไม่สามารถโหลดตัวอย่างได้");
 
       const data = await res.json();
-      console.log("Preview Data:", data); // debug ดูใน console
-      setPreview(data);
+
+      // แยกเก็บ HTML และ JSON preview
+      setHtml(data.html);       // สำหรับ render Word preview
+      setPreview(data);         // สำหรับ debug หรือใช้งาน field อื่น ๆ
       setShowPreview(true);
+
+      console.log("Preview Data:", data); // debug ดูใน console
     } catch (err) {
       console.error(err);
       setPreview({ error: err.message });
+      setHtml(`<p style="color:red;">${err.message}</p>`);
       setShowPreview(true);
     }
   };
+
 
   const fetchRenewalRequests = async () => {
     try {
@@ -1808,9 +1814,13 @@ export default function Home() {
 
                   {showPreview && preview && (
                     <div style={{ border: "1px solid #ccc", padding: "16px", borderRadius: "8px" }}>
-                      <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit" }}>
-                        {preview?.preview}  {/* ใช้ preview.preview เพราะ server ส่ง key ชื่อ preview */}
-                      </pre>
+                      <div>
+                        <h3>Preview Word</h3>
+                        <div
+                          style={{ border: "1px solid #ccc", padding: "16px", borderRadius: "8px" }}
+                          dangerouslySetInnerHTML={{ __html: html }}
+                        />
+                      </div>
                       <button
                         className="px-4 py-2 btn-indigo rounded-lg transition-colors flex items-center gap-2"
                         onClick={() => handleGenerateWord(selectedDomain.id)}
