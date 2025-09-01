@@ -1794,46 +1794,61 @@ export default function Home() {
                   </div>
                 </div >
 
-                <div>
-                  <button
-                    onClick={() => {
-                      if (showPreview) {
-                        // ถ้ากำลังโชว์ → ปิด
-                        setShowPreview(false);
-                      }
-                      else {
-                        // ถ้ายังไม่โชว์ → เปิดและโหลด preview
-                        setShowPreview(true);
-                        handlePreview(selectedDomain.id);
-                      }
-                    }}
-                    className="px-4 py-2 btn-cool-gray rounded-lg transition-colors flex items-center gap-2"
-                  >
-                    <Printer /> {/* icon */}
-                  </button>
-
-                  {showPreview && preview && (
-                    <div style={{ border: "1px solid #ccc", padding: "16px", borderRadius: "8px" }}>
-                      <div>
-                        <h3>Preview Word</h3>
-                        <div
-                          style={{ border: "1px solid #ccc", padding: "16px", borderRadius: "8px" }}
-                          dangerouslySetInnerHTML={{ __html: html }}
-                        />
-                      </div>
-                      <button
-                        className="px-4 py-2 btn-indigo rounded-lg transition-colors flex items-center gap-2"
-                        onClick={() => handleGenerateWord(selectedDomain.id)}
-                      >
-                        ดาวน์โหลด Word
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-
                 <br></br>
                 <div>
+                  <div>
+                    <button
+                      onClick={() => {
+                        if (showPreview) {
+                          // ถ้ากำลังโชว์ → ปิด
+                          setShowPreview(false);
+                        }
+                        else {
+                          // ถ้ายังไม่โชว์ → เปิดและโหลด preview
+                          setShowPreview(true);
+                          handlePreview(selectedDomain.id);
+                        }
+                      }}
+                      className="px-4 py-2 btn-cool-gray rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <Printer /> {/* icon */}
+                    </button>
+
+                    {showPreview && preview && (
+                      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
+                          <div>
+                            <h1 className="text-xl font-semibold text-gray-900 mb-4">
+                              <strong>รายการโดเมน Preview</strong>
+                            </h1>
+                          </div>
+                          <div style={{ border: "1px solid #ccc", padding: "16px", borderRadius: "8px" }}>
+                            <div>
+                              <h3>Preview Word</h3>
+                              <div
+                                style={{ border: "1px solid #ccc", padding: "16px", borderRadius: "8px" }}
+                                dangerouslySetInnerHTML={{ __html: html }}
+                              />
+                            </div>
+                            <div className='flex space-x-3 mt-6'>
+                              <button
+                                onClick={() => setShowPreview(false)}
+                                className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
+                              >
+                                ยกเลิก
+                              </button>
+                              <button
+                                className="px-4 py-2 btn-indigo rounded-lg transition-colors flex items-center gap-2"
+                                onClick={() => handleGenerateWord(selectedDomain.id)}
+                              >
+                                ดาวน์โหลด Word
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   {session?.user?.role === 'ADMIN' && selectedDomain.status === "PENDING" && (
                     <div className="flex justify-start space-x-3 mt-6">
                       <button
