@@ -1837,7 +1837,7 @@ export default function Home() {
                     </button>
 
                     {showPreview && (
-                      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-hidden">
+                      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                         <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
 
                           <h1 className="text-xl font-semibold text-gray-900 mb-4">
