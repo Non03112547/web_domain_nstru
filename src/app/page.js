@@ -67,8 +67,8 @@ export default function Home() {
   const [activeStatus, setActiveStatus] = useState('')
   const [policy, setPolicy] = useState(false); // false = ยังไม่ยอมรับ
   const [showPreview, setShowPreview] = useState(false)
-  const [preview, setPreview] = useState(null);
-  const [html, setHtml] = useState("");
+  //const [html, setHtml] = useState("");
+  const [pdfUrl, setPdfUrl] = useState(null);
 
   const handleGenerateWord = async (id) => {
     try {
@@ -87,27 +87,49 @@ export default function Home() {
     }
   };
 
-
+  /**const handlePreview = async (id) => {
+      try {
+        const res = await fetch(`/api/generate-word/${id}?mode=preview`);
+        if (!res.ok) throw new Error("ไม่สามารถโหลดตัวอย่างได้");
+  
+        const data = await res.json();
+  
+        // แยกเก็บ HTML และ JSON preview
+        setHtml(data.html);       // สำหรับ render Word preview
+        setPreview(data);         // สำหรับ debug หรือใช้งาน field อื่น ๆ
+        setShowPreview(true);
+  
+        console.log("Preview Data:", data); // debug ดูใน console
+      } catch (err) {
+        console.error(err);
+        setPreview({ error: err.message });
+        setHtml(`<p style="color:red;">${err.message}</p>`);
+        setShowPreview(true);
+      }
+    }; */
   const handlePreview = async (id) => {
     try {
       const res = await fetch(`/api/generate-word/${id}?mode=preview`);
       if (!res.ok) throw new Error("ไม่สามารถโหลดตัวอย่างได้");
 
-      const data = await res.json();
+      const contentType = res.headers.get("content-type");
 
-      // แยกเก็บ HTML และ JSON preview
-      setHtml(data.html);       // สำหรับ render Word preview
-      setPreview(data);         // สำหรับ debug หรือใช้งาน field อื่น ๆ
+      if (contentType === "application/pdf") {
+        // PDF preview เท่านั้น
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        setPdfUrl(url); // state สำหรับ iframe
+      } else {
+        throw new Error("ชนิดไฟล์ไม่รองรับ");
+      }
+
       setShowPreview(true);
-
-      console.log("Preview Data:", data); // debug ดูใน console
     } catch (err) {
       console.error(err);
-      setPreview({ error: err.message });
-      setHtml(`<p style="color:red;">${err.message}</p>`);
       setShowPreview(true);
     }
   };
+
 
 
   const fetchRenewalRequests = async () => {
@@ -1814,39 +1836,46 @@ export default function Home() {
                       <Printer /> {/* icon */}
                     </button>
 
-                    {showPreview && preview && (
-                      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    {showPreview && (
+                      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-hidden">
                         <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
-                          <div>
-                            <h1 className="text-xl font-semibold text-gray-900 mb-4">
-                              <strong>รายการโดเมน Preview</strong>
-                            </h1>
-                          </div>
-                          <div style={{ border: "1px solid #ccc", padding: "16px", borderRadius: "8px" }}>
-                            <div>
+
+                          <h1 className="text-xl font-semibold text-gray-900 mb-4">
+                            <strong>รายการโดเมน Preview</strong>
+                          </h1>
+
+                          {/* PDF Preview */}
+                          {pdfUrl && (
+                            <div style={{ border: "1px solid #ccc", padding: "16px", borderRadius: "8px" }}>
                               <h3>Preview Word</h3>
-                              <div
-                                style={{ border: "1px solid #ccc", padding: "16px", borderRadius: "8px" }}
-                                dangerouslySetInnerHTML={{ __html: html }}
+                              <iframe
+                                src={pdfUrl}
+                                width="100%"
+                                height="400px"
+                                frameBorder="0"
+                                title="Word Preview PDF"
                               />
                             </div>
-                            <div className='flex space-x-3 mt-6'>
-                              <button
-                                onClick={() => setShowPreview(false)}
-                                className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
-                              >
-                                ยกเลิก
-                              </button>
-                              <button
-                                className="px-4 py-2 btn-indigo rounded-lg transition-colors flex items-center gap-2"
-                                onClick={() => handleGenerateWord(selectedDomain.id)}
-                              >
-                                ดาวน์โหลด Word
-                              </button>
-                            </div>
+
+                          )}
+                          {/* ปุ่ม */}
+                          <div className="flex space-x-3 mt-6">
+                            <button
+                              onClick={() => setShowPreview(false)}
+                              className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
+                            >
+                              ยกเลิก
+                            </button>
+                            <button
+                              className="px-4 py-2 btn-indigo rounded-lg transition-colors flex items-center gap-2"
+                              onClick={() => handleGenerateWord(selectedDomain.id)}
+                            >
+                              ดาวน์โหลด Word
+                            </button>
                           </div>
                         </div>
                       </div>
+
                     )}
                   </div>
                   {session?.user?.role === 'ADMIN' && selectedDomain.status === "PENDING" && (
