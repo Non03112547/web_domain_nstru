@@ -67,7 +67,6 @@ export default function Home() {
   const [activeStatus, setActiveStatus] = useState('')
   const [policy, setPolicy] = useState(false); // false = ยังไม่ยอมรับ
   const [showPreview, setShowPreview] = useState(false)
-  //const [html, setHtml] = useState("");
   const [pdfUrl, setPdfUrl] = useState(null);
 
   const handleGenerateWord = async (id) => {
