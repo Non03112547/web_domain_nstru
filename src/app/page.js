@@ -476,15 +476,15 @@ export default function Home() {
     responsibleName: '',
     department: '',
     institution: '',
-    contact: '',
-    contactType: 'EMAIL',
-    responsibleContact: '',
-    responsibleContactType: 'EMAIL',
+    contactP: '',
+    contactE: '',
+    responsibleContactP: '',
+    responsibleContactE: '',
     machineAdminType: '',
     machineAdminName: '',
     machineAdminPosition: '',
-    machineAdminContact: '',
-    machineAdminContactType: 'EMAIL',
+    machineAdminContactP: '',
+    machineAdminContactE: '',
     machineRoom: '',
     machinePlace: '',
     property: '',
@@ -523,8 +523,8 @@ export default function Home() {
     if (requestData.machineAdminType !== 'MachineAdmin') {
       handleRequestDataChange('machineAdminName', requestData.requesterName);
       handleRequestDataChange('machineAdminPosition', requestData.department);
-      handleRequestDataChange('machineAdminContact', requestData.contact);
-      handleRequestDataChange('machineAdminContactType', requestData.contactType);
+      handleRequestDataChange('machineAdminContactP', requestData.contactP);
+      handleRequestDataChange('machineAdminContactE', requestData.contactE);
     }
   }, [requestData.machineAdminType])
 
@@ -703,12 +703,12 @@ export default function Home() {
   const handleRequestSubmit = async () => {
     const {
       domain, machineType, OS,
-      requesterName, responsibleName, department, institution, contact, responsibleContact,
+      requesterName, responsibleName, department, institution, contactP, contactE, responsibleContactP, responsibleContactE,
       machineRoom, machinePlace,
       property, useType, durationType, expiresAt
     } = requestData
 
-    if (!domain || !machineType || !OS || !requesterName || !responsibleName || !department || !institution || !contact || !responsibleContact || !machineRoom || !machinePlace || !property || !useType) {
+    if (!domain || !machineType || !OS || !requesterName || !responsibleName || !department || !institution || !contactP || !responsibleContactP || !contactE || !responsibleContactE || !machineRoom || !machinePlace || !property || !useType) {
       alert('กรุณากรอกข้อมูลให้ครบถ้วน')
       return
     }
@@ -754,15 +754,15 @@ export default function Home() {
           responsibleName: '',
           department: '',
           institution: '',
-          contact: '',
-          contactType: 'EMAIL',
-          responsibleContact: '',
-          responsibleContactType: 'EMAIL',
+          contactP: '',
+          contactE: '',
+          responsibleContactP: '',
+          responsibleContactE: '',
           machineAdminType: '',
           machineAdminName: '',
           machineAdminPosition: '',
-          machineAdminContact: '',
-          machineAdminContactType: 'EMAIL',
+          machineAdminContactP: '',
+          machineAdminContactE: '',
           machineRoom: '',
           machinePlace: '',
           property: '',
@@ -794,15 +794,15 @@ export default function Home() {
       responsibleName: '',
       department: '',
       institution: '',
-      contact: '',
-      contactType: 'EMAIL',
-      responsibleContact: '',
-      responsibleContactType: 'EMAIL',
+      contactP: '',
+      contactE: '',
+      responsibleContactP: '',
+      responsibleContactE: '',
       machineAdminType: '',
       machineAdminName: '',
       machineAdminPosition: '',
-      machineAdminContact: '',
-      machineAdminContactType: 'EMAIL',
+      machineAdminContactP: '',
+      machineAdminContactE: '',
       machineRoom: '',
       machinePlace: '',
       property: '',
@@ -1735,8 +1735,10 @@ export default function Home() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div><strong>ชื่อผู้ขอ:</strong> <span className="text-blue-500">{domainData?.requesterName || '-'}</span></div>
                     <div><strong>ชื่อผู้รับผิดชอบ:</strong> <span className="text-blue-500">{domainData?.responsibleName || '-'}</span></div>
-                    <div><strong>ข้อมูลติดต่อผู้ขอ:</strong> <span className="text-blue-500">{domainData?.contact || '-'}</span></div>
-                    <div><strong>ข้อมูลติดต่อผู้รับผิดชอบ:</strong> <span className="text-blue-500">{domainData?.responsibleContact || '-'}</span></div>
+                    <div><strong>เบอร์โทรศัพท์ ผู้ขอ:</strong> <span className="text-blue-500">{domainData?.contactP || '-'}</span></div>
+                    <div><strong>E-mail ผู้ขอ:</strong> <span className="text-blue-500">{domainData?.contactE || '-'}</span></div>
+                    <div><strong>เบอร์โทรศัพท์ ผู้รับผิดชอบ:</strong> <span className="text-blue-500">{domainData?.responsibleContactP || '-'}</span></div>
+                    <div><strong>E-mail ผู้รับผิดชอบ:</strong> <span className="text-blue-500">{domainData?.responsibleContactE || '-'}</span></div>
                     <div><strong>ภาควิชา/ฝ่าย/แผนก:</strong> <span className="text-blue-500">{domainData?.department || '-'}</span></div>
                     <div><strong>คณะ/สำนัก/สถาบัน/กอง:</strong> <span className="text-blue-500">{domainData?.institution || '-'}</span></div>
                   </div>
@@ -1764,7 +1766,8 @@ export default function Home() {
                       <div><strong>ผู้ดูแลเครื่อง:</strong> <span className="text-blue-500">มีผู้ดูแลเครื่องโดยเฉพาะคือ</span></div>
                       <div><strong>ชื่อผู้ดูแลเครื่อง:</strong> <span className="text-blue-500">{domainData?.machineAdminName || '-'}</span></div>
                       <div><strong>ตำแหน่ง:</strong> <span className="text-blue-500">{domainData?.machineAdminPosition || '-'}</span></div>
-                      <div><strong>ช่องทางติดต่อ:</strong> <span className="text-blue-500">{domainData?.machineAdminContact || '-'}</span></div>
+                      <div><strong>เบอร์โทรศัพท์:</strong> <span className="text-blue-500">{domainData?.machineAdminContactP || '-'}</span></div>
+                      <div><strong>E-mail:</strong> <span className="text-blue-500">{domainData?.machineAdminContactE || '-'}</span></div>
                     </div>
                   )}
                   <hr className="my-4" />
