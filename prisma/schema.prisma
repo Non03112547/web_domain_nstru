@@ -51,20 +51,21 @@ model DomainRequest {
 
   requesterName          String
   responsibleName        String
+  position               String
   department             String
   institution            String
-  contact                String
-  contactType            ContactType    @default(EMAIL)
+  contactP               String
+  contactE               String  
 
-  responsibleContact     String        
-  responsibleContactType ContactType    @default(EMAIL)
+  responsibleContactP     String        
+  responsibleContactE     String    
 
   //ข้อมูลผู้ดูแลเครื่อง
   machineAdminType       String         @default("requester")
   machineAdminName       String        // ชื่อ-สกุล
   machineAdminPosition   String        // ตำแหน่ง
-  machineAdminContact    String        // โทรศัพท์หรือ E-mail
-  machineAdminContactType ContactType   @default(EMAIL) // ประเภทการติดต่อ (PHONE หรือ EMAIL)
+  machineAdminContactP   String        // โทรศัพท์ 
+  machineAdminContactE   String        // E-mail
 
   //ที่ตั้งเครื่อง
   machineRoom            String?        
@@ -80,7 +81,7 @@ model DomainRequest {
   expiresAt              DateTime?
   status                 RequestStatus  @default(PENDING)
   approvalCooldownAt     DateTime?
-
+  
   userId                 String
   user                   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -97,7 +98,7 @@ model Domain {
   deletedAt       DateTime?
   trashExpiresAt  DateTime?
   status          DomainStatus  @default(ACTIVE)
-  
+  decideTime      DateTime?
   domainRequest   DomainRequest @relation(fields: [domainRequestId], references: [id], onDelete: Cascade)
   renewalRequests RenewalRequest[]
   
@@ -127,11 +128,6 @@ model RenewalRequest {
   domain               Domain         @relation(fields: [domainId], references: [id], onDelete: Cascade)
   
   @@map("renewal_requests")
-}
-
-enum ContactType {
-  EMAIL
-  PHONE
 }
 
 enum Role {

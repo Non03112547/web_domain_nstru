@@ -1353,77 +1353,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ข้อมูลติดต่อ ผู้ขอโดเมน *
-                    </label>
-                    <input
-                      type="text"
-                      value={requestData.contact}
-                      onChange={(e) => {
-                        const value = e.target.value;
-
-                        // อัปเดตค่าข้อมูลที่กรอก
-                        handleRequestDataChange('contact', value);
-
-                        // ตรวจสอบว่าเป็นตัวเลขอย่างเดียวหรือไม่
-                        const isPhone = /^[0-9\s\-+()]+$/.test(value);
-                        const contactType = isPhone ? 'PHONE' : 'EMAIL';
-
-                        // อัปเดต contactType อัตโนมัติ
-                        handleRequestDataChange('contactType', contactType);
-                      }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="example@email.com หรือ 081-234-5678"
-                    />
-
-                    <div className='hidden'>
-                      <input
-                        type="text"
-                        value={requestData.contactType === 'PHONE' ? 'โทรศัพท์' : 'อีเมล'}
-                        disabled
-                        className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ข้อมูลติดต่อ ผู้รับผิดชอบโดเมน *
-                    </label>
-                    <input
-                      type="text"
-                      value={requestData.responsibleContact}
-                      onChange={(e) => {
-                        const value = e.target.value;
-
-                        // อัปเดตค่าข้อมูลที่กรอก
-                        handleRequestDataChange('responsibleContact', value);
-
-                        // ตรวจสอบว่าเป็นตัวเลขอย่างเดียวหรือไม่
-                        const isPhone = /^[0-9\s\-+()]+$/.test(value);
-                        const responsibleContactType = isPhone ? 'PHONE' : 'EMAIL';
-
-                        // อัปเดต contactType อัตโนมัติ
-                        handleRequestDataChange('responsibleContactType', responsibleContactType);
-                      }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="example@email.com หรือ 081-234-5678"
-                    />
-
-                    <div className='hidden'>
-                      <input
-                        type="text"
-                        value={requestData.contactType === 'PHONE' ? 'โทรศัพท์' : 'อีเมล'}
-                        disabled
-                        className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                  </div>
-
-                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     ภาควิชา/ฝ่าย/แผนก  *
@@ -1447,6 +1376,73 @@ export default function Home() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="คณะวิทยาศาสตร์และเทคโนโลยี"
                   />
+                </div>
+                <hr></hr>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <strong>ข้อมูลติดต่อ ผู้ขอโดเมน</strong>
+                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      เบอร์โทรศัพท์ ผู้ขอโดเมน*
+                    </label>
+                    <input
+                      type="text"
+                      value={requestData.contactP}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder=" 081-234-5678"
+                    />
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        E-mail ผู้ขอโดเมน*
+                      </label>
+                      <input
+                        type="text"
+                        value={requestData.contactE}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="example@email.com"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <strong>ข้อมูลติดต่อ ผู้รับผิดชอบโดเมน</strong>
+                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      เบอร์โทรศัพท์ ผู้รับผิดชอบโดเมน *
+                    </label>
+                    <input
+                      type="text"
+                      value={requestData.responsibleContactP}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="081-234-5678"
+                    />
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        E-mail ผู้รับผิดชอบโดเมน *
+                      </label>
+                      <input
+                        type="text"
+                        value={requestData.responsibleContactE}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="example@email.com"
+                      />
+                    </div>
+                  </div>
                 </div>
                 <br></br>
                 <br></br>
@@ -1516,27 +1512,34 @@ export default function Home() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="นักวิชาการคอมพิวเตอร์"
                     />
+                    <hr></hr>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ช่องทางการติดต่อ ผู้ดูแลเครื่อง *
+                      <strong>ช่องทางการติดต่อ ผู้ดูแลเครื่อง</strong>
+                    </label>
+
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      เบอร์โทรศัพท์ ผู้ดูแลเครื่อง *
                     </label>
                     <input
                       type="text"
-                      value={requestData.machineAdminContact}
+                      value={requestData.machineAdminContactP}
                       onChange={(e) => {
                         const value = e.target.value;
-
-                        // อัปเดตค่าข้อมูลที่กรอก
-                        handleRequestDataChange('machineAdminContact', value);
-
-                        // ตรวจสอบว่าเป็นตัวเลขอย่างเดียวหรือไม่
-                        const machineisPhone = /^[0-9\s\-+()]+$/.test(value);
-                        const machineAdminContactType = machineisPhone ? 'PHONE' : 'EMAIL';
-
-                        // อัปเดต contactType อัตโนมัติ
-                        handleRequestDataChange('machineAdminContactType', machineAdminContactType);
                       }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="example@email.com หรือ 081-234-5678"
+                    />
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      E-mail ผู้ดูแลเครื่อง *
+                    </label>
+                    <input
+                      type="text"
+                      value={requestData.machineAdminContactE}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="example@email.com "
                     />
                   </div>) : (
                   <></>
