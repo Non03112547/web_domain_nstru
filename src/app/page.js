@@ -87,26 +87,6 @@ export default function Home() {
     }
   };
 
-  /**const handlePreview = async (id) => {
-      try {
-        const res = await fetch(`/api/generate-word/${id}?mode=preview`);
-        if (!res.ok) throw new Error("ไม่สามารถโหลดตัวอย่างได้");
-  
-        const data = await res.json();
-  
-        // แยกเก็บ HTML และ JSON preview
-        setHtml(data.html);       // สำหรับ render Word preview
-        setPreview(data);         // สำหรับ debug หรือใช้งาน field อื่น ๆ
-        setShowPreview(true);
-  
-        console.log("Preview Data:", data); // debug ดูใน console
-      } catch (err) {
-        console.error(err);
-        setPreview({ error: err.message });
-        setHtml(`<p style="color:red;">${err.message}</p>`);
-        setShowPreview(true);
-      }
-    }; */
   const handlePreview = async (id) => {
     try {
       const res = await fetch(`/api/generate-word/${id}?mode=preview`);
