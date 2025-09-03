@@ -1242,7 +1242,7 @@ export default function Home() {
                       value={requestData.machineType}
                       onChange={(e) => handleRequestDataChange('machineType', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                      <option value=" " >--เลือก--</option>
+                      <option value="" >--เลือก--</option>
                       <option>PC/Mac</option>
                       <option>Unix Workstation</option>
                       <option value="other"> อื่นๆ </option>
@@ -1265,7 +1265,7 @@ export default function Home() {
                       value={requestData.OS}
                       onChange={(e) => handleRequestDataChange('OS', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                      <option value=" " >--เลือก--</option>
+                      <option value="" >--เลือก--</option>
                       <option>Linux</option>
                       <option>Unix</option>
                       <option>MS Windows</option>
