@@ -26,9 +26,10 @@ function mapToTemplateData(request) {
         domain: request.domain || "",
         MATr: checkbox(request.machineAdminType === "requester"),
         MATma: checkbox(request.machineAdminType === "MachineAdmin"),
-        machineAdminName: request.machineAdminName || "",
-        machineAdminPosition: request.machineAdminPosition || "",
-        machineAdminContact: request.machineAdminContact || "",
+        machineAdminName: request.machineAdminType === "MachineAdmin" ? request.machineAdminName : "  …………………",
+        machineAdminPosition: request.machineAdminType === "MachineAdmin" ? request.machineAdminPosition : " …………………",
+        machineAdminContact: request.machineAdminType === "MachineAdmin" ? request.machineAdminContact : " …………………",
+
         pc: checkbox(request.machineType === "PC/Mac"),
         un: checkbox(request.machineType === "Unix Workstation"),
         ot: checkbox(
@@ -46,7 +47,7 @@ function mapToTemplateData(request) {
         io: checkbox(request.property === "InOutNSTRU"),
         no: checkbox(request.useType === "NoSever"),
         S: checkbox(request.useType === "Sever"),
-        purpose: request.purpose || "",
+        purpose: request.useType === "Sever" ? request.purpose : "…………………",
         requestedAt: request.requestedAt
             ? request.requestedAt.toLocaleDateString()
             : "",
