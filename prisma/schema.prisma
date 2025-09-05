@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  seed     = "node prisma/seed.js"
 }
 
 datasource db {
@@ -98,7 +99,7 @@ model Domain {
   deletedAt       DateTime?
   trashExpiresAt  DateTime?
   status          DomainStatus  @default(ACTIVE)
-  decideTime      DateTime?
+  decideTime      DateTime?     //เวลาอณุมัต หรือ ปฎิเสธ
   domainRequest   DomainRequest @relation(fields: [domainRequestId], references: [id], onDelete: Cascade)
   renewalRequests RenewalRequest[]
   

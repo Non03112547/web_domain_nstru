@@ -1725,6 +1725,7 @@ export default function Home() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div><strong>ชื่อโดเมน:</strong> <span className="text-blue-500">{domainData?.domain || '-'}</span></div>
                     <div><strong>IP Address:</strong> <span className="text-blue-500">{domainData?.ipAddress || '-'}</span></div>
+                    <div><strong>ประเภทเครื่อง:</strong> <span className="text-blue-500">{domainData?.machineType || '-'}</span></div>
                     <div><strong>ระบบปฏิบัติการ:</strong> <span className="text-blue-500">{domainData?.OS || '-'}</span></div>
                   </div>
 
@@ -1736,8 +1737,8 @@ export default function Home() {
                     <div><strong>ชื่อผู้ขอ:</strong> <span className="text-blue-500">{domainData?.requesterName || '-'}</span></div>
                     <div><strong>ชื่อผู้รับผิดชอบ:</strong> <span className="text-blue-500">{domainData?.responsibleName || '-'}</span></div>
                     <div><strong>เบอร์โทรศัพท์ ผู้ขอ:</strong> <span className="text-blue-500">{domainData?.contactP || '-'}</span></div>
-                    <div><strong>E-mail ผู้ขอ:</strong> <span className="text-blue-500">{domainData?.contactE || '-'}</span></div>
                     <div><strong>เบอร์โทรศัพท์ ผู้รับผิดชอบ:</strong> <span className="text-blue-500">{domainData?.responsibleContactP || '-'}</span></div>
+                    <div><strong>E-mail ผู้ขอ:</strong> <span className="text-blue-500">{domainData?.contactE || '-'}</span></div>
                     <div><strong>E-mail ผู้รับผิดชอบ:</strong> <span className="text-blue-500">{domainData?.responsibleContactE || '-'}</span></div>
                     <div><strong>ภาควิชา/ฝ่าย/แผนก:</strong> <span className="text-blue-500">{domainData?.department || '-'}</span></div>
                     <div><strong>คณะ/สำนัก/สถาบัน/กอง:</strong> <span className="text-blue-500">{domainData?.institution || '-'}</span></div>

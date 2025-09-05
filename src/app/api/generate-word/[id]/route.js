@@ -37,14 +37,14 @@ function mapToTemplateData(request) {
         ot: checkbox(
             request.machineType !== "PC/Mac" && request.machineType !== "Unix Workstation"
         ),
-        otherMachineType: request.otherMachineType || "",
+        otherMachineType: request.machineType !== "PC/Mac" && request.machineType !== "Unix Workstation" ? request.machineType : "………",
         L: checkbox(request.OS === "Linux"),
         U: checkbox(request.OS === "Unix"),
         W: checkbox(request.OS === "MS Windows"),
         O: checkbox(
             request.OS !== "Linux" && request.OS !== "Unix" && request.OS !== "MS Windows"
         ),
-        otherOS: request.otherOS || "",
+        otherOS: request.OS !== "Linux" && request.OS !== "Unix" && request.OS !== "MS Windows" ? request.OS : "………",
         in: checkbox(request.property === "InNSTRU"),
         io: checkbox(request.property === "InOutNSTRU"),
         no: checkbox(request.useType === "NoSever"),
@@ -53,8 +53,8 @@ function mapToTemplateData(request) {
         requestedAt: request.requestedAt
             ? request.requestedAt.toLocaleDateString()
             : "",
-        approvalCooldownAt: request.approvalCooldownAt
-            ? request.approvalCooldownAt.toLocaleDateString()
+        approvalCooldownAt: request.decideTime
+            ? request.decideTime.toLocaleDateString()
             : "",
         A: checkbox(request.status === "APPROVED"),
         R: checkbox(request.status === "REJECTED"),
