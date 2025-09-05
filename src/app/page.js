@@ -29,7 +29,8 @@ import {
   Filter,
   SortAsc,
   SortDesc,
-  Settings2
+  Settings2,
+  Server, Activity, AlertTriangle
 } from 'lucide-react'
 import NavBar from '@/components/nav'
 import Link from 'next/link'
@@ -68,6 +69,46 @@ export default function Home() {
   const [policy, setPolicy] = useState(false); // false = ยังไม่ยอมรับ
   const [showPreview, setShowPreview] = useState(false)
   const [pdfUrl, setPdfUrl] = useState(null);
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'ACTIVE':
+        return <Activity className="w-4 h-4 text-green-600" />;
+      case 'PENDING':
+        return <Clock className="w-4 h-4 text-yellow-600" />;
+      default:
+        return <AlertTriangle className="w-4 h-4 text-red-600" />;
+    }
+  };
+
+  const getStatusConfig = (status) => {
+    switch (status) {
+      case 'ACTIVE':
+        return {
+          className: 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 text-green-800',
+          badge: 'bg-green-100 text-green-800 border border-green-200',
+          text: 'ใช้งานอยู่',
+          glow: 'shadow-green-100'
+        };
+      case 'PENDING':
+        return {
+          className: 'bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-200 text-yellow-800',
+          badge: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
+          text: 'รอการอนุมัติ',
+          glow: 'shadow-yellow-100'
+        };
+      default:
+        return {
+          className: 'bg-gradient-to-r from-red-50 to-rose-50 border-red-200 text-red-800',
+          badge: 'bg-red-100 text-red-800 border border-red-200',
+          text: 'ไม่ใช้งาน',
+          glow: 'shadow-red-100'
+        };
+    }
+  };
+
+
+
 
   const handleGenerateWord = async (id) => {
     try {
@@ -902,6 +943,8 @@ export default function Home() {
 
 
   console.log('statusFilter:', statusFilter)
+
+
   return (
 
     <div>
@@ -918,6 +961,8 @@ export default function Home() {
       </div> GOOD*/ }
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Tab Navigator */}
+
+
         <div className="bg-white rounded-lg shadow-sm mb-2">
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-8 px-6" aria-label="Tabs">
@@ -975,7 +1020,20 @@ export default function Home() {
                 <Plus className="w-4 h-4 mr-2" />
                 ขอใช้โดเมนใหม่
               </button>
+              {/*sreach*/}
+              <div className='flex '>
 
+                <label className="text-sm font-semibold text-gray-700 mb-1 flex items-center">
+                  <Search className="w-4 h-4 mr-1" />
+                </label>
+                <input
+                  type="text"
+                  value={filters.search}
+                  placeholder="ค้นหา ชื่อโดเมน, ผู้ขอ, หน่วยงาน..."
+                  className="w-full px-3 py-1 my-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                />
+              </div>
             </nav>
           </div>
         </div>
@@ -983,12 +1041,6 @@ export default function Home() {
         {/* status */}
         <div className="grid grid-cols-1 mx-4 p-4 bg-light" >
           <div className=" d-flex ">
-            <div className="flex ">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2 flex items-center">
-                <Globe className="w-6 h-6 mr-2 text-blue-600" />
-                คำขอใช้โดเมน
-              </h2>
-            </div>
 
             {/* Summary Cards */}
             <div
@@ -1062,87 +1114,6 @@ export default function Home() {
           </div>
 
         </div>
-        <div className='grid grid-cols-1 mx-4 bg-light'>
-          {/* Results Summary */}
-          <div className="mx-2 border-t border-gray-200">
-            <p className="text-sm text-gray-600">
-              แสดงผล ค้นหา: สถานะ: ประเภท:
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-5">
-              {/* Search */}
-              <h3 className="text-base font-semibold text-gray-900 flex items-center">
-                <Filter className="w-8 h-8 mr-2 text-blue-600" />
-                กรองข้อมูล
-              </h3>
-
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-1 flex items-center">
-                  <Search className="w-4 h-4 mr-1" />
-                  ค้นหา
-                </label>
-                <input
-                  type="text"
-                  value={filters.search}
-                  placeholder="ชื่อโดเมน, ผู้ขอ, หน่วยงาน..."
-                  className="w-full px-3 py-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                />
-              </div>
-
-              {/* Duration Filter */}
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-1 flex items-center">
-                  <Clock className="w-4 h-4 mr-1" />
-                  ประเภท
-                </label>
-                <select
-                  value={filters.durationType}
-                  className="w-full px-3 py-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  onChange={(e) => setFilters(prev => ({ ...prev, durationType: e.target.value }))}
-                >
-                  <option value="ALL">ทั้งหมด</option>
-                  <option value="PERMANENT">ถาวร</option>
-                  <option value="TEMPORARY">ชั่วคราว</option>
-                </select>
-              </div>
-
-              {/* Sort By */}
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-1 flex items-center">
-                  <SortAsc className="w-4 h-4 mr-1" />
-                  เรียงตาม
-                </label>
-                <select
-                  value={filters.sortBy}
-                  className="w-full px-3 py-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
-                >
-                  <option value="requestedAt">วันที่ขอ</option>
-                  <option value="domain">ชื่อโดเมน</option>
-                  <option value="requesterName">ผู้ขอ</option>
-                  <option value="department">หน่วยงาน</option>
-                  <option value="newExpiryDate">วันหมดอายุใหม่</option>
-                </select>
-              </div>
-
-              {/* Sort Order */}
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-1">ลำดับ</label>
-                <select
-                  value={filters.sortOrder}
-                  className="w-full px-3 py-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  onChange={(e) => setFilters(prev => ({ ...prev, sortOrder: e.target.value }))}
-                >
-                  <option value="desc">ใหม่ไปเก่า</option>
-                  <option value="asc">เก่าไปใหม่</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* domain list*/}
         <div className="bg-white rounded-xl shadow-md p-2 mx-8 ">
@@ -1162,38 +1133,131 @@ export default function Home() {
           </div>
 
 
-          <div className="grid grid-cols-1 gap-4 mx-4 text-center">
-            {statusFilter.map((domain, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="grid grid-cols-1  border border-gray-300 rounded-lg p-4 shadow-sm  hover:shadow-md transition md:grid-cols-4"
-                onClick={() => { setShowDetailModal(true); setSelectedDomain(domain); }}
-              >
-                <div className="items-center justify-center ">
-                  <h3 className="text-sm font-semibold text-gray-700">{index + 1}</h3>
-                </div>
-                <p className="text-sm text-gray-600">
-                  <strong>{domain.domainRequest?.domain || domain.domain?.domainRequest?.domain || domain.domain || "-"}</strong>
-                </p>
-                <p className="text-sm text-gray-600">
-                  <strong> {domain.domainRequest?.ipAddress || domain.domain?.domainRequest?.ipAddress || domain.ipAddress || "-"}</strong>
-                </p>
-                <span
-                  className={`px-2 py-1 rounded-full font-medium ${domain.status === 'ACTIVE'
-                    ? 'bg-green-100 text-green-800'
-                    : domain.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
-                    }`}
-                >
-                  {domain.status === 'ACTIVE' ? 'ใช้งานอยู่' : domain.status === 'PENDING' ? 'รอการอนุมัติ' : 'ไม่ใช้งาน'}
-                </span>
-              </motion.div>
-            ))}
-            {statusFilter.length === 0 && (
-              <div className="text-center text-gray-500 py-4">ไม่มีข้อมูลโดเมน</div>
-            )}
+          <div className="min-h-auto bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+            <div className="max-w-7xl mx-auto">
+              {/* Domain Grid - Changed to horizontal layout */}
+              <div className="space-y-4">
+                {statusFilter.map((domain, index) => {
+                  const statusConfig = getStatusConfig(domain.status);
 
+                  return (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{
+                        duration: 0.5,
+                        delay: index * 0.1,
+                        type: "spring",
+                        stiffness: 100
+                      }}
+                      whileHover={{
+                        y: -8,
+                        scale: 1.02,
+                        transition: { duration: 0.2 }
+                      }}
+                      className={`
+                  relative overflow-hidden rounded-2xl border-2 backdrop-blur-sm
+                  cursor-pointer transition-all duration-300
+                  hover:shadow-2xl ${statusConfig.glow}
+                  ${statusConfig.className}
+                  group
+                  w-full
+                `}
+                      onClick={() => {
+                        setShowDetailModal(true);
+                        setSelectedDomain(domain);
+                      }}
+                    >
+                      {/* Background Pattern */}
+                      <div className="absolute inset-0 opacity-5">
+                        <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white transform translate-x-16 -translate-y-16"></div>
+                        <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-white transform -translate-x-12 translate-y-12"></div>
+                      </div>
+
+                      {/* Content - Horizontal Layout */}
+                      <div className="relative p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-center">
+                          {/* Index */}
+                          <div className="flex items-center justify-center md:justify-start">
+                            <div className="flex items-center space-x-2">
+                              <div className="p-2 bg-white/50 rounded-lg">
+                                <Globe className="w-5 h-5 text-blue-600" />
+                              </div>
+                              <span className="text-sm font-medium text-gray-600">
+                                #{String(index + 1).padStart(2, '0')}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Domain Info */}
+                          <div className="flex items-center space-x-3 md:col-span-2">
+                            <Globe className="w-4 h-4 text-gray-400" />
+                            <div>
+                              <p className="text-xs text-gray-500 uppercase tracking-wide">Domain</p>
+                              <p className="text-lg font-bold text-gray-800 truncate">
+                                {domain.domainRequest?.domain || domain.domain?.domainRequest?.domain || domain.domain || "-"}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* IP Address */}
+                          <div className="flex items-center space-x-3">
+                            <Server className="w-4 h-4 text-gray-400" />
+                            <div>
+                              <p className="text-xs text-gray-500 uppercase tracking-wide">IP Address</p>
+                              <p className="text-sm font-mono text-gray-700 bg-white/50 px-2 py-1 rounded-md inline-block">
+                                {domain.domainRequest?.ipAddress || domain.domain?.domainRequest?.ipAddress || domain.ipAddress || "-"}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Status */}
+                          <div className="flex justify-center md:justify-end">
+                            <div className={`
+                        flex items-center space-x-2 px-3 py-1.5 rounded-full text-xs font-semibold
+                        ${statusConfig.badge}
+                      `}>
+                              {getStatusIcon(domain.status)}
+                              <span>{statusConfig.text}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Hover Effect */}
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                      </div>
+
+                      {/* Click Ripple Effect */}
+                      <div className="absolute inset-0 bg-white opacity-0 group-active:opacity-20 transition-opacity duration-150"></div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* Empty State */}
+              {statusFilter.length === 0 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-10"
+                >
+                  <div className="mx-auto w-24 h-1 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-6">
+                    <Globe className="w-12 h-12 text-gray-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-600 mb-2">ไม่มีข้อมูลโดเมน</h3>
+                  <p className="text-gray-500">ยังไม่มีโดเมนในระบบ กรุณาเพิ่มโดเมนใหม่</p>
+
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="mt-6 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    เพิ่มโดเมนใหม่
+                  </motion.button>
+                </motion.div>
+              )}
+            </div>
           </div>
 
         </div>
