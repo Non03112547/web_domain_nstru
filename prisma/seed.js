@@ -1,31 +1,25 @@
-import { PrismaClient, Role, DurationType, RequestStatus, DomainStatus, Purpose } from '@prisma/client'
-import bcrypt from 'bcryptjs'
+import { PrismaClient, Role, DurationType, RequestStatus, DomainStatus, Purpose } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
     // 🧹 ล้างข้อมูลเก่า
-    await prisma.renewalRequest.deleteMany()
-    await prisma.domain.deleteMany()
-    await prisma.domainRequest.deleteMany()
-    await prisma.deletedDomainLog.deleteMany()
-    await prisma.user.deleteMany()
-    await prisma.position.deleteMany()
+    await prisma.renewalRequest.deleteMany();
+    await prisma.domain.deleteMany();
+    await prisma.domainRequest.deleteMany();
+    await prisma.deletedDomainLog.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.position.deleteMany();
 
     // 🧑‍💼 เพิ่มตำแหน่ง
     const adminPosition = await prisma.position.create({
-        data: {
-            name: 'ผู้ดูแลระบบ',
-            description: 'มีสิทธิ์จัดการทุกอย่าง',
-        }
-    })
+        data: { name: 'ผู้ดูแลระบบ', description: 'มีสิทธิ์จัดการทุกอย่าง' }
+    });
 
     const userPosition = await prisma.position.create({
-        data: {
-            name: 'เจ้าหน้าที่ทั่วไป',
-            description: 'สามารถส่งคำขอใช้โดเมน',
-        }
-    })
+        data: { name: 'เจ้าหน้าที่ทั่วไป', description: 'สามารถส่งคำขอใช้โดเมน' }
+    });
 
     // 👤 เพิ่มผู้ใช้ พร้อม hash password
     const admin = await prisma.user.create({
@@ -35,7 +29,7 @@ async function main() {
             role: Role.ADMIN,
             positionId: adminPosition.id,
         }
-    })
+    });
 
     const user01 = await prisma.user.create({
         data: {
@@ -44,7 +38,7 @@ async function main() {
             role: Role.USER,
             positionId: userPosition.id,
         }
-    })
+    });
 
     const user02 = await prisma.user.create({
         data: {
@@ -53,7 +47,7 @@ async function main() {
             role: Role.USER,
             positionId: userPosition.id,
         }
-    })
+    });
 
     // 🌐 คำขอโดเมน APPROVED
     const approvedRequest = await prisma.domainRequest.create({
@@ -87,16 +81,16 @@ async function main() {
             status: RequestStatus.APPROVED,
             userId: user01.id
         }
-    })
+    });
 
-    await prisma.domain.create({
+    const approvedDomain = await prisma.domain.create({
         data: {
             domainRequestId: approvedRequest.id,
             lastUsedAt: new Date(),
             status: DomainStatus.ACTIVE,
-            decideTime: new Date(), // ตัดสินใจวันนี้
+            decideTime: new Date() // อนุมัติ → set decideTime
         }
-    })
+    });
 
     // 🕒 คำขอโดเมน EXPIRED
     const expiredRequest = await prisma.domainRequest.create({
@@ -129,16 +123,16 @@ async function main() {
             status: RequestStatus.APPROVED,
             userId: user02.id
         }
-    })
+    });
 
     const expiredDomain = await prisma.domain.create({
         data: {
             domainRequestId: expiredRequest.id,
             lastUsedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
             status: DomainStatus.EXPIRED,
-            decideTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // ตัดสินใจเมื่อ 7 วันก่อน
+            // expired → ยังไม่ set decideTime
         }
-    })
+    });
 
     // 🔄 Renewal Request (PENDING)
     await prisma.renewalRequest.create({
@@ -149,7 +143,7 @@ async function main() {
             status: RequestStatus.PENDING,
             userId: user02.id
         }
-    })
+    });
 
     // 🗑️ โดเมนในถังขยะ
     const trashedRequest = await prisma.domainRequest.create({
@@ -175,7 +169,7 @@ async function main() {
             status: RequestStatus.APPROVED,
             userId: user01.id
         }
-    })
+    });
 
     await prisma.domain.create({
         data: {
@@ -184,9 +178,9 @@ async function main() {
             trashExpiresAt: new Date(Date.now() + 85 * 24 * 60 * 60 * 1000),
             lastUsedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
             status: DomainStatus.TRASHED,
-            decideTime: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // ตัดสินใจตอนหมดอายุ
+            // trashed → ยังไม่ set decideTime
         }
-    })
+    });
 
     // 🧹 ล็อกการลบโดเมน
     await prisma.deletedDomainLog.create({
@@ -194,15 +188,15 @@ async function main() {
             domainName: 'archive.nstru.ac.th',
             reason: 'ไม่ใช้งานแล้ว ลบทิ้ง',
         }
-    })
+    });
 
-    console.log('✅ Database seeded successfully with decideTime!')
+    console.log('✅ Database seeded successfully with decideTime only for APPROVED/REJECTED!');
 }
 
 main()
     .then(() => prisma.$disconnect())
     .catch(async (e) => {
-        console.error('❌ Error seeding data:', e)
-        await prisma.$disconnect()
-        process.exit(1)
-    })
+        console.error('❌ Error seeding data:', e);
+        await prisma.$disconnect();
+        process.exit(1);
+    });

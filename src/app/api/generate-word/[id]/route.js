@@ -53,8 +53,9 @@ function mapToTemplateData(request) {
         requestedAt: request.requestedAt
             ? request.requestedAt.toLocaleDateString()
             : "",
-        approvalCooldownAt: request.decideTime
-            ? request.decideTime.toLocaleDateString()
+
+        approvalCooldownAt: request.domain_record?.decideTime
+            ? request.domain_record?.decideTime.toLocaleDateString()
             : "",
         A: checkbox(request.status === "APPROVED"),
         R: checkbox(request.status === "REJECTED"),
