@@ -69,6 +69,14 @@ export default function Home() {
   const [policy, setPolicy] = useState(false); // false = ยังไม่ยอมรับ
   const [showPreview, setShowPreview] = useState(false)
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [isEditing, setIsEditing] = useState(false); // ตรวจสอบว่ากำลังแก้ไขอยู่หรือไม่
+
+
+  const handleBlur = () => {
+    setIsEditing(false); // เมื่อเลิกแก้ไข
+    handleRequestSubmitIP()
+  };
+
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -569,6 +577,7 @@ export default function Home() {
     }
   }, [requestData.machineAdminType])
 
+
   useEffect(() => {
     // ทุกครั้งที่เลือก domain ใหม่ → ปิด preview ไปก่อน
     setShowPreview(false);
@@ -709,7 +718,7 @@ export default function Home() {
     }
 
     if (new Date(renewalData.newExpiryDate) <= new Date()) {
-      alert('วันหมดอายุใหม่ต้องเป็นวันที่ในอนาคต')
+      alert('ขอใช้โดเมนถึงวันที่ต้องเป็นวันที่ในอนาคต')
       return
     }
 
@@ -743,7 +752,7 @@ export default function Home() {
 
   const handleRequestSubmit = async () => {
     const {
-      domain, machineType, OS,
+      domain, ipAddress, machineType, OS,
       requesterName, responsibleName, department, institution, contactP, contactE, responsibleContactP, responsibleContactE,
       machineRoom, machinePlace,
       property, useType, durationType, expiresAt
@@ -760,11 +769,11 @@ export default function Home() {
     }
 
     if (durationType === 'TEMPORARY' && new Date(expiresAt) <= new Date()) {
-      alert('วันหมดอายุต้องเป็นวันที่ในอนาคต')
+      alert('ขอใช้โดเมนถึงวันที่ต้องเป็นวันที่ในอนาคต')
       return
     }
     if (durationType === 'TEMPORARY' && new Date(expiresAt) <= new Date()) {
-      alert('วันหมดอายุต้องเป็นวันที่ในอนาคต')
+      alert('ขอใช้โดเมนถึงวันที่ต้องเป็นวันที่ในอนาคต')
       return
     }
 
@@ -820,6 +829,31 @@ export default function Home() {
       alert('เกิดข้อผิดพลาดในการส่งคำขอ')
     }
   }
+
+  const handleRequestSubmitIP = async () => {
+    try {
+      // ส่งค่า IP Address ไป API
+      const response = await fetch("/api/requests-ip", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ ipAddress: requestData.ipAddress ?? "" })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message); // แสดงข้อความสำเร็จจาก API
+      } else {
+        const error = await response.json();
+        alert(`เกิดข้อผิดพลาด: ${error.error}`);
+      }
+    } catch (err) {
+      console.error("Error submitting IP Address:", err);
+      alert("เกิดข้อผิดพลาดในการบันทึก IP Address");
+    }
+  };
+
 
   const handleRequestCancel = () => {
     setShowRequestModal(false)
@@ -1253,6 +1287,7 @@ export default function Home() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="mt-6 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+                    onClick={() => setShowRequestModal(true)}
                   >
                     เพิ่มโดเมนใหม่
                   </motion.button>
@@ -1616,7 +1651,7 @@ export default function Home() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      วันหมดอายุ
+                      ขอใช้โดเมนถึงวันที่
                     </label>
                     <input
                       type="date"
@@ -1738,7 +1773,7 @@ export default function Home() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    เหตุผลในการต่ออายุ
+                    เหตุผลในการต่อเวลาใช้งาน
                   </label>
                   <textarea
                     value={renewalData.reason}
@@ -1775,6 +1810,7 @@ export default function Home() {
       {
         showDetailModal && selectedDomain && (() => {
           const domainData = selectedDomain.domainRequest || selectedDomain.domain?.domainRequest || selectedDomain;
+          const valueIP = requestData.ipAddress || domainData?.ipAddress || ''
           return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
@@ -1789,7 +1825,28 @@ export default function Home() {
                   <h2 className='flex items-center gap-2'><ClipboardList /><strong> ข้อมูลโดเมน</strong></h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div><strong>ชื่อโดเมน:</strong> <span className="text-blue-500">{domainData?.domain || '-'}</span></div>
-                    <div><strong>IP Address:</strong> <span className="text-blue-500">{domainData?.ipAddress || '-'}</span></div>
+                    <div>
+                      <strong>IP Address:</strong>{" "}
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          className="text-blue-500 border rounded px-2 py-1"
+                          value={valueIP}
+                          onChange={(e) => handleRequestDataChange('ipAddress', e.target.value)}
+                          onBlur={handleBlur} // เมื่อออกจาก input ให้บันทึกค่า
+                          autoFocus
+                        />
+                      ) : (
+                        <span
+                          className="text-blue-500 cursor-pointer"
+                          onClick={() => setIsEditing(true)} // คลิกเพื่อแก้ไข
+                        >
+                          {valueIP}
+                        </span>
+                      )}
+                    </div>
+
+
                     <div><strong>ประเภทเครื่อง:</strong> <span className="text-blue-500">{domainData?.machineType || '-'}</span></div>
                     <div><strong>ระบบปฏิบัติการ:</strong> <span className="text-blue-500">{domainData?.OS || '-'}</span></div>
                   </div>
@@ -1856,7 +1913,7 @@ export default function Home() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div><strong>วันที่ขอ:</strong> {domainData?.requestedAt ? new Date(domainData.requestedAt).toLocaleString() : '-'}</div>
                     <div><strong>ระยะเวลาใช้งาน:</strong> {domainData?.durationType === "PERMANENT" ? "ถาวร" : "ชั่วคราว" || '-'}</div>
-                    <div><strong>วันหมดอายุ:</strong> {domainData?.expiresAt ? new Date(domainData.expiresAt).toLocaleDateString() : '-'}</div>
+                    <div><strong>ใช้ถึงวันที่:</strong> {domainData?.expiresAt ? new Date(domainData.expiresAt).toLocaleDateString() : '-'}</div>
                     <div><strong>สถานะ:</strong> {selectedDomain.status === "ACTIVE"
                       ? <span className="text-green-500">ใช้งานอยู่</span>
                       : selectedDomain.status === "PENDING" ? <span className="text-yellow-500">กำลังรอการอนุมัติ</span>
