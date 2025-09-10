@@ -16,6 +16,7 @@ export default function LoginPage() {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
 
+    // ถ้ามี session อยู่แล้ว ให้ redirect ไปหน้าแรก
     useEffect(() => {
         if (session) {
             router.push('/')
@@ -71,17 +72,25 @@ export default function LoginPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md"
             >
+                {/* หัวข้อ */}
                 <div className="text-center mb-8">
                     <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <User className="w-8 h-8 text-blue-600" />
                     </div>
                     <h1 className="text-2xl font-bold text-gray-900">เข้าสู่ระบบ</h1>
-                    <p className="text-gray-600 mt-2">ระบบขอใช้โดเมน มหาวิทยาลัยราชภัฏนครศรีธรรมราช</p>
+                    <p className="text-gray-600 mt-2">
+                        ระบบขอใช้โดเมน มหาวิทยาลัยราชภัฏนครศรีธรรมราช
+                    </p>
                 </div>
 
+                {/* ฟอร์มล็อกอิน */}
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Username */}
                     <div>
-                        <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                        <label
+                            htmlFor="username"
+                            className="block text-sm font-medium text-gray-700 mb-2"
+                        >
                             ชื่อผู้ใช้
                         </label>
                         <div className="relative">
@@ -99,8 +108,12 @@ export default function LoginPage() {
                         </div>
                     </div>
 
+                    {/* Password */}
                     <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                        <label
+                            htmlFor="password"
+                            className="block text-sm font-medium text-gray-700 mb-2"
+                        >
                             รหัสผ่าน
                         </label>
                         <div className="relative">
@@ -118,6 +131,7 @@ export default function LoginPage() {
                         </div>
                     </div>
 
+                    {/* Error */}
                     {error && (
                         <motion.div
                             initial={{ opacity: 0, y: -10 }}
@@ -129,15 +143,17 @@ export default function LoginPage() {
                         </motion.div>
                     )}
 
+                    {/* ปุ่มเข้าสู่ระบบ */}
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full btn-indigo py-3 px-4 rounded-lg font-medium focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                         {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
                     </button>
                 </form>
 
+                {/* บัญชีทดสอบ */}
                 <div className="mt-6 text-center text-sm text-gray-500">
                     <p>บัญชีทดสอบ:</p>
                     <p>Admin: admin / admin123</p>
