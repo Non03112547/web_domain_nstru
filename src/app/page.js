@@ -1168,6 +1168,7 @@ export default function Home() {
                         setShowDetailModal(true);
                         setSelectedDomain(domain);
                       }}
+
                     >
                       {/* Background Pattern */}
                       <div className="absolute inset-0 opacity-5">
@@ -1950,14 +1951,16 @@ export default function Home() {
                       </button>
                     </div>
                   )}
-                  {session?.user?.role === 'ADMIN' && selectedDomain.status !== "PENDING" && (
-                    <div className=" space-x-3 mt-6">
+                  {session?.user?.role === 'ADMIN' && selectedDomain && selectedDomain.status !== "PENDING" && (
+                    <div className="space-x-3 mt-6">
                       <button
-                        onClick={() => {
-                          handleDeleteDomain(domainData?.id)
-                          window.location.reload();
-                        }}
+                        onClick={() => handleDeleteDomain(
+                          domainData?.id || selectedDomain?.id,           // domainId
+                          domainData?.domain || selectedDomain?.domain,   // domainName
+                          ['TRASHED', 'EXPIRED'].includes(domainData?.status || selectedDomain?.status) // true = ลบถาวร
+                        )}
                         className="px-4 py-2 btn-rose rounded-lg transition-colors"
+                        title={['TRASHED', 'EXPIRED'].includes(selectedDomain?.status) ? 'ลบถาวร' : 'ย้ายไปถังขยะ'}
                       >
                         <Trash2 />
                       </button>
