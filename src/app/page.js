@@ -70,11 +70,13 @@ export default function Home() {
   const [showPreview, setShowPreview] = useState(false)
   const [pdfUrl, setPdfUrl] = useState(null);
   const [isEditing, setIsEditing] = useState(false); // ตรวจสอบว่ากำลังแก้ไขอยู่หรือไม่
-
+  const [iDsIP, setIDsIP] = useState(null)
+  const [ips, setIps] = useState(null)
 
   const handleBlur = () => {
     setIsEditing(false); // เมื่อเลิกแก้ไข
     handleRequestSubmitIP()
+    window.location.reload();
   };
 
 
@@ -541,6 +543,7 @@ export default function Home() {
     durationType: 'PERMANENT',
     expiresAt: ''
   })
+
   const fetchDomains = async () => {
     try {
       const response = await fetch('/api/domains');
@@ -832,18 +835,18 @@ export default function Home() {
 
   const handleRequestSubmitIP = async () => {
     try {
-      // ส่งค่า IP Address ไป API
       const response = await fetch("/api/requests-ip", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ ipAddress: requestData.ipAddress ?? "" })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ipAddress: ips ?? '', // ถ้าไม่มีค่า → ส่งว่าง
+          domainRequestId: iDsIP ?? ''          // ต้องมี id เพื่อให้ API อัปเดต
+        })
       });
 
       if (response.ok) {
         const data = await response.json();
-        alert(data.message); // แสดงข้อความสำเร็จจาก API
+        alert(data.message);
       } else {
         const error = await response.json();
         alert(`เกิดข้อผิดพลาด: ${error.error}`);
@@ -853,8 +856,6 @@ export default function Home() {
       alert("เกิดข้อผิดพลาดในการบันทึก IP Address");
     }
   };
-
-
   const handleRequestCancel = () => {
     setShowRequestModal(false)
     setRequestData({
@@ -1670,7 +1671,7 @@ export default function Home() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2 hidden ">
                       ประเภทการใช้งาน (อัตโนมัติ)
                     </label>
                     <input
@@ -1826,16 +1827,21 @@ export default function Home() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div><strong>ชื่อโดเมน:</strong> <span className="text-blue-500">{domainData?.domain || '-'}</span></div>
                     <div>
-                      <strong>IP Address:</strong>{" "}
+                      <strong>IP Address:</strong>
                       {isEditing ? (
                         <input
                           type="text"
                           className="text-blue-500 border rounded px-2 py-1"
                           value={valueIP}
-                          onChange={(e) => handleRequestDataChange('ipAddress', e.target.value)}
+                          onChange={(e) => {
+                            handleRequestDataChange('ipAddress', e.target.value);
+                            setIDsIP(domainData.id);
+                            setIps(e.target.value);
+                          }}
                           onBlur={handleBlur} // เมื่อออกจาก input ให้บันทึกค่า
                           autoFocus
                         />
+
                       ) : (
                         <span
                           className="text-blue-500 cursor-pointer"
