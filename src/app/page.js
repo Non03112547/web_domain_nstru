@@ -87,7 +87,7 @@ export default function Home() {
       case 'PENDING':
         return <Clock className="w-4 h-4 text-yellow-600" />;
       case 'REJECTED':
-        return <AlertTriangle className="w-4 h-4 text-gray-600" />;
+        return <XCircle className="w-4 h-4 text-gray-600" />;
       default:
         return <AlertTriangle className="w-4 h-4 text-red-600" />;
     }
@@ -725,38 +725,31 @@ export default function Home() {
   }
 
   const handleRenewalSubmit = async () => {
-    if (!renewalData.domainId || !renewalData.newExpiryDate) {
-      alert('กรุณาระบุข้อมูลให้ครบถ้วน')
-      return
-    }
-
-    if (new Date(renewalData.newExpiryDate) <= new Date()) {
-      alert('ขอใช้โดเมนถึงวันที่ต้องเป็นวันที่ในอนาคต')
-      return
-    }
-
     try {
       const response = await fetch('/api/renewal-requests', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(renewalData)
-      })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(renewalData),
+      });
 
       if (response.ok) {
-        alert('ส่งคำขอต่ออายุสำเร็จ รอการอนุมัติจากผู้ดูแลระบบ')
-        setShowRenewalModal(false)
-        setRenewalData({ domainId: '', newExpiryDate: '', reason: '' })
+        alert('ส่งคำขอต่ออายุสำเร็จ');
       } else {
-        const error = await response.json()
-        alert(`เกิดข้อผิดพลาด: ${error.error}`)
+        let errorMessage = 'Unknown error';
+        const contentType = response.headers.get('content-type');
+        if (contentType?.includes('application/json')) {
+          const error = await response.json();
+          errorMessage = error.error || errorMessage;
+        } else {
+          errorMessage = await response.text();
+        }
+        alert(`เกิดข้อผิดพลาด: ${errorMessage}`);
       }
-    } catch (error) {
-      console.error('Error submitting renewal request:', error)
-      alert('เกิดข้อผิดพลาดในการส่งคำขอต่ออายุ')
+    } catch (err) {
+      console.error('Error submitting renewal request:', err);
+      alert('เกิดข้อผิดพลาดในการส่งคำขอต่ออายุ');
     }
-  }
+  };
 
   const handleRenewalCancel = () => {
     setShowRenewalModal(false)
@@ -1075,7 +1068,7 @@ export default function Home() {
                 <input
                   type="text"
                   value={filters.search}
-                  placeholder="ค้นหา ชื่อโดเมน, ผู้ขอ, หน่วยงาน..."
+                  placeholder="ค้นหา ชื่อโดเมน"
                   className="w-full px-3 py-1 my-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                 />
@@ -1823,9 +1816,9 @@ export default function Home() {
                   ยกเลิก
                 </button>
                 <button
-                  onClick={() => {
-                    handleRenewalSubmit;
-                  }}
+                  onClick={
+                    handleRenewalSubmit
+                  }
                   className="px-4 py-2 btn-emerald rounded-lg transition-colors"
                 >
                   ส่งคำขอ
