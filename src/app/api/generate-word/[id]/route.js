@@ -16,7 +16,8 @@ function checkbox(val) {
 function mapToTemplateData(request) {
     return {
         requesterName: request.requesterName || "",
-        user: request.user?.username || "",
+        responsibleName: request.responsibleName || "",
+        position: request.position || "",
         department: request.department || "",
         contactP: request.contactP || "",
         contactE: request.contactE || "",
@@ -57,8 +58,8 @@ function mapToTemplateData(request) {
         approvalCooldownAt: request.domain_record?.decideTime
             ? request.domain_record?.decideTime.toLocaleDateString()
             : "",
-        A: checkbox(request.status === "APPROVED"),
-        R: checkbox(request.status === "REJECTED"),
+        A: checkbox(request.status === "A"),
+        R: checkbox(request.status === "R"),
     };
 }
 

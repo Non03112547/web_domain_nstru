@@ -44,7 +44,7 @@ model Position {
 model DomainRequest {
   id                     String         @id @default(cuid())
   domain                 String
-  ipAddress              String         @default("unknown")
+  ipAddress              String         @default("0.0.0.0")
   machineType            String         @default("PC/Mac")
   OS                     String         @default("MS Windows")
   otherMachineType       String         @default("NO")

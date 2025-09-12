@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "generate": "prisma generate",
-    "seed": "node prisma/seed.js"
+    "seed4": "node prisma/seed4.js"
   },
   "dependencies": {
     "@prisma/client": "^6.11.1",

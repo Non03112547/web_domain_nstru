@@ -86,6 +86,8 @@ export default function Home() {
         return <Activity className="w-4 h-4 text-green-600" />;
       case 'PENDING':
         return <Clock className="w-4 h-4 text-yellow-600" />;
+      case 'REJECTED':
+        return <AlertTriangle className="w-4 h-4 text-gray-600" />;
       default:
         return <AlertTriangle className="w-4 h-4 text-red-600" />;
     }
@@ -106,6 +108,13 @@ export default function Home() {
           badge: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
           text: 'รอการอนุมัติ',
           glow: 'shadow-yellow-100'
+        };
+      case 'REJECTED':
+        return {
+          className: 'bg-gradient-to-r from-gray-200 to-gray-300 border-gray-400 text-gray-800',
+          badge: 'bg-gray-300 text-gray-700 border border-gray-400',
+          text: 'ไม่อนุมัติ',
+          glow: 'shadow-gray-300'
         };
       default:
         return {
@@ -524,6 +533,7 @@ export default function Home() {
     purpose: '',
     ipAddress: '',
     requesterName: '',
+    position: '',
     responsibleName: '',
     department: '',
     institution: '',
@@ -804,6 +814,7 @@ export default function Home() {
           purpose: '',
           ipAddress: '',
           requesterName: '',
+          position: '',
           responsibleName: '',
           department: '',
           institution: '',
@@ -1330,7 +1341,7 @@ export default function Home() {
                     <input
                       type="text"
                       value={requestData.ipAddress}
-                      onChange={(e) => handleRequestDataChange('ipAddress', e.target.value)}
+                      onChange={(e) => handleRequestDataChange('ipAddress', e.target.value.replace(/[^\d.]/g, ''))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="192.168.1.1"
                     />
@@ -1456,6 +1467,19 @@ export default function Home() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ตำแหน่งงานผู้ขอโดเมน  *
+                  </label>
+                  <input
+                    type="text"
+                    value={requestData.position}
+                    onChange={(e) => handleRequestDataChange('position', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="หัวหน้าสาขา"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     ภาควิชา/ฝ่าย/แผนก  *
                   </label>
                   <input
@@ -1490,9 +1514,11 @@ export default function Home() {
                     </label>
                     <input
                       type="text"
+                      inputMode="numeric"      // keyboard บนมือถือเป็นตัวเลข
+                      pattern="[0-9]*"         // regex กรองเฉพาะตัวเลข
                       value={requestData.contactP}
                       onChange={(e) => {
-                        const value = e.target.value;
+                        handleRequestDataChange("contactP", e.target.value.replace(/\D/g, ''));
                       }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder=" 081-234-5678"
@@ -1506,7 +1532,7 @@ export default function Home() {
                         type="text"
                         value={requestData.contactE}
                         onChange={(e) => {
-                          const value = e.target.value;
+                          handleRequestDataChange("contactE", e.target.value);
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="example@email.com"
@@ -1522,9 +1548,11 @@ export default function Home() {
                     </label>
                     <input
                       type="text"
+                      inputMode="numeric"      // keyboard บนมือถือเป็นตัวเลข
+                      pattern="[0-9]*"         // regex กรองเฉพาะตัวเลข
                       value={requestData.responsibleContactP}
                       onChange={(e) => {
-                        const value = e.target.value;
+                        handleRequestDataChange("responsibleContactP", e.target.value.replace(/\D/g, ''));
                       }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="081-234-5678"
@@ -1537,7 +1565,7 @@ export default function Home() {
                         type="text"
                         value={requestData.responsibleContactE}
                         onChange={(e) => {
-                          const value = e.target.value;
+                          handleRequestDataChange("responsibleContactE", e.target.value);
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="example@email.com"
@@ -1585,7 +1613,7 @@ export default function Home() {
                     onChange={(e) => handleRequestDataChange('machineAdminType', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value=" " >--เลือก--</option>
+                    <option value="" >--เลือก--</option>
                     <option value="requester">บุคคลเดียวกับผู้ขอจดทะเบียน</option>
                     <option value="MachineAdmin">มีผู้ดูแลเครื่องโดยเฉพาะคือ</option>
                   </select>
@@ -1625,10 +1653,10 @@ export default function Home() {
                       type="text"
                       value={requestData.machineAdminContactP}
                       onChange={(e) => {
-                        const value = e.target.value;
+                        handleRequestDataChange('machineAdminContactP', e.target.value.replace(/\D/g, ''));
                       }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="example@email.com หรือ 081-234-5678"
+                      placeholder="081-234-5678"
                     />
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       E-mail ผู้ดูแลเครื่อง *
@@ -1637,7 +1665,7 @@ export default function Home() {
                       type="text"
                       value={requestData.machineAdminContactE}
                       onChange={(e) => {
-                        const value = e.target.value;
+                        handleRequestDataChange('machineAdminContactE', e.target.value);
                       }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="example@email.com "
@@ -1670,8 +1698,8 @@ export default function Home() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 hidden ">
+                  <div className='hidden'>
+                    <label className="block text-sm font-medium text-gray-700 mb-2  ">
                       ประเภทการใช้งาน (อัตโนมัติ)
                     </label>
                     <input
@@ -1709,6 +1737,7 @@ export default function Home() {
                   <button
                     onClick={() => {
                       handleRequestSubmit();
+                      window.location.reload()
                     }}
                     className="px-4 py-2 btn-emerald rounded-lg transition-colors"
                   >
@@ -1796,7 +1825,6 @@ export default function Home() {
                 <button
                   onClick={() => {
                     handleRenewalSubmit;
-                    window.location.reload();
                   }}
                   className="px-4 py-2 btn-emerald rounded-lg transition-colors"
                 >
@@ -1811,7 +1839,7 @@ export default function Home() {
       {
         showDetailModal && selectedDomain && (() => {
           const domainData = selectedDomain.domainRequest || selectedDomain.domain?.domainRequest || selectedDomain;
-          const valueIP = requestData.ipAddress || domainData?.ipAddress || ''
+          const valueIP = requestData.ipAddress || domainData?.ipAddress || '0.0.0.0'
           return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
@@ -1838,6 +1866,7 @@ export default function Home() {
                             setIDsIP(domainData.id);
                             setIps(e.target.value);
                           }}
+                          onKeyDown={(e) => { if (e.key === 'Enter') handleBlur(); }}
                           onBlur={handleBlur} // เมื่อออกจาก input ให้บันทึกค่า
                           autoFocus
                         />
@@ -1868,6 +1897,7 @@ export default function Home() {
                     <div><strong>เบอร์โทรศัพท์ ผู้รับผิดชอบ:</strong> <span className="text-blue-500">{domainData?.responsibleContactP || '-'}</span></div>
                     <div><strong>E-mail ผู้ขอ:</strong> <span className="text-blue-500">{domainData?.contactE || '-'}</span></div>
                     <div><strong>E-mail ผู้รับผิดชอบ:</strong> <span className="text-blue-500">{domainData?.responsibleContactE || '-'}</span></div>
+                    <div><strong>ตำแหน่งงานผู้ขอโดเมน </strong> <span className="text-blue-500">{domainData?.position || '-'}</span> </div>
                     <div><strong>ภาควิชา/ฝ่าย/แผนก:</strong> <span className="text-blue-500">{domainData?.department || '-'}</span></div>
                     <div><strong>คณะ/สำนัก/สถาบัน/กอง:</strong> <span className="text-blue-500">{domainData?.institution || '-'}</span></div>
                   </div>

@@ -6,7 +6,6 @@ import prisma from '@/lib/db'
 export async function PUT(request, { params }) {
     try {
         const session = await getServerSession(authOptions)
-
         if (!session) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
@@ -14,48 +13,52 @@ export async function PUT(request, { params }) {
         const body = await request.json()
         const { action } = body
 
-        if (action === 'approve' || action === 'reject') {
-            // Only admin can approve/reject
-            if (session.user.role !== 'ADMIN') {
-                return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-            }
+        console.log('PUT request params.id:', params.id)
+        console.log('Action:', action)
+        console.log('User role:', session.user.role, 'username:', session.user.username)
 
-            const domainRequest = await prisma.domainRequest.findUnique({
-                where: { id: params.id }
-            })
-
-            if (!domainRequest) {
-                return NextResponse.json({ error: 'Request not found' }, { status: 404 })
-            }
-
-            const status = action === 'approve' ? 'APPROVED' : 'REJECTED'
-
-            // Set cooldown time (60 minutes from now)
-            const cooldownTime = new Date(Date.now() + 60 * 60 * 1000)
-
-            const updatedRequest = await prisma.domainRequest.update({
-                where: { id: params.id },
-                data: {
-                    status,
-                    approvalCooldownAt: cooldownTime
-                }
-            })
-
-            // If approved, create domain record
-            if (action === 'approve') {
-                await prisma.domain.create({
-                    data: {
-                        domainRequestId: params.id,
-                        status: 'ACTIVE',
-                        lastUsedAt: new Date()
-                    }
-                })
-            }
-
-            return NextResponse.json(updatedRequest)
+        if (action !== 'approve' && action !== 'reject') {
+            return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
         }
 
-        return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
+        // Only admin can approve/reject
+        if (session.user.role !== 'ADMIN') {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        }
+
+        const domainRequest = await prisma.domainRequest.findUnique({
+            where: { id: params.id },
+            include: { domain_record: true }
+        })
+
+        if (!domainRequest) {
+            return NextResponse.json({ error: 'Request not found' }, { status: 404 })
+        }
+
+        const status = action === 'approve' ? 'APPROVED' : 'REJECTED'
+        const cooldownTime = new Date(Date.now() + 60 * 60 * 1000)
+
+        // Update request status
+        const updatedRequest = await prisma.domainRequest.update({
+            where: { id: params.id },
+            data: { status, approvalCooldownAt: cooldownTime }
+        })
+
+        console.log('Updated request status:', updatedRequest.status)
+
+        // Create domain record if approved and not exists
+        if (action === 'approve' && !domainRequest.domain_record) {
+            await prisma.domain.create({
+                data: {
+                    domainRequestId: params.id,
+                    status: 'ACTIVE',
+                    lastUsedAt: new Date()
+                }
+            })
+            console.log('Domain record created for request:', params.id)
+        }
+
+        return NextResponse.json(updatedRequest)
     } catch (error) {
         console.error('Error updating request:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -65,30 +68,29 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
     try {
         const session = await getServerSession(authOptions)
-
         if (!session) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
+        console.log('DELETE request params.id:', params.id)
+        console.log('User role:', session.user.role, 'username:', session.user.username)
+
         const domainRequest = await prisma.domainRequest.findUnique({
             where: { id: params.id },
-            include: {
-                domain_record: true
-            }
+            include: { domain_record: true }
         })
 
         if (!domainRequest) {
             return NextResponse.json({ error: 'Request not found' }, { status: 404 })
         }
 
-        // Check if user owns this request or is admin
+        // Check ownership or admin
         if (domainRequest.userId !== session.user.id && session.user.role !== 'ADMIN') {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
         }
 
-        // If request is APPROVED and has domain record, handle based on domain status
+        // If approved with domain_record
         if (domainRequest.status === 'APPROVED' && domainRequest.domain_record) {
-            // Only admin can manage approved requests
             if (session.user.role !== 'ADMIN') {
                 return NextResponse.json(
                     { error: 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถจัดการคำขอที่อนุมัติแล้ว' },
@@ -96,13 +98,15 @@ export async function DELETE(request, { params }) {
                 )
             }
 
-            if (domainRequest.domain_record.status === 'TRASHED') {
-                // If already in trash, delete permanently
-                await prisma.domain.delete({
-                    where: { id: domainRequest.domain_record.id }
-                })
+            const domainId = domainRequest.domain_record?.id
 
-                // Create deletion log
+            if (!domainId) {
+                return NextResponse.json({ error: 'Domain record not found' }, { status: 404 })
+            }
+
+            if (domainRequest.domain_record.status === 'TRASHED') {
+                // Permanently delete
+                await prisma.domain.delete({ where: { id: domainId } })
                 await prisma.deletedDomainLog.create({
                     data: {
                         domainName: domainRequest.domain,
@@ -114,35 +118,31 @@ export async function DELETE(request, { params }) {
                         deletedBy: session.user.username
                     }
                 })
-
+                console.log('Domain permanently deleted:', domainId)
                 return NextResponse.json({ message: 'ลบโดเมนออกจากระบบถาวรเรียบร้อยแล้ว' })
             } else {
-                // Move domain to trash
+                // Move to trash
                 await prisma.domain.update({
-                    where: { id: domainRequest.domain_record.id },
+                    where: { id: domainId },
                     data: {
                         status: 'TRASHED',
                         deletedAt: new Date(),
-                        trashExpiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days from now
+                        trashExpiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
                     }
                 })
-
+                console.log('Domain moved to trash:', domainId)
                 return NextResponse.json({ message: 'คำขอถูกย้ายไปยังถังขยะเรียบร้อยแล้ว' })
             }
         } else {
-            // For non-approved requests, delete normally
             // Delete domain record if exists
             if (domainRequest.domain_record) {
-                await prisma.domain.delete({
-                    where: { id: domainRequest.domain_record.id }
-                })
+                await prisma.domain.delete({ where: { id: domainRequest.domain_record.id } })
+                console.log('Domain record deleted:', domainRequest.domain_record.id)
             }
 
             // Delete request
-            await prisma.domainRequest.delete({
-                where: { id: params.id }
-            })
-
+            await prisma.domainRequest.delete({ where: { id: params.id } })
+            console.log('Domain request deleted:', params.id)
             return NextResponse.json({ message: 'Request deleted successfully' })
         }
     } catch (error) {
