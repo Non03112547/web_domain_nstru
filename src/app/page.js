@@ -1000,138 +1000,243 @@ export default function Home() {
       </div> GOOD*/ }
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Tab Navigator */}
+        <div className="bg-white rounded-xl shadow-lg mb-6 overflow-hidden border border-gray-100">
+          <div className="bg-gradient-to-r from-slate-50 to-white border-b border-gray-200">
+            <div className="flex items-center justify-between px-6 py-2">
+              {/* Navigation Tabs */}
+              <nav className="flex space-x-1" aria-label="Tabs">
+                <button
+                  onClick={() => handleTabChange('domains')}
+                  className={`group relative py-3 px-6 rounded-lg font-medium text-sm transition-all duration-200 ${activeTab === 'domains'
+                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-200 transform -translate-y-0.5'
+                    : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50 hover:shadow-md'
+                    }`}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Globe className={`w-4 h-4 transition-transform duration-200 ${activeTab === 'domains' ? 'scale-110' : 'group-hover:scale-105'
+                      }`} />
+                    <span>คำขอใช้โดเมน</span>
+                    <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'domains'
+                      ? 'bg-white/20 text-white'
+                      : 'bg-blue-100 text-blue-600 group-hover:bg-blue-200'
+                      }`}>
+                      {allStatusRequests.length}
+                    </span>
+                  </div>
+                </button>
 
+                <button
+                  onClick={() => handleTabChange('trashedExpired')}
+                  className={`group relative py-3 px-6 rounded-lg font-medium text-sm transition-all duration-200 ${activeTab === 'trashedExpired'
+                    ? 'bg-red-500 text-white shadow-lg shadow-red-200 transform -translate-y-0.5'
+                    : 'text-gray-600 hover:text-red-600 hover:bg-red-50 hover:shadow-md'
+                    }`}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Trash2 className={`w-4 h-4 transition-transform duration-200 ${activeTab === 'trashedExpired' ? 'scale-110' : 'group-hover:scale-105'
+                      }`} />
+                    <span>โดเมนที่ลบ/หมดอายุ</span>
+                    <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'trashedExpired'
+                      ? 'bg-white/20 text-white'
+                      : 'bg-red-100 text-red-600 group-hover:bg-red-200'
+                      }`}>
+                      {trashedDomains.length + expiredDomains.length}
+                    </span>
+                  </div>
+                </button>
+              </nav>
 
-        <div className="bg-white rounded-lg shadow-sm mb-2">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8 px-6" aria-label="Tabs">
-              <button
-                onClick={() => handleTabChange('domains')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'domains'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-green-300'
-                  }`}
-              >
-                <div className="flex items-center">
-                  <Globe className="w-4 h-4 mr-2" />
-                  คำขอใช้โดเมน ({allStatusRequests.length})
+              {/* Right Side Controls */}
+              <div className="flex items-center space-x-4">
+                {/* Search Box */}
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    value={filters.search}
+                    placeholder="ค้นหาชื่อโดเมน..."
+                    className="w-64 pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:shadow-md"
+                    onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                  />
+
                 </div>
 
-              </button>
-
-              <button
-                onClick={() => handleTabChange('trashedExpired')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'trashedExpired'
-                  ? 'border-red-500 text-red-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-red-300'
-                  }`}
-              >
-                <div className="flex items-center">
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  โดเมนที่โดนลบและหมดอายุ ({trashedDomains.length + expiredDomains.length})
-                </div>
-              </button>
-
-              <button
-                onClick={() => setShowRequestModal(true)}
-                className="btn-indigo px-4 my-2 rounded-lg transition-colors flex items-center"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                ขอใช้โดเมนใหม่
-              </button>
-              {/*sreach*/}
-              <div className='flex w-100 justify-end'>
-
-                <label className="text-sm font-semibold text-gray-700 mb-1 flex items-center">
-                  <Search className="w-4 h-4 mr-1" />
-                </label>
-                <input
-                  type="text"
-                  value={filters.search}
-                  placeholder="ค้นหา ชื่อโดเมน"
-                  className="w-full px-3 py-1 my-1 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                />
+                {/* Add New Domain Button */}
+                <button
+                  onClick={() => setShowRequestModal(true)}
+                  className="group bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-6 py-2.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-indigo-200 transform hover:-translate-y-0.5 font-medium text-sm"
+                >
+                  <div className="flex items-center space-x-2">
+                    <Plus className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
+                    <span>ขอใช้โดเมนใหม่</span>
+                  </div>
+                </button>
               </div>
-            </nav>
+            </div>
           </div>
         </div>
 
-        {/* status */}
-        <div className="grid grid-cols-1 mx-4 p-4 bg-light" >
-          <div className=" d-flex ">
-
-            {/* Summary Cards */}
-            <div
-              className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              {(activeTab === "domains") && (
-                <button
-                  onClick={() => handleStatusChange('PENDING')}
-
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeStatus === 'PENDING'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-yellow-300'
-                    }`}>
-
-                  <div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center ">
-                      <div className="flex-shrink-0">
-                        <Clock className="w-8 h-8 text-yellow-500" />
+        {/* Status Cards */}
+        <div className="mx-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* PENDING Card */}
+            {(activeTab === "domains") && (
+              <button
+                onClick={() => handleStatusChange('PENDING')}
+                className={`group relative overflow-hidden rounded-xl transition-all duration-300 transform hover:scale-105 ${activeStatus === 'PENDING'
+                    ? 'ring-2 ring-yellow-400 shadow-lg shadow-yellow-100 bg-gradient-to-br from-yellow-50 to-orange-50'
+                    : 'hover:shadow-lg hover:shadow-yellow-50 bg-white'
+                  }`}
+              >
+                <div className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className={`p-3 rounded-full transition-all duration-300 ${activeStatus === 'PENDING'
+                          ? 'bg-yellow-100 ring-2 ring-yellow-300'
+                          : 'bg-yellow-50 group-hover:bg-yellow-100'
+                        }`}>
+                        <Clock className={`w-6 h-6 transition-all duration-300 ${activeStatus === 'PENDING'
+                            ? 'text-yellow-600 scale-110'
+                            : 'text-yellow-500 group-hover:scale-105'
+                          }`} />
                       </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">รอพิจารณา</p>
-                        <p className="text-2xl font-semibold text-gray-900">{P.length}</p>
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              )}
-
-              {(activeTab === "domains") && (
-                <button
-                  onClick={() => handleStatusChange('ACTIVE')}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeStatus === 'ACTIVE'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-green-300'
-                    }`}>
-                  < div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center ">
-                      <div className="flex-shrink-0">
-                        <CheckCircle className="w-8 h-8 text-green-500" />
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">ใช้งาน</p>
-                        <p className="text-2xl font-semibold text-gray-900">{A.length}</p>
+                      <div className="text-left">
+                        <p className={`text-sm font-medium transition-colors ${activeStatus === 'PENDING'
+                            ? 'text-yellow-700'
+                            : 'text-gray-600 group-hover:text-yellow-600'
+                          }`}>
+                          รอพิจารณา
+                        </p>
+                        <p className="text-3xl font-bold text-gray-900 mt-1">
+                          {P.length}
+                        </p>
                       </div>
                     </div>
-                  </div>
-                </button>
-              )}
-
-              {(activeTab === "domains") && (
-                <button
-                  onClick={() => handleStatusChange('REJECTED')}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeStatus === 'REJECTED'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}>
-                  <div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center ">
-                      <div className="flex-shrink-0">
-                        <XCircle className="w-8 h-8 text-gray-500" />
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">ไม่อนุมัติ</p>
-                        <p className="text-2xl font-semibold text-gray-900">{R.length}</p>
-                      </div>
+                    <div className={`text-right ${activeStatus === 'PENDING' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                      } transition-opacity duration-300`}>
+                      <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
                     </div>
                   </div>
-                </button>
-              )}
-            </div>
 
+                  {/* Progress bar */}
+                  <div className="mt-4 bg-gray-100 rounded-full h-2 overflow-hidden">
+                    <div className={`h-full bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full transition-all duration-500 ${activeStatus === 'PENDING' ? 'w-full' : 'w-0 group-hover:w-1/3'
+                      }`}></div>
+                  </div>
+                </div>
+
+                {/* Hover overlay */}
+                <div className={`absolute inset-0 bg-gradient-to-r from-yellow-400/5 to-orange-400/5 transition-opacity duration-300 ${activeStatus === 'PENDING' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                  }`}></div>
+              </button>
+            )}
+
+            {/* ACTIVE Card */}
+            {(activeTab === "domains") && (
+              <button
+                onClick={() => handleStatusChange('ACTIVE')}
+                className={`group relative overflow-hidden rounded-xl transition-all duration-300 transform hover:scale-105 ${activeStatus === 'ACTIVE'
+                    ? 'ring-2 ring-green-400 shadow-lg shadow-green-100 bg-gradient-to-br from-green-50 to-emerald-50'
+                    : 'hover:shadow-lg hover:shadow-green-50 bg-white'
+                  }`}
+              >
+                <div className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className={`p-3 rounded-full transition-all duration-300 ${activeStatus === 'ACTIVE'
+                          ? 'bg-green-100 ring-2 ring-green-300'
+                          : 'bg-green-50 group-hover:bg-green-100'
+                        }`}>
+                        <CheckCircle className={`w-6 h-6 transition-all duration-300 ${activeStatus === 'ACTIVE'
+                            ? 'text-green-600 scale-110'
+                            : 'text-green-500 group-hover:scale-105'
+                          }`} />
+                      </div>
+                      <div className="text-left">
+                        <p className={`text-sm font-medium transition-colors ${activeStatus === 'ACTIVE'
+                            ? 'text-green-700'
+                            : 'text-gray-600 group-hover:text-green-600'
+                          }`}>
+                          ใช้งานอยู่
+                        </p>
+                        <p className="text-3xl font-bold text-gray-900 mt-1">
+                          {A.length}
+                        </p>
+                      </div>
+                    </div>
+                    <div className={`text-right ${activeStatus === 'ACTIVE' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                      } transition-opacity duration-300`}>
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    </div>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="mt-4 bg-gray-100 rounded-full h-2 overflow-hidden">
+                    <div className={`h-full bg-gradient-to-r from-green-400 to-emerald-400 rounded-full transition-all duration-500 ${activeStatus === 'ACTIVE' ? 'w-full' : 'w-0 group-hover:w-1/3'
+                      }`}></div>
+                  </div>
+                </div>
+
+                {/* Hover overlay */}
+                <div className={`absolute inset-0 bg-gradient-to-r from-green-400/5 to-emerald-400/5 transition-opacity duration-300 ${activeStatus === 'ACTIVE' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                  }`}></div>
+              </button>
+            )}
+
+            {/* REJECTED Card */}
+            {(activeTab === "domains") && (
+              <button
+                onClick={() => handleStatusChange('REJECTED')}
+                className={`group relative overflow-hidden rounded-xl transition-all duration-300 transform hover:scale-105 ${activeStatus === 'REJECTED'
+                    ? 'ring-2 ring-slate-400 shadow-lg shadow-slate-100 bg-gradient-to-br from-slate-50 to-gray-50'
+                    : 'hover:shadow-lg hover:shadow-slate-50 bg-white'
+                  }`}
+              >
+                <div className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className={`p-3 rounded-full transition-all duration-300 ${activeStatus === 'REJECTED'
+                          ? 'bg-slate-100 ring-2 ring-slate-300'
+                          : 'bg-slate-50 group-hover:bg-slate-100'
+                        }`}>
+                        <XCircle className={`w-6 h-6 transition-all duration-300 ${activeStatus === 'REJECTED'
+                            ? 'text-slate-600 scale-110'
+                            : 'text-slate-500 group-hover:scale-105'
+                          }`} />
+                      </div>
+                      <div className="text-left">
+                        <p className={`text-sm font-medium transition-colors ${activeStatus === 'REJECTED'
+                            ? 'text-slate-700'
+                            : 'text-gray-600 group-hover:text-slate-600'
+                          }`}>
+                          ไม่อนุมัติ
+                        </p>
+                        <p className="text-3xl font-bold text-gray-900 mt-1">
+                          {R.length}
+                        </p>
+                      </div>
+                    </div>
+                    <div className={`text-right ${activeStatus === 'REJECTED' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                      } transition-opacity duration-300`}>
+                      <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
+                    </div>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="mt-4 bg-gray-100 rounded-full h-2 overflow-hidden">
+                    <div className={`h-full bg-gradient-to-r from-slate-400 to-gray-400 rounded-full transition-all duration-500 ${activeStatus === 'REJECTED' ? 'w-full' : 'w-0 group-hover:w-1/3'
+                      }`}></div>
+                  </div>
+                </div>
+
+                {/* Hover overlay */}
+                <div className={`absolute inset-0 bg-gradient-to-r from-slate-400/5 to-gray-400/5 transition-opacity duration-300 ${activeStatus === 'REJECTED' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                  }`}></div>
+              </button>
+            )}
           </div>
-
         </div>
 
         {/* domain list*/}
