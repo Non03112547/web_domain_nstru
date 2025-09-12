@@ -1009,7 +1009,7 @@ export default function Home() {
                 onClick={() => handleTabChange('domains')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'domains'
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-green-300'
                   }`}
               >
                 <div className="flex items-center">
@@ -1020,23 +1020,10 @@ export default function Home() {
               </button>
 
               <button
-                onClick={() => handleTabChange('renewals')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'renewals'
-                  ? 'border-green-500 text-green-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-              >
-                <div className="flex items-center">
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  คำขอต่ออายุ ({allRenewalRequests.length})
-                </div>
-              </button>
-
-              <button
                 onClick={() => handleTabChange('trashedExpired')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'trashedExpired'
                   ? 'border-red-500 text-red-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-red-300'
                   }`}
               >
                 <div className="flex items-center">
@@ -1046,13 +1033,6 @@ export default function Home() {
               </button>
 
               <button
-                onClick={() => setShowRenewalModal(true)}
-                className="btn-emerald px-4 my-2 rounded-lg transition-colors flex items-center"
-              >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                ขอต่ออายุ
-              </button>
-              <button
                 onClick={() => setShowRequestModal(true)}
                 className="btn-indigo px-4 my-2 rounded-lg transition-colors flex items-center"
               >
@@ -1060,7 +1040,7 @@ export default function Home() {
                 ขอใช้โดเมนใหม่
               </button>
               {/*sreach*/}
-              <div className='flex '>
+              <div className='flex w-100 justify-end'>
 
                 <label className="text-sm font-semibold text-gray-700 mb-1 flex items-center">
                   <Search className="w-4 h-4 mr-1" />
@@ -1090,7 +1070,7 @@ export default function Home() {
 
                   className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeStatus === 'PENDING'
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-yellow-300'
                     }`}>
 
                   <div className="bg-white rounded-xl shadow-md p-6">
@@ -1112,7 +1092,7 @@ export default function Home() {
                   onClick={() => handleStatusChange('ACTIVE')}
                   className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeStatus === 'ACTIVE'
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-green-300'
                     }`}>
                   < div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center ">
