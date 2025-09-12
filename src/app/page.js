@@ -1091,7 +1091,7 @@ export default function Home() {
             {/* Summary Cards */}
             <div
               className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              {(activeTab === "domains" || activeTab === "renewals") && (
+              {(activeTab === "domains") && (
                 <button
                   onClick={() => handleStatusChange('PENDING')}
 
@@ -1106,7 +1106,7 @@ export default function Home() {
                         <Clock className="w-8 h-8 text-yellow-500" />
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">รอพิจารณา{t}</p>
+                        <p className="text-sm font-medium text-gray-500">รอพิจารณา</p>
                         <p className="text-2xl font-semibold text-gray-900">{P.length}</p>
                       </div>
                     </div>
@@ -1135,7 +1135,7 @@ export default function Home() {
                 </button>
               )}
 
-              {(activeTab === "domains" || activeTab === "renewals") && (
+              {(activeTab === "domains") && (
                 <button
                   onClick={() => handleStatusChange('REJECTED')}
                   className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeStatus === 'REJECTED'
@@ -1148,7 +1148,7 @@ export default function Home() {
                         <XCircle className="w-8 h-8 text-gray-500" />
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">ไม่อนุมัติ{t}</p>
+                        <p className="text-sm font-medium text-gray-500">ไม่อนุมัติ</p>
                         <p className="text-2xl font-semibold text-gray-900">{R.length}</p>
                       </div>
                     </div>
