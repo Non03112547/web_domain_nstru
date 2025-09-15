@@ -1988,7 +1988,7 @@ export default function Home() {
       {
         showDetailModal && selectedDomain && (() => {
           const domainData = selectedDomain.domainRequest || selectedDomain.domain?.domainRequest || selectedDomain;
-          const valueIP = requestData.ipAddress || domainData?.ipAddress || '0.0.0.0'
+          const valueIP = requestData.ipAddress || domainData?.ipAddress || ''
           return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
@@ -2022,10 +2022,12 @@ export default function Home() {
 
                       ) : (
                         <span
-                          className="text-blue-500 cursor-pointer"
-                          onClick={() => setIsEditing(true)} // คลิกเพื่อแก้ไข
+                          className={`text-blue-500 cursor-pointer  min-w-[120px] px-2 py-1 inline-block hover:bg-gray-100 transition-colors ${valueIP
+                            ? "border border-black rounded"
+                            : ""}`}
+                          onClick={() => setIsEditing(true)}
                         >
-                          {valueIP || "0.0.0.0"}
+                          {valueIP || "Click to add IP"}
                         </span>
                       )}
                     </div>
