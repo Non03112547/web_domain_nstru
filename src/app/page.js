@@ -999,6 +999,73 @@ export default function Home() {
         </p>
       </div> GOOD*/ }
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {!session ? (
+          <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
+              {/* Header */}
+
+              {/* Action Buttons */}
+              <NavBar />
+
+              {/* Main Content */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 mb-6">
+                <div className="text-center">
+                  <h4 className="text-xl font-semibold text-gray-800 mb-4">
+                    เกี่ยวกับบริการ
+                  </h4>
+                  <p className="text-gray-700 leading-relaxed text-base">
+                    เว็บไซต์นี้ให้บริการส่งคำร้องขอใช้งานโดเมนเนมภายในวิทยาลัยราชภัฏนครศรีธรรมราช
+                    หากต้องการใช้บริการ กรุณาล็อกอินเข้าสู่ระบบ
+                    และหากท่านยังไม่มีบัญชีผู้ใช้งาน กรุณาติดต่อสำนักวิทยบริการและเทคโนโลยีสารสนเทศ มหาวิทยาลัยราชภัฏนครศรีธรรมราช
+
+                  </p>
+                </div>
+              </div>
+
+              {/* Features */}
+              <div className="grid md:grid-cols-2 gap-4 mb-6">
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <div className="flex items-center mb-2">
+                    <User className="h-5 w-5 text-blue-600 mr-2" />
+                    <h5 className="font-semibold text-gray-800">การเข้าใช้งาน</h5>
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    ต้องล็อกอินด้วยบัญชีผู้ใช้งานที่ถูกต้อง
+                  </p>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <div className="flex items-center mb-2">
+                    <Globe className="h-5 w-5 text-green-600 mr-2" />
+                    <h5 className="font-semibold text-gray-800">โดเมนเนม</h5>
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    ขอใช้โดเมนเนมภายในวิทยาลัย
+                  </p>
+                </div>
+              </div>
+
+              {/* Contact Information */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <div className="flex items-start">
+                  <Building className="h-5 w-5 text-yellow-600 mr-2 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h5 className="font-semibold text-yellow-800 mb-1">
+                      สำหรับผู้ที่ยังไม่มีบัญชีผู้ใช้งาน
+                    </h5>
+                    <p className="text-yellow-700 text-sm">
+                      กรุณาติดต่อ: <span className="font-medium">สำนักวิทยบริการและเทคโนโลยีสารสนเทศ</span>
+                      <br />
+                      มหาวิทยาลัยราชภัฏนครศรีธรรมราช
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        ) : (null)}
         {/* Tab Navigator */}
         <div className="bg-white rounded-xl shadow-lg mb-6 overflow-hidden border border-gray-100">
           <div className="bg-gradient-to-r from-slate-50 to-white border-b border-gray-200">
@@ -1086,26 +1153,26 @@ export default function Home() {
               <button
                 onClick={() => handleStatusChange('PENDING')}
                 className={`group relative overflow-hidden rounded-xl transition-all duration-300 transform hover:scale-105 ${activeStatus === 'PENDING'
-                    ? 'ring-2 ring-yellow-400 shadow-lg shadow-yellow-100 bg-gradient-to-br from-yellow-50 to-orange-50'
-                    : 'hover:shadow-lg hover:shadow-yellow-50 bg-white'
+                  ? 'ring-2 ring-yellow-400 shadow-lg shadow-yellow-100 bg-gradient-to-br from-yellow-50 to-orange-50'
+                  : 'hover:shadow-lg hover:shadow-yellow-50 bg-white'
                   }`}
               >
                 <div className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <div className={`p-3 rounded-full transition-all duration-300 ${activeStatus === 'PENDING'
-                          ? 'bg-yellow-100 ring-2 ring-yellow-300'
-                          : 'bg-yellow-50 group-hover:bg-yellow-100'
+                        ? 'bg-yellow-100 ring-2 ring-yellow-300'
+                        : 'bg-yellow-50 group-hover:bg-yellow-100'
                         }`}>
                         <Clock className={`w-6 h-6 transition-all duration-300 ${activeStatus === 'PENDING'
-                            ? 'text-yellow-600 scale-110'
-                            : 'text-yellow-500 group-hover:scale-105'
+                          ? 'text-yellow-600 scale-110'
+                          : 'text-yellow-500 group-hover:scale-105'
                           }`} />
                       </div>
                       <div className="text-left">
                         <p className={`text-sm font-medium transition-colors ${activeStatus === 'PENDING'
-                            ? 'text-yellow-700'
-                            : 'text-gray-600 group-hover:text-yellow-600'
+                          ? 'text-yellow-700'
+                          : 'text-gray-600 group-hover:text-yellow-600'
                           }`}>
                           รอพิจารณา
                         </p>
@@ -1138,26 +1205,26 @@ export default function Home() {
               <button
                 onClick={() => handleStatusChange('ACTIVE')}
                 className={`group relative overflow-hidden rounded-xl transition-all duration-300 transform hover:scale-105 ${activeStatus === 'ACTIVE'
-                    ? 'ring-2 ring-green-400 shadow-lg shadow-green-100 bg-gradient-to-br from-green-50 to-emerald-50'
-                    : 'hover:shadow-lg hover:shadow-green-50 bg-white'
+                  ? 'ring-2 ring-green-400 shadow-lg shadow-green-100 bg-gradient-to-br from-green-50 to-emerald-50'
+                  : 'hover:shadow-lg hover:shadow-green-50 bg-white'
                   }`}
               >
                 <div className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <div className={`p-3 rounded-full transition-all duration-300 ${activeStatus === 'ACTIVE'
-                          ? 'bg-green-100 ring-2 ring-green-300'
-                          : 'bg-green-50 group-hover:bg-green-100'
+                        ? 'bg-green-100 ring-2 ring-green-300'
+                        : 'bg-green-50 group-hover:bg-green-100'
                         }`}>
                         <CheckCircle className={`w-6 h-6 transition-all duration-300 ${activeStatus === 'ACTIVE'
-                            ? 'text-green-600 scale-110'
-                            : 'text-green-500 group-hover:scale-105'
+                          ? 'text-green-600 scale-110'
+                          : 'text-green-500 group-hover:scale-105'
                           }`} />
                       </div>
                       <div className="text-left">
                         <p className={`text-sm font-medium transition-colors ${activeStatus === 'ACTIVE'
-                            ? 'text-green-700'
-                            : 'text-gray-600 group-hover:text-green-600'
+                          ? 'text-green-700'
+                          : 'text-gray-600 group-hover:text-green-600'
                           }`}>
                           ใช้งานอยู่
                         </p>
@@ -1190,26 +1257,26 @@ export default function Home() {
               <button
                 onClick={() => handleStatusChange('REJECTED')}
                 className={`group relative overflow-hidden rounded-xl transition-all duration-300 transform hover:scale-105 ${activeStatus === 'REJECTED'
-                    ? 'ring-2 ring-slate-400 shadow-lg shadow-slate-100 bg-gradient-to-br from-slate-50 to-gray-50'
-                    : 'hover:shadow-lg hover:shadow-slate-50 bg-white'
+                  ? 'ring-2 ring-slate-400 shadow-lg shadow-slate-100 bg-gradient-to-br from-slate-50 to-gray-50'
+                  : 'hover:shadow-lg hover:shadow-slate-50 bg-white'
                   }`}
               >
                 <div className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <div className={`p-3 rounded-full transition-all duration-300 ${activeStatus === 'REJECTED'
-                          ? 'bg-slate-100 ring-2 ring-slate-300'
-                          : 'bg-slate-50 group-hover:bg-slate-100'
+                        ? 'bg-slate-100 ring-2 ring-slate-300'
+                        : 'bg-slate-50 group-hover:bg-slate-100'
                         }`}>
                         <XCircle className={`w-6 h-6 transition-all duration-300 ${activeStatus === 'REJECTED'
-                            ? 'text-slate-600 scale-110'
-                            : 'text-slate-500 group-hover:scale-105'
+                          ? 'text-slate-600 scale-110'
+                          : 'text-slate-500 group-hover:scale-105'
                           }`} />
                       </div>
                       <div className="text-left">
                         <p className={`text-sm font-medium transition-colors ${activeStatus === 'REJECTED'
-                            ? 'text-slate-700'
-                            : 'text-gray-600 group-hover:text-slate-600'
+                          ? 'text-slate-700'
+                          : 'text-gray-600 group-hover:text-slate-600'
                           }`}>
                           ไม่อนุมัติ
                         </p>
