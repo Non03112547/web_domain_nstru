@@ -2202,7 +2202,7 @@ export default function Home() {
                             <button
                               onClick={() => handleRestoreDomain(
                                 domainData?.id || selectedDomain?.id,           // domainId
-                                domainData?.domain || selectedDomain?.domain,   // domainName
+
                               )}
                               className="px-4 py-2 btn-indigo rounded-lg transition-colors"
                               title={['TRASHED', 'EXPIRED'].includes(selectedDomain?.status) ? 'กู้คืน' : ''}
