@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/db'
 import { NextResponse } from 'next/server'
+import bcrypt from 'bcryptjs'
 
 // Function to generate random password
 function generateRandomPassword(length = 8) {
@@ -43,15 +44,18 @@ export async function POST(request) {
         // Generate new password
         const newPassword = generateRandomPassword()
 
-        // Update user's password
+        // Hash password ก่อนบันทึก
+        const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+        // Update user's password (บันทึก hash)
         await prisma.user.update({
             where: { id: userId },
-            data: { password: newPassword }
+            data: { password: hashedPassword }
         })
 
         return NextResponse.json({
             message: 'Password reset successfully',
-            newPassword: newPassword,
+            newPassword: newPassword, // ส่งคืนรหัสผ่านจริงให้ admin ใช้แจ้ง user
             username: user.username
         })
     } catch (error) {

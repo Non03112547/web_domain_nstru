@@ -2,7 +2,9 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/db'
 import { NextResponse } from 'next/server'
+import bcrypt from 'bcryptjs'   // สำหรับเข้ารหัสรหัสผ่าน
 
+// ================= GET USERS =================
 export async function GET() {
     try {
         const session = await getServerSession(authOptions)
@@ -27,6 +29,7 @@ export async function GET() {
     }
 }
 
+// ================= CREATE USER =================
 export async function POST(request) {
     try {
         const session = await getServerSession(authOptions)
@@ -38,8 +41,8 @@ export async function POST(request) {
         const body = await request.json()
         const { username, role, positionId } = body
 
-        // Generate random password
-        const password = Math.random().toString(36).slice(-8)
+        // Generate random password (plain text)
+        const plainPassword = Math.random().toString(36).slice(-8)
 
         // Validate required fields
         if (!username || !role) {
@@ -55,11 +58,14 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Username already exists' }, { status: 400 })
         }
 
+        // 🔑 Hash password ก่อนบันทึก
+        const hashedPassword = await bcrypt.hash(plainPassword, 10)
+
         // Create new user
         const newUser = await prisma.user.create({
             data: {
                 username,
-                password, // Plain text as per requirements
+                password: hashedPassword, // เก็บ hash password เท่านั้น
                 role,
                 positionId: positionId || null
             },
@@ -68,10 +74,10 @@ export async function POST(request) {
             }
         })
 
-        // Return user data with generated password
+        // ส่ง plain password กลับไปให้ admin เพื่อแจ้ง user
         return NextResponse.json({
             user: newUser,
-            password
+            password: plainPassword
         }, { status: 201 })
     } catch (error) {
         console.error('Error creating user:', error)

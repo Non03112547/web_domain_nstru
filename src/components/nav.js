@@ -33,14 +33,16 @@ export default function NavBar() {
                                 </span>
                                 <div className="flex space-x-2">
                                     {/* Navigation buttons */}
+                                    {session.user.role === "ADMIN" && (
+                                        <Link
+                                            href="/admin"
+                                            className="btn-indigo px-4 py-2 rounded-lg transition-colors flex items-center"
+                                        >
+                                            <Shield className="w-4 h-4 mr-2" />
+                                            จัดการระบบ
+                                        </Link>
+                                    )}
 
-                                    <Link
-                                        href="/admin"
-                                        className="btn-indigo px-4 py-2 rounded-lg transition-colors flex items-center"
-                                    >
-                                        <Shield className="w-4 h-4 mr-2" />
-                                        จัดการระบบ
-                                    </Link>
 
                                     <Link
                                         href="/change-password"

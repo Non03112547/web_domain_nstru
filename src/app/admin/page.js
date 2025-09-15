@@ -55,7 +55,7 @@ export default function AdminPage() {
             hoverColor: '#059669'
         },
         {
-            title: 'จัดคำขอใช้โดเมน',
+            title: 'จัดการคำขอใช้โดเมน',
             description: 'พิจรณาคำขอใช้โดเมน',
             icon: FileText,
             href: '/',
