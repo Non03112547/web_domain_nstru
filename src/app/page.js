@@ -2025,7 +2025,7 @@ export default function Home() {
                           className="text-blue-500 cursor-pointer"
                           onClick={() => setIsEditing(true)} // คลิกเพื่อแก้ไข
                         >
-                          {valueIP}
+                          {valueIP || "0.0.0.0"}
                         </span>
                       )}
                     </div>
@@ -2193,21 +2193,47 @@ export default function Home() {
                       </button>
                     </div>
                   )}
-                  {session?.user?.role === 'ADMIN' && selectedDomain && selectedDomain.status !== "PENDING" && (
-                    <div className="space-x-3 mt-6">
-                      <button
-                        onClick={() => handleDeleteDomain(
-                          domainData?.id || selectedDomain?.id,           // domainId
-                          domainData?.domain || selectedDomain?.domain,   // domainName
-                          ['TRASHED', 'EXPIRED'].includes(domainData?.status || selectedDomain?.status) // true = ลบถาวร
+                  <div className='flex'>
+                    <div className='mx-2'>
+                      {session?.user?.role === 'ADMIN' &&
+                        selectedDomain &&
+                        (selectedDomain.status === "EXPIRED" || selectedDomain.status === "TRASHED") && (
+                          <div className="space-x-3 mt-6">
+                            <button
+                              onClick={() => handleRestoreDomain(
+                                domainData?.id || selectedDomain?.id,           // domainId
+                                domainData?.domain || selectedDomain?.domain,   // domainName
+                              )}
+                              className="px-4 py-2 btn-indigo rounded-lg transition-colors"
+                              title={['TRASHED', 'EXPIRED'].includes(selectedDomain?.status) ? 'กู้คืน' : ''}
+                            >
+                              <RefreshCw />
+                            </button>
+                          </div>
                         )}
-                        className="px-4 py-2 btn-rose rounded-lg transition-colors"
-                        title={['TRASHED', 'EXPIRED'].includes(selectedDomain?.status) ? 'ลบถาวร' : 'ย้ายไปถังขยะ'}
-                      >
-                        <Trash2 />
-                      </button>
+
                     </div>
-                  )}
+
+                    <div className=''>
+                      {session?.user?.role === 'ADMIN' && selectedDomain && selectedDomain.status !== "PENDING" && (
+                        <div className="space-x-3 mt-6">
+                          <button
+                            onClick={() => handleDeleteDomain(
+                              domainData?.id || selectedDomain?.id,           // domainId
+                              domainData?.domain || selectedDomain?.domain,   // domainName
+                              ['TRASHED', 'EXPIRED'].includes(domainData?.status || selectedDomain?.status) // true = ลบถาวร
+                            )}
+                            className="px-4 py-2 btn-rose rounded-lg transition-colors"
+                            title={['TRASHED', 'EXPIRED'].includes(selectedDomain?.status) ? 'ลบถาวร' : 'ย้ายไปถังขยะ'}
+                          >
+                            <Trash2 />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+
+                  </div>
                   <div className="flex justify-end space-x-3 mt-6">
                     <button
                       onClick={() => setShowDetailModal(false)}
