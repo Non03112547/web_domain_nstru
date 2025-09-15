@@ -62,16 +62,16 @@ export default function Home() {
   const [showRenewalModal, setShowRenewalModal] = useState(false)
   const [showRequestModal, setShowRequestModal] = useState(false)
   const [showDetailModal, setShowDetailModal] = useState(false)
-  const [selectedDomain, setSelectedDomain] = useState(null)
+  const [selectedDomain, setSelectedDomain] = useState('')
   const [requests, setRequests] = useState([])
   const [renewalRequests, setRenewalRequests] = useState([])
   const [activeStatus, setActiveStatus] = useState('')
   const [policy, setPolicy] = useState(false); // false = ยังไม่ยอมรับ
   const [showPreview, setShowPreview] = useState(false)
-  const [pdfUrl, setPdfUrl] = useState(null);
+  const [pdfUrl, setPdfUrl] = useState('');
   const [isEditing, setIsEditing] = useState(false); // ตรวจสอบว่ากำลังแก้ไขอยู่หรือไม่
-  const [iDsIP, setIDsIP] = useState(null)
-  const [ips, setIps] = useState(null)
+  const [iDsIP, setIDsIP] = useState('')
+  const [ips, setIps] = useState('')
 
   const handleBlur = () => {
     setIsEditing(false); // เมื่อเลิกแก้ไข
@@ -562,7 +562,8 @@ export default function Home() {
         const data = await response.json();
         setDomains(data);
       } else if (response.status === 401) {
-        alert('คุณยังไม่ได้เข้าสู่ระบบ กรุณาเข้าสู่ระบบก่อน');
+        console.log("ยังไม่ได้เข้าสู่ระบบ");
+        //alert('คุณยังไม่ได้เข้าสู่ระบบ กรุณาเข้าสู่ระบบก่อน');
         // หรือ redirect ไปหน้า login ก็ได้ เช่น:
         // window.location.href = '/auth/login';
       } else if (response.status === 403) {
@@ -758,13 +759,13 @@ export default function Home() {
 
   const handleRequestSubmit = async () => {
     const {
-      domain, ipAddress, machineType, OS,
+      domain, machineType, OS, position,
       requesterName, responsibleName, department, institution, contactP, contactE, responsibleContactP, responsibleContactE,
       machineRoom, machinePlace,
       property, useType, durationType, expiresAt
     } = requestData
 
-    if (!domain || !machineType || !OS || !requesterName || !responsibleName || !department || !institution || !contactP || !responsibleContactP || !contactE || !responsibleContactE || !machineRoom || !machinePlace || !property || !useType) {
+    if (!domain || !machineType || !OS || !requesterName || !responsibleName || !position || !department || !institution || !contactP || !responsibleContactP || !contactE || !responsibleContactE || !machineRoom || !machinePlace || !property || !useType) {
       alert('กรุณากรอกข้อมูลให้ครบถ้วน')
       return
     }
@@ -1467,7 +1468,7 @@ export default function Home() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-black mb-2">
                       ชื่อโดเมน *
                     </label>
                     <input
@@ -1480,7 +1481,7 @@ export default function Home() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-black mb-2">
                       IP Address (ถ้าหากมี)
                     </label>
                     <input
@@ -1492,8 +1493,8 @@ export default function Home() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ประเภทเครื่อง
+                    <label className="block text-sm font-medium text-black mb-2">
+                      ประเภทเครื่อง *
                     </label>
                     <select
                       value={requestData.machineType}
@@ -1515,8 +1516,8 @@ export default function Home() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ระบบปฏิบัติการ
+                    <label className="block text-sm font-medium text-black mb-2">
+                      ระบบปฏิบัติการ *
                     </label>
                     <select
                       value={requestData.OS}
@@ -1543,7 +1544,7 @@ export default function Home() {
                 <br></br>
                 <hr></hr>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-black mb-2">
                     วัตถุประสงค์ *
                   </label>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1584,7 +1585,7 @@ export default function Home() {
                 <hr></hr>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-black mb-2">
                       ชื่อผู้ขอโดเมน *
                     </label>
                     <input
@@ -1597,7 +1598,7 @@ export default function Home() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-black mb-2">
                       ชื่อผู้รับผิดชอบโดเมน *
                     </label>
                     <input
@@ -1611,7 +1612,7 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-black mb-2">
                     ตำแหน่งงานผู้ขอโดเมน  *
                   </label>
                   <input
@@ -1624,7 +1625,7 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-black mb-2">
                     ภาควิชา/ฝ่าย/แผนก  *
                   </label>
                   <input
@@ -1636,8 +1637,8 @@ export default function Home() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    คณะ/สำนัก/สถาบัน/กอง :   *
+                  <label className="block text-sm font-medium text-black mb-2">
+                    คณะ/สำนัก/สถาบัน/กอง *
                   </label>
                   <input
                     type="text"
@@ -1649,13 +1650,12 @@ export default function Home() {
                 </div>
                 <hr></hr>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <strong>ข้อมูลติดต่อ ผู้ขอโดเมน</strong>
+                    <label className="block text-sm font-medium text-black mb-2">
+                      <strong>ข้อมูลติดต่อ ผู้ขอโดเมน*</strong>
                     </label>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      เบอร์โทรศัพท์ ผู้ขอโดเมน*
+                      เบอร์โทรศัพท์ ผู้ขอโดเมน
                     </label>
                     <input
                       type="text"
@@ -1668,10 +1668,11 @@ export default function Home() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder=" 081-234-5678"
                     />
-
+                    <br></br>
+                    <br></br>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        E-mail ผู้ขอโดเมน*
+                        E-mail ผู้ขอโดเมน
                       </label>
                       <input
                         type="text"
@@ -1685,11 +1686,11 @@ export default function Home() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <strong>ข้อมูลติดต่อ ผู้รับผิดชอบโดเมน</strong>
+                    <label className="block text-sm font-medium text-black mb-2">
+                      <strong>ข้อมูลติดต่อ ผู้รับผิดชอบโดเมน *</strong>
                     </label>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      เบอร์โทรศัพท์ ผู้รับผิดชอบโดเมน *
+                      เบอร์โทรศัพท์ ผู้รับผิดชอบโดเมน
                     </label>
                     <input
                       type="text"
@@ -1702,9 +1703,11 @@ export default function Home() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="081-234-5678"
                     />
+                    <br></br>
+                    <br></br>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        E-mail ผู้รับผิดชอบโดเมน *
+                        E-mail ผู้รับผิดชอบโดเมน
                       </label>
                       <input
                         type="text"
@@ -1722,11 +1725,11 @@ export default function Home() {
                 <br></br>
                 <hr></hr>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ที่ตั้งเครื่อง
+                  <label className="block text-sm font-medium text-black mb-2">
+                    ที่ตั้งเครื่อง *
                   </label>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ห้อง *
+                    ห้อง
                   </label>
                   <input
                     type="text"
@@ -1736,7 +1739,7 @@ export default function Home() {
                     placeholder="1930"
                   />
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    อาคาร *
+                    อาคาร
                   </label>
                   <input
                     type="text"
@@ -1750,8 +1753,8 @@ export default function Home() {
                 <br></br>
                 <hr></hr>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ผู้ดูแลเครื่อง
+                  <label className="block text-sm font-medium text-black mb-2">
+                    ผู้ดูแลเครื่อง *
                   </label>
                   <select
                     value={requestData.machineAdminType}
@@ -1767,7 +1770,7 @@ export default function Home() {
                 {requestData.machineAdminType === 'MachineAdmin' ? (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ชื่อ ผู้ดูแลเครื่อง *
+                      ชื่อ ผู้ดูแลเครื่อง
                     </label>
                     <input
                       type="text"
@@ -1777,7 +1780,7 @@ export default function Home() {
                       placeholder="นายสมศักดิ์ รักษา"
                     />
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ตำแหน่ง ผู้ดูแลเครื่อง *
+                      ตำแหน่ง ผู้ดูแลเครื่อง
                     </label>
                     <input
                       type="text"
@@ -1787,12 +1790,12 @@ export default function Home() {
                       placeholder="นักวิชาการคอมพิวเตอร์"
                     />
                     <hr></hr>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <strong>ช่องทางการติดต่อ ผู้ดูแลเครื่อง</strong>
+                    <label className="block text-sm font-medium text-black mb-2">
+                      <strong>ช่องทางการติดต่อ ผู้ดูแลเครื่อง *</strong>
                     </label>
 
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      เบอร์โทรศัพท์ ผู้ดูแลเครื่อง *
+                      เบอร์โทรศัพท์ ผู้ดูแลเครื่อง
                     </label>
                     <input
                       type="text"
@@ -1803,8 +1806,9 @@ export default function Home() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="081-234-5678"
                     />
+                    <br></br>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      E-mail ผู้ดูแลเครื่อง *
+                      E-mail ผู้ดูแลเครื่อง
                     </label>
                     <input
                       type="text"

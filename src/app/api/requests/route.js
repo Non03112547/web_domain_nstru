@@ -71,7 +71,7 @@ export async function POST(request) {
         } = body
 
         // Validate required fields
-        if (!domain || !machineType || !OS || !requesterName || !responsibleName || !department || !institution || !contactP || !contactE || !responsibleContactP || !responsibleContactE || !machineRoom || !machinePlace || !property || !useType) {
+        if (!domain || !machineType || !OS || !requesterName || !responsibleName || !position || !department || !institution || !contactP || !contactE || !responsibleContactP || !responsibleContactE || !machineRoom || !machinePlace || !property || !useType) {
             return NextResponse.json({ error: 'กรุณากรอกข้อมูลให้ครบถ้วน' }, { status: 400 })
         }
 
@@ -89,9 +89,12 @@ export async function POST(request) {
         // Check if IP address already exists
         const existingIP = await prisma.domainRequest.findFirst({
             where: {
-                ipAddress: ipAddress
+                AND: [
+                    { ipAddress: ipAddress },     // ตรงกับ IP ที่ส่งมา
+                    { NOT: { ipAddress: "" } }   // ยกเว้นค่าที่ว่าง
+                ]
             }
-        })
+        });
 
         if (existingIP) {
             return NextResponse.json({ error: 'IP Address นี้ถูกใช้งานโดยโดเมนอื่นแล้ว' }, { status: 400 })

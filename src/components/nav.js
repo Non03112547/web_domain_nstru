@@ -18,11 +18,31 @@ export default function NavBar() {
                 <div className="flex justify-between items-center">
                     <div>
                         <Link href="/" className="hover:opacity-80 transition-opacity">
-                            <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-                                <Globe className="w-8 h-8 mr-3 text-indigo-600" />
-                                ระบบขอใช้โดเมน
-                            </h1>
-                            <p className="text-gray-600 ml-11">มหาวิทยาลัยราชภัฏนครศรีธรรมราช</p>
+                            <table >
+                                <tbody>
+                                    <tr>
+                                        <th>
+                                            {/* container เดียวสำหรับ Globe + ชื่อ + description */}
+                                            <div className="flex flex-col items-center">
+                                                {/* นอนเรียง: Globe + ชื่อ */}
+                                                <div className="flex items-center space-x-2">
+                                                    <Globe className="w-8 h-8 text-indigo-600" />
+
+                                                </div>
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div className='mx-4'>
+                                                <h1 className="text-2xl font-bold text-gray-900 flex items-center">ระบบขอใช้โดเมน</h1>
+                                                {/* ข้อความมหาวิทยาลัย ตั้งเดี่ยว */}
+                                                <p className="text-gray-600 mt-1">มหาวิทยาลัยราชภัฏนครศรีธรรมราช</p>
+                                            </div>
+
+                                        </th>
+                                    </tr>
+                                </tbody>
+                            </table>
+
                         </Link>
                     </div>
                     <div className="flex items-center space-x-4">
