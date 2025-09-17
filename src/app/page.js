@@ -72,6 +72,7 @@ export default function Home() {
   const [isEditing, setIsEditing] = useState(false); // ตรวจสอบว่ากำลังแก้ไขอยู่หรือไม่
   const [iDsIP, setIDsIP] = useState('')
   const [ips, setIps] = useState('')
+  const [showRe, setShowRe] = useState(false)
 
   const handleBlur = () => {
     setIsEditing(false); // เมื่อเลิกแก้ไข
@@ -627,21 +628,19 @@ export default function Home() {
     }
   }
 
-  const handleRestoreDomain = async (domainId, domainName) => {
-    const domain = domains.find(d => d.id === domainId)
-    if (!domain) {
+  const handleRestoreDomain = () => {
+    if (!selectedDomain?.domainRequest?.id) {
       alert('ไม่พบโดเมนที่ต้องการกู้คืน')
       return
     }
-
-    setSelectedDomain(domain)
+    setShowRestoreModal(true)
     setRestoreData({
-      durationType: domain.domainRequest.durationType,
-      expiresAt: domain.domainRequest.expiresAt
-        ? new Date(domain.domainRequest.expiresAt).toISOString().split('T')[0]
+      durationType: selectedDomain?.domainRequest?.durationType || '',
+      expiresAt: selectedDomain?.domainRequest?.expiresAt
+        ? new Date(selectedDomain.domainRequest.expiresAt).toISOString().split('T')[0]
         : ''
     })
-    setShowRestoreModal(true)
+
   }
 
   const handleSelect = async (domainId, domainName) => {
@@ -664,9 +663,7 @@ export default function Home() {
     try {
       const response = await fetch(`/api/domains/${selectedDomain.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'restore',
           durationType: restoreData.durationType,
@@ -674,8 +671,10 @@ export default function Home() {
         })
       })
 
+      const text = await response.text()        // อ่าน response เป็น text
+      const result = text ? JSON.parse(text) : {}  // ถ้า empty → {}
+
       if (response.ok) {
-        const result = await response.json()
         const typeText = restoreData.durationType === 'PERMANENT' ? 'ถาวร' : 'ชั่วคราว'
         const expiryText = restoreData.durationType === 'TEMPORARY' && restoreData.expiresAt
           ? ` (หมดอายุ: ${new Date(restoreData.expiresAt).toLocaleDateString('th-TH')})`
@@ -687,8 +686,7 @@ export default function Home() {
         setRestoreData({ durationType: 'PERMANENT', expiresAt: '' })
         fetchDomains()
       } else {
-        const error = await response.json()
-        alert(`เกิดข้อผิดพลาด: ${error.error}`)
+        alert(`เกิดข้อผิดพลาด: ${result.error || 'ไม่ทราบสาเหตุ'}`)
       }
     } catch (error) {
       console.error('Restore Error:', error)
@@ -983,7 +981,7 @@ export default function Home() {
 
 
   console.log('statusFilter:', statusFilter)
-
+  console.log("selectedDomain :", selectedDomain)
 
   return (
 
@@ -1905,6 +1903,7 @@ export default function Home() {
           </div>
         )
       }
+
       {/* Renewal Modal */}
       {
         showRenewalModal && (
@@ -1984,6 +1983,9 @@ export default function Home() {
           </div>
         )
       }
+
+
+
       {/*show detail model */}
       {
         showDetailModal && selectedDomain && (() => {
@@ -2005,7 +2007,7 @@ export default function Home() {
                     <div><strong>ชื่อโดเมน:</strong> <span className="text-blue-500">{domainData?.domain || '-'}</span></div>
                     <div>
                       <strong>IP Address:</strong>
-                      {isEditing ? (
+                      {session?.user.role === "ADMIN" && isEditing ? (
                         <input
                           type="text"
                           className="text-blue-500 border rounded px-2 py-1"
@@ -2023,7 +2025,7 @@ export default function Home() {
                       ) : (
                         <span
                           className={`text-blue-500 cursor-pointer  min-w-[120px] px-2 py-1 inline-block hover:bg-gray-100 transition-colors ${valueIP
-                            ? "border border-black rounded"
+                            ? ""
                             : ""}`}
                           onClick={() => setIsEditing(true)}
                         >
@@ -2202,19 +2204,17 @@ export default function Home() {
                         (selectedDomain.status === "EXPIRED" || selectedDomain.status === "TRASHED") && (
                           <div className="space-x-3 mt-6">
                             <button
-                              onClick={() => handleRestoreDomain(
-                                domainData?.id || selectedDomain?.id,           // domainId
-
-                              )}
+                              onClick={() => {
+                                handleRestoreDomain(domainData.id);
+                              }}
                               className="px-4 py-2 btn-indigo rounded-lg transition-colors"
-                              title={['TRASHED', 'EXPIRED'].includes(selectedDomain?.status) ? 'กู้คืน' : ''}
                             >
                               <RefreshCw />
                             </button>
                           </div>
                         )}
-
                     </div>
+
 
                     <div className=''>
                       {session?.user?.role === 'ADMIN' && selectedDomain && selectedDomain.status !== "PENDING" && (
@@ -2252,6 +2252,104 @@ export default function Home() {
           )
         })()
       }
+      {/* Restore Modal */}
+      {session?.user?.role === "ADMIN" && showRestoreModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              กู้คืนโดเมน
+            </h3>
+
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-2">
+                โดเมน:{" "}
+                <span className="font-medium">
+                  {selectedDomain?.domainRequest?.domain || "ไม่ระบุโดเมน"}
+                </span>
+              </p>
+
+              <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                <p className="text-xs text-gray-500 mb-1">ข้อมูลเดิม:</p>
+                <p className="text-sm">
+                  ประเภท:{" "}
+                  <span className="font-medium">
+                    {selectedDomain?.domainRequest?.durationType === "PERMANENT"
+                      ? "ถาวร"
+                      : selectedDomain?.domainRequest?.durationType === "TEMPORARY"
+                        ? "ชั่วคราว"
+                        : "ไม่ระบุ"}
+                  </span>
+                </p>
+                <p className="text-sm">
+                  หมดอายุ:{" "}
+                  <span className="font-medium">
+                    {selectedDomain?.domainRequest?.expiresAt
+                      ? new Date(selectedDomain.domainRequest.expiresAt).toLocaleDateString("th-TH")
+                      : "-"}
+                  </span>
+                </p>
+              </div>
+
+              <p className="text-sm text-gray-600">
+                กรุณาเลือกประเภทการใช้งานสำหรับโดเมนที่กู้คืน
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {/* เลือกประเภท */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ประเภทการใช้งาน *
+                </label>
+                <select
+                  value={restoreData?.durationType || "PERMANENT"}
+                  onChange={(e) =>
+                    handleRestoreDataChange("durationType", e.target.value)
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="PERMANENT">ถาวร</option>
+                  <option value="TEMPORARY">ชั่วคราว</option>
+                </select>
+              </div>
+
+              {/* ถ้าเลือกชั่วคราว → ใส่วันหมดอายุ */}
+              {restoreData?.durationType === "TEMPORARY" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ใช้ถึงวันที่ *
+                  </label>
+                  <input
+                    type="date"
+                    value={restoreData?.expiresAt || ""}
+                    onChange={(e) =>
+                      handleRestoreDataChange("expiresAt", e.target.value)
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    min={new Date().toISOString().split("T")[0]}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* ปุ่ม Action */}
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={handleRestoreCancel}
+                className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={handleRestoreSubmit}
+                className="px-4 py-2 btn-emerald rounded-lg transition-colors"
+              >
+                กู้คืน
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div >
   );
