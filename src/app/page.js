@@ -439,11 +439,13 @@ export default function Home() {
       })
 
       if (response.ok) {
+        setShowDetailModal(false)
         const message = action === 'approve'
           ? 'อนุมัติคำขอสำเร็จ'
           : 'ไม่อนุมัติคำขอสำเร็จ'
         alert(message)
         fetchMyRequests()
+        window.location.reload()
       } else {
         const error = await response.json()
         alert(`เกิดข้อผิดพลาด: ${error.error}`)
@@ -476,6 +478,7 @@ export default function Home() {
           : 'ไม่อนุมัติคำขอต่ออายุสำเร็จ'
         alert(message)
         fetchMyRenewalRequests()
+        window.location.reload()
       } else {
         const error = await response.json()
         alert(`เกิดข้อผิดพลาด: ${error.error}`)
@@ -1885,7 +1888,6 @@ export default function Home() {
                   <button
                     onClick={() => {
                       handleRequestSubmit();
-
                     }}
                     className="px-4 py-2 btn-emerald rounded-lg transition-colors"
                   >
@@ -2180,8 +2182,8 @@ export default function Home() {
                     <div className="flex justify-start space-x-3 mt-6">
                       <button
                         onClick={() => {
-                          handleApproveRequest(domainData?.id, 'approve') || handleApproveRenewalRequest(domainData?.id, 'approve');
-                          window.location.reload();
+                          handleApproveRequest(domainData?.id, 'approve')
+
                         }}
                         className="px-4 py-2 btn-emerald rounded-lg transition-colors"
                       >
@@ -2189,8 +2191,8 @@ export default function Home() {
                       </button>
                       <button
                         onClick={() => {
-                          handleApproveRequest(domainData?.id, 'reject') || handleApproveRenewalRequest(domainData?.id, 'reject');
-                          window.location.reload();
+                          handleApproveRequest(domainData?.id, 'reject')
+
                         }}
                         className="px-4 py-2 btn-rose rounded-lg transition-colors"
                       >
