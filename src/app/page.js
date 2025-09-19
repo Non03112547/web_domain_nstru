@@ -30,6 +30,7 @@ import {
   SortAsc,
   SortDesc,
   Settings2,
+  ClockAlert,
   Server, Activity, AlertTriangle
 } from 'lucide-react'
 import NavBar from '@/components/nav'
@@ -89,8 +90,10 @@ export default function Home() {
         return <Clock className="w-4 h-4 text-yellow-600" />;
       case 'REJECTED':
         return <XCircle className="w-4 h-4 text-gray-600" />;
-      default:
+      case 'TRASHED':
         return <AlertTriangle className="w-4 h-4 text-red-600" />;
+      default:
+        return <ClockAlert className="w-4 h-4 text-orange-600" />;
     }
   };
 
@@ -117,12 +120,19 @@ export default function Home() {
           text: 'ไม่อนุมัติ',
           glow: 'shadow-gray-300'
         };
-      default:
+      case 'TRASHED':
         return {
           className: 'bg-gradient-to-r from-red-50 to-rose-50 border-red-200 text-red-800',
           badge: 'bg-red-100 text-red-800 border border-red-200',
           text: 'ไม่ใช้งาน',
           glow: 'shadow-red-100'
+        };
+      default:
+        return {
+          className: 'bg-gradient-to-r from-orange-50 to-orange-50 border-orange-200 text-orange-800',
+          badge: 'bg-orange-100 text-orange-800 border border-orange-200',
+          text: 'หมดเวลาการใช้งาน',
+          glow: 'shadow-orange-100'
         };
     }
   };
@@ -775,7 +785,7 @@ export default function Home() {
     }
 
     if (durationType === 'TEMPORARY' && !expiresAt) {
-      alert('กรุณาระบุวันหมดอายุสำหรับโดเมนชั่วคราว')
+      alert('กรุณาระบุวันที่ใช้งานสำหรับโดเมนชั่วคราว')
       return
     }
 
@@ -962,11 +972,15 @@ export default function Home() {
 
   const allRenewalRequests = renewalRequests
 
-  const trashedExpired = [
-    ...expiredDomains,
+  const trashed = [
     ...trashedDomains
   ]
-  const tab = activeTab === 'trashedExpired' ? trashedExpired : activeTab === 'renewals' ? allRenewalRequests : allStatusRequests
+
+  const expired = [
+    ...expiredDomains
+  ]
+
+  const tab = activeTab === 'trashed' ? trashed : activeTab === 'expired' ? expired : activeTab === 'renewals' ? allRenewalRequests : allStatusRequests
 
   const P = activeTab === "domains" ? pendingRequests : allRenewalRequests
   const A = activeTab === "domains" ? activeDomains : []
@@ -982,9 +996,8 @@ export default function Home() {
     : activeTab === 'domains' && activeStatus === "REJECTED" ? rejectedRequests
       : activeTab === 'domains' && activeStatus === "ACTIVE" ? activeDomains
         : activeTab === 'domains' ? allStatusRequests
-          : activeTab === 'renewals' && activeStatus === "PENDING" ? allRenewalRequests
-            : activeTab === 'renewals' && activeStatus === "REJECTED" ? rejectedRenewalRequests
-              : activeTab === 'renewals' ? allRenewalRequests : trashedExpired;
+          : activeTab === "expired" ? expired
+            : activeTab === "trashed" ? trashed : allRenewalRequests;
 
 
 
@@ -1101,41 +1114,41 @@ export default function Home() {
                 </button>
 
                 <button
-                  onClick={() => handleTabChange('trashedExpired')}
-                  className={`group relative py-3 px-6 rounded-lg font-medium text-sm transition-all duration-200 ${activeTab === 'trashedExpired'
-                    ? 'bg-red-500 text-white shadow-lg shadow-red-200 transform -translate-y-0.5'
-                    : 'text-gray-600 hover:text-red-600 hover:bg-red-50 hover:shadow-md'
+                  onClick={() => handleTabChange('expired')}
+                  className={`group relative py-3 px-6 rounded-lg font-medium text-sm transition-all duration-200 ${activeTab === 'expired'
+                    ? 'bg-orange-400 text-white shadow-lg shadow-red-200 transform -translate-y-0.5'
+                    : 'text-gray-600 hover:text-orange-600 hover:bg-orange-50 hover:shadow-md'
                     }`}
                 >
                   <div className="flex items-center space-x-2">
-                    <Trash2 className={`w-4 h-4 transition-transform duration-200 ${activeTab === 'trashedExpired' ? 'scale-110' : 'group-hover:scale-105'
+                    <Clock className={`w-4 h-4 transition-transform duration-200 ${activeTab === 'expired' ? 'scale-110' : 'group-hover:scale-105'
                       }`} />
-                    <span>โดเมนที่ลบ/หมดอายุ</span>
-                    <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'trashedExpired'
+                    <span>โดเมนที่เลยวันที่ใช้งาน</span>
+                    <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'expired'
                       ? 'bg-white/20 text-white'
-                      : 'bg-red-100 text-red-600 group-hover:bg-red-200'
+                      : 'bg-orange-100 text-orange-600 group-hover:bg-orange-200'
                       }`}>
-                      {trashedDomains.length + expiredDomains.length}
+                      {expiredDomains.length}
                     </span>
                   </div>
                 </button>
 
                 <button
-                  onClick={() => handleTabChange('trashedExpired')}
-                  className={`group relative py-3 px-6 rounded-lg font-medium text-sm transition-all duration-200 ${activeTab === 'trashedExpired'
+                  onClick={() => handleTabChange('trashed')}
+                  className={`group relative py-3 px-6 rounded-lg font-medium text-sm transition-all duration-200 ${activeTab === 'trashed'
                     ? 'bg-red-500 text-white shadow-lg shadow-red-200 transform -translate-y-0.5'
                     : 'text-gray-600 hover:text-red-600 hover:bg-red-50 hover:shadow-md'
                     }`}
                 >
                   <div className="flex items-center space-x-2">
-                    <Trash2 className={`w-4 h-4 transition-transform duration-200 ${activeTab === 'trashedExpired' ? 'scale-110' : 'group-hover:scale-105'
+                    <Trash2 className={`w-4 h-4 transition-transform duration-200 ${activeTab === 'trashed' ? 'scale-110' : 'group-hover:scale-105'
                       }`} />
-                    <span>โดเมนที่ลบ/หมดอายุ</span>
-                    <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'trashedExpired'
+                    <span>โดเมนที่ถูกลบ</span>
+                    <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'trashed'
                       ? 'bg-white/20 text-white'
                       : 'bg-red-100 text-red-600 group-hover:bg-red-200'
                       }`}>
-                      {trashedDomains.length + expiredDomains.length}
+                      {trashedDomains.length}
                     </span>
                   </div>
                 </button>
@@ -2137,7 +2150,7 @@ export default function Home() {
                       ? <span className="text-green-500">ใช้งานอยู่</span>
                       : selectedDomain.status === "PENDING" ? <span className="text-yellow-500">กำลังรอการอนุมัติ</span>
                         : selectedDomain.status === "REJECTED" ? <span className="text-gray-500">ไม่อนุมัติ</span>
-                          : selectedDomain.status === "EXPIRED" ? <span className="text-blue-500">หมดอายุ</span>
+                          : selectedDomain.status === "EXPIRED" ? <span className="text-blue-500">หมดเวลาใช้งาน</span>
                             : <span className="text-red-500">อยู่ในถังขยะ</span> || '-'}</div>
                     <div><strong>บัญชี :</strong> {domainData?.username || domainData?.user?.username || '-'}</div>
                   </div>
