@@ -826,6 +826,7 @@ export default function Home() {
           durationType: 'PERMANENT',
           expiresAt: ''
         })
+        window.location.reload()
       } else {
         const error = await response.json()
         alert(`เกิดข้อผิดพลาด: ${error.error}`)
@@ -1884,7 +1885,7 @@ export default function Home() {
                   <button
                     onClick={() => {
                       handleRequestSubmit();
-                      window.location.reload()
+
                     }}
                     className="px-4 py-2 btn-emerald rounded-lg transition-colors"
                   >
