@@ -72,12 +72,11 @@ export default function Home() {
   const [isEditing, setIsEditing] = useState(false); // ตรวจสอบว่ากำลังแก้ไขอยู่หรือไม่
   const [iDsIP, setIDsIP] = useState('')
   const [ips, setIps] = useState('')
-  const [showRe, setShowRe] = useState(false)
+
 
   const handleBlur = () => {
     setIsEditing(false); // เมื่อเลิกแก้ไข
     handleRequestSubmitIP()
-    window.location.reload();
   };
 
 
@@ -601,6 +600,8 @@ export default function Home() {
     setShowPreview(false);
   }, [selectedDomain?.id]);
 
+
+
   const handleDeleteDomain = async (domainId, domainName, isInTrash) => {
     const confirmMessage = isInTrash
       ? `คุณแน่ใจหรือไม่ที่จะลบโดเมน "${domainName}" ถาวร? การดำเนินการนี้ไม่สามารถยกเลิกได้!`
@@ -854,6 +855,7 @@ export default function Home() {
       if (response.ok) {
         const data = await response.json();
         alert(data.message);
+
       } else {
         const error = await response.json();
         alert(`เกิดข้อผิดพลาด: ${error.error}`);
@@ -864,7 +866,6 @@ export default function Home() {
     }
   };
   const handleRequestCancel = () => {
-    setShowRequestModal(false)
     setRequestData({
       domain: '',
       machineType: '',
@@ -1091,6 +1092,26 @@ export default function Home() {
                       : 'bg-blue-100 text-blue-600 group-hover:bg-blue-200'
                       }`}>
                       {allStatusRequests.length}
+                    </span>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleTabChange('trashedExpired')}
+                  className={`group relative py-3 px-6 rounded-lg font-medium text-sm transition-all duration-200 ${activeTab === 'trashedExpired'
+                    ? 'bg-red-500 text-white shadow-lg shadow-red-200 transform -translate-y-0.5'
+                    : 'text-gray-600 hover:text-red-600 hover:bg-red-50 hover:shadow-md'
+                    }`}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Trash2 className={`w-4 h-4 transition-transform duration-200 ${activeTab === 'trashedExpired' ? 'scale-110' : 'group-hover:scale-105'
+                      }`} />
+                    <span>โดเมนที่ลบ/หมดอายุ</span>
+                    <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'trashedExpired'
+                      ? 'bg-white/20 text-white'
+                      : 'bg-red-100 text-red-600 group-hover:bg-red-200'
+                      }`}>
+                      {trashedDomains.length + expiredDomains.length}
                     </span>
                   </div>
                 </button>
@@ -2027,9 +2048,8 @@ export default function Home() {
 
                       ) : (
                         <span
-                          className={`text-blue-500 cursor-pointer  min-w-[120px] px-2 py-1 inline-block hover:bg-gray-100 transition-colors ${valueIP
-                            ? ""
-                            : ""}`}
+                          className={`mx-1 text-gray-700 border border-gray-300 rounded-lg cursor-pointer min-w-[120px] px-3 py-2 inline-block 
+             hover:bg-gray-100 hover:shadow-sm transition-all duration-200 ease-in-out`}
                           onClick={() => setIsEditing(true)}
                         >
                           {valueIP || "Click to add IP"}
@@ -2241,7 +2261,9 @@ export default function Home() {
                   </div>
                   <div className="flex justify-end space-x-3 mt-6">
                     <button
-                      onClick={() => setShowDetailModal(false)}
+                      onClick={() => {
+                        setShowDetailModal(false);
+                      }}
                       className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
                     >
                       ยกเลิก
