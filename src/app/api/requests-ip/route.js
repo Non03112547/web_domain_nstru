@@ -12,7 +12,7 @@ export async function POST(req) {
             );
         }
 
-        if (!domainRequestId) {
+        if (domainRequestId === undefined) {
             return new Response(
                 JSON.stringify({ error: "ต้องระบุ domainRequestId" }),
                 { status: 400, headers: { "Content-Type": "application/json" } }

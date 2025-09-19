@@ -72,6 +72,7 @@ export default function Home() {
   const [isEditing, setIsEditing] = useState(false); // ตรวจสอบว่ากำลังแก้ไขอยู่หรือไม่
   const [iDsIP, setIDsIP] = useState('')
   const [ips, setIps] = useState('')
+  const [ipChanged, setIpChanged] = useState(false)
 
 
   const handleBlur = () => {
@@ -127,7 +128,10 @@ export default function Home() {
   };
 
 
-
+  const handleShowRequestCancel = () => {
+    setShowDetailModal(false);  // ปิด modal
+    if (ipChanged) window.location.reload();
+  }
 
   const handleGenerateWord = async (id) => {
     try {
@@ -558,16 +562,16 @@ export default function Home() {
   })
 
   const fetchDomains = async () => {
+    setLoading(true);
     try {
       const response = await fetch('/api/domains');
-
       if (response.ok) {
         const data = await response.json();
         setDomains(data);
       } else if (response.status === 401) {
         console.log("ยังไม่ได้เข้าสู่ระบบ");
         //alert('คุณยังไม่ได้เข้าสู่ระบบ กรุณาเข้าสู่ระบบก่อน');
-        // หรือ redirect ไปหน้า login ก็ได้ เช่น:
+        //  redirect ไปหน้า login:
         // window.location.href = '/auth/login';
       } else if (response.status === 403) {
         alert('คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้');
@@ -594,12 +598,10 @@ export default function Home() {
     }
   }, [requestData.machineAdminType])
 
-
   useEffect(() => {
     // ทุกครั้งที่เลือก domain ใหม่ → ปิด preview ไปก่อน
     setShowPreview(false);
   }, [selectedDomain?.id]);
-
 
 
   const handleDeleteDomain = async (domainId, domainName, isInTrash) => {
@@ -841,7 +843,9 @@ export default function Home() {
     }
   }
 
+
   const handleRequestSubmitIP = async () => {
+    setIpChanged(false)
     try {
       const response = await fetch("/api/requests-ip", {
         method: "POST",
@@ -855,14 +859,16 @@ export default function Home() {
       if (response.ok) {
         const data = await response.json();
         alert(data.message);
-
+        setIpChanged(true)
       } else {
         const error = await response.json();
         alert(`เกิดข้อผิดพลาด: ${error.error}`);
+
       }
     } catch (err) {
       console.error("Error submitting IP Address:", err);
       alert("เกิดข้อผิดพลาดในการบันทึก IP Address");
+
     }
   };
   const handleRequestCancel = () => {
@@ -972,22 +978,20 @@ export default function Home() {
   }
 
 
-  const statusFilter =
-    activeTab === 'domains' && activeStatus === "PENDING" ? pendingRequests
-      : activeTab === 'domains' && activeStatus === "REJECTED" ? rejectedRequests
-        : activeTab === 'domains' && activeStatus === "ACTIVE" ? activeDomains
-          : activeTab === 'domains' ? allStatusRequests
-            : activeTab === 'renewals' && activeStatus === "PENDING" ? allRenewalRequests
-              : activeTab === 'renewals' && activeStatus === "REJECTED" ? rejectedRenewalRequests
-                : activeTab === 'renewals' ? allRenewalRequests : trashedExpired;
-
+  const statusFilter = activeTab === 'domains' && activeStatus === "PENDING" ? pendingRequests
+    : activeTab === 'domains' && activeStatus === "REJECTED" ? rejectedRequests
+      : activeTab === 'domains' && activeStatus === "ACTIVE" ? activeDomains
+        : activeTab === 'domains' ? allStatusRequests
+          : activeTab === 'renewals' && activeStatus === "PENDING" ? allRenewalRequests
+            : activeTab === 'renewals' && activeStatus === "REJECTED" ? rejectedRenewalRequests
+              : activeTab === 'renewals' ? allRenewalRequests : trashedExpired;
 
 
 
 
   console.log('statusFilter:', statusFilter)
   console.log("selectedDomain :", selectedDomain)
-
+  console.log("Domains :", domains)
   return (
 
     <div>
@@ -1423,7 +1427,10 @@ export default function Home() {
                             <div>
                               <p className="text-xs text-gray-500 uppercase tracking-wide">IP Address</p>
                               <p className="text-sm font-mono text-gray-700 bg-white/50 px-2 py-1 rounded-md inline-block">
-                                {domain.domainRequest?.ipAddress || domain.domain?.domainRequest?.ipAddress || domain.ipAddress || "-"}
+                                {domain.domainRequest?.ipAddress
+                                  || domain.domain?.domainRequest?.ipAddress
+                                  || domain.ipAddress
+                                  || "-"}
                               </p>
                             </div>
                           </div>
@@ -2037,7 +2044,7 @@ export default function Home() {
                           className="text-blue-500 border rounded px-2 py-1"
                           value={valueIP}
                           onChange={(e) => {
-                            handleRequestDataChange('ipAddress', e.target.value);
+                            handleRequestDataChange('ipAddress', e.target.value.replace(/[^\d.]/g, ''));
                             setIDsIP(domainData.id);
                             setIps(e.target.value);
                           }}
@@ -2261,9 +2268,8 @@ export default function Home() {
                   </div>
                   <div className="flex justify-end space-x-3 mt-6">
                     <button
-                      onClick={() => {
-                        setShowDetailModal(false);
-                      }}
+                      onClick={handleShowRequestCancel}
+
                       className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
                     >
                       ยกเลิก
