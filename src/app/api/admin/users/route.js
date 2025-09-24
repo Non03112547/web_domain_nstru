@@ -14,14 +14,11 @@ export async function GET() {
         }
 
         const users = await prisma.user.findMany({
-            include: {
-                position: true
-            },
-            orderBy: {
-                createdAt: 'desc'
-            }
+            include: { position: true },
+            orderBy: { createdAt: 'desc' }
         })
 
+        // ส่งกลับเป็น object รวมทั้งสอง array
         return NextResponse.json(users)
     } catch (error) {
         console.error('Error fetching users:', error)

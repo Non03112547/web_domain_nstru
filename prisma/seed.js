@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-    // 🧹 ล้างข้อมูลเก่า
+    // ล้างข้อมูลเก่า
     await prisma.renewalRequest.deleteMany();
     await prisma.domain.deleteMany();
     await prisma.domainRequest.deleteMany();
@@ -12,185 +12,114 @@ async function main() {
     await prisma.user.deleteMany();
     await prisma.position.deleteMany();
 
-    // 🧑‍💼 เพิ่มตำแหน่ง
-    const adminPosition = await prisma.position.create({
-        data: { name: 'ผู้ดูแลระบบ', description: 'มีสิทธิ์จัดการทุกอย่าง' }
-    });
+    // สร้างตำแหน่ง
+    const adminPosition = await prisma.position.create({ data: { name: 'ผู้ดูแลระบบ', description: 'มีสิทธิ์จัดการทุกอย่าง' } });
+    const userPosition = await prisma.position.create({ data: { name: 'เจ้าหน้าที่ทั่วไป', description: 'สามารถส่งคำขอใช้โดเมน' } });
 
-    const userPosition = await prisma.position.create({
-        data: { name: 'เจ้าหน้าที่ทั่วไป', description: 'สามารถส่งคำขอใช้โดเมน' }
-    });
-
-    // 👤 เพิ่มผู้ใช้ พร้อม hash password
+    // สร้างผู้ใช้
     const admin = await prisma.user.create({
-        data: {
-            username: 'admin',
-            password: await bcrypt.hash('admin123', 10),
-            role: Role.ADMIN,
-            positionId: adminPosition.id,
-        }
+        data: { username: 'admin', password: await bcrypt.hash('admin123', 10), role: Role.ADMIN, positionId: adminPosition.id }
     });
-
     const user01 = await prisma.user.create({
-        data: {
-            username: 'user01',
-            password: await bcrypt.hash('passuser01', 10),
-            role: Role.USER,
-            positionId: userPosition.id,
-        }
+        data: { username: 'user01', password: await bcrypt.hash('passuser01', 10), role: Role.USER, positionId: userPosition.id }
     });
-
     const user02 = await prisma.user.create({
-        data: {
-            username: 'user02',
-            password: await bcrypt.hash('passuser02', 10),
-            role: Role.USER,
-            positionId: userPosition.id,
-        }
+        data: { username: 'user02', password: await bcrypt.hash('passuser02', 10), role: Role.USER, positionId: userPosition.id }
     });
 
-    // 🌐 คำขอโดเมน APPROVED
-    const approvedRequest = await prisma.domainRequest.create({
-        data: {
-            domain: 'library.nstru.ac.th',
-            ipAddress: '192.168.0.10',
-            machineType: 'Server',
-            OS: 'Linux',
-            otherMachineType: 'NO',
-            otherOS: 'NO',
-            requesterName: 'นายสมชาย ใจดี',
-            responsibleName: 'นายสมศักดิ์ รักษาดี',
-            position: 'เจ้าหน้าที่',
-            department: 'ห้องสมุดกลาง',
-            institution: 'NSTRU',
-            contactP: '0811111111',
-            contactE: 'somchai@nstru.ac.th',
-            responsibleContactP: '0822222222',
-            responsibleContactE: 'somk@nstru.ac.th',
-            machineAdminType: 'requester',
-            machineAdminName: 'นายสมชาย ใจดี',
-            machineAdminPosition: 'เจ้าหน้าที่',
-            machineAdminContactP: '0833333333',
-            machineAdminContactE: 'somchai@nstru.ac.th',
-            machineRoom: 'ห้อง 101',
-            machinePlace: 'อาคารห้องสมุด',
-            property: Purpose.InNSTRU,
-            useType: Purpose.Sever,
-            purpose: 'ให้บริการภายในมหาวิทยาลัย',
-            durationType: DurationType.PERMANENT,
-            status: RequestStatus.APPROVED,
-            userId: user01.id
-        }
-    });
+    // สร้างโดเมน 20 record แบบไม่ซ้ำ
+    const domainDataList = [
+        // 5 ACTIVE (PERMANENT)
+        { domain: 'library.nstru.ac.th', ip: '192.168.0.101', type: 'ACTIVE', duration: DurationType.PERMANENT, user: user01, requester: 'นายสมชาย ใจดี', responsible: 'นายสมศักดิ์ รักษาดี' },
+        { domain: 'research.nstru.ac.th', ip: '192.168.0.102', type: 'ACTIVE', duration: DurationType.PERMANENT, user: user01, requester: 'นางสาววิจัย ดีดี', responsible: 'นายสมคิด มีสุข' },
+        { domain: 'finance.nstru.ac.th', ip: '192.168.0.103', type: 'ACTIVE', duration: DurationType.PERMANENT, user: user02, requester: 'นายการเงิน', responsible: 'นางสาวบัญชี' },
+        { domain: 'hr.nstru.ac.th', ip: '192.168.0.104', type: 'ACTIVE', duration: DurationType.PERMANENT, user: user02, requester: 'นางสาวบุคคล', responsible: 'นายฝ่ายบุคคล' },
+        { domain: 'admin.nstru.ac.th', ip: '192.168.0.105', type: 'ACTIVE', duration: DurationType.PERMANENT, user: admin, requester: 'admin', responsible: 'admin' },
 
-    const approvedDomain = await prisma.domain.create({
-        data: {
-            domainRequestId: approvedRequest.id,
-            lastUsedAt: new Date(),
-            status: DomainStatus.ACTIVE,
-            decideTime: new Date() // อนุมัติ → set decideTime
-        }
-    });
+        // 4 EXPIRED_RENEW (TEMPORARY)
+        { domain: 'expired.nstru.ac.th', ip: '192.168.0.201', type: 'EXPIRED_RENEW', duration: DurationType.TEMPORARY, user: user02, requester: 'นางสาวลืมต่อ', responsible: 'นายลืมต่อ' },
+        { domain: 'oldserver.nstru.ac.th', ip: '192.168.0.202', type: 'EXPIRED_RENEW', duration: DurationType.TEMPORARY, user: user01, requester: 'นายเก่า', responsible: 'นางสาวเก่า' },
+        { domain: 'labexpired.nstru.ac.th', ip: '192.168.0.203', type: 'EXPIRED_RENEW', duration: DurationType.TEMPORARY, user: user01, requester: 'นางสาวทดลอง', responsible: 'นายทดลอง' },
+        { domain: 'testexpired.nstru.ac.th', ip: '192.168.0.204', type: 'EXPIRED_RENEW', duration: DurationType.TEMPORARY, user: user02, requester: 'นายทดสอบ', responsible: 'นางสาวทดสอบ' },
 
-    // 🕒 คำขอโดเมน EXPIRED
-    const expiredRequest = await prisma.domainRequest.create({
-        data: {
-            domain: 'expired.nstru.ac.th',
-            ipAddress: '192.168.0.20',
-            machineType: 'PC',
-            OS: 'Windows',
-            requesterName: 'นางสาวลืมต่อ',
-            responsibleName: 'นายลืมต่อ',
-            position: 'เจ้าหน้าที่',
-            department: 'ฝ่ายไอที',
-            institution: 'NSTRU',
-            contactP: '0844444444',
-            contactE: 'expire@nstru.ac.th',
-            responsibleContactP: '0855555555',
-            responsibleContactE: 'resp@nstru.ac.th',
-            machineAdminType: 'other',
-            machineAdminName: 'นายช่วยดูแล',
-            machineAdminPosition: 'จนท.',
-            machineAdminContactP: '0866666666',
-            machineAdminContactE: 'support@nstru.ac.th',
-            machineRoom: 'ห้อง 202',
-            machinePlace: 'อาคารบริการ',
-            property: Purpose.InOutNSTRU,
-            useType: Purpose.NoSever,
-            purpose: 'ใช้จัดเก็บข้อมูลภายใน',
-            durationType: DurationType.TEMPORARY,
-            expiresAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-            status: RequestStatus.APPROVED,
-            userId: user02.id
-        }
-    });
+        // 3 EXPIRED_NO_RENEW (TEMPORARY)
+        { domain: 'expired2.nstru.ac.th', ip: '192.168.0.205', type: 'EXPIRED_NO_RENEW', duration: DurationType.TEMPORARY, user: user02, requester: 'นายหมดอายุ', responsible: 'นางหมดอายุ' },
+        { domain: 'expired3.nstru.ac.th', ip: '192.168.0.206', type: 'EXPIRED_NO_RENEW', duration: DurationType.TEMPORARY, user: user01, requester: 'นางสาวหมดอายุ', responsible: 'นายหมดอายุ' },
+        { domain: 'expired4.nstru.ac.th', ip: '192.168.0.207', type: 'EXPIRED_NO_RENEW', duration: DurationType.TEMPORARY, user: user02, requester: 'นายไม่ได้ต่อ', responsible: 'นางไม่ได้ต่อ' },
 
-    const expiredDomain = await prisma.domain.create({
-        data: {
-            domainRequestId: expiredRequest.id,
-            lastUsedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
-            status: DomainStatus.EXPIRED,
-            // expired → ยังไม่ set decideTime
-        }
-    });
+        // 4 TRASHED (TEMPORARY)
+        { domain: 'old.nstru.ac.th', ip: '192.168.0.208', type: 'TRASHED', duration: DurationType.TEMPORARY, user: user01, requester: 'นายเก่า', responsible: 'นายเก่า' },
+        { domain: 'archive.nstru.ac.th', ip: '192.168.0.209', type: 'TRASHED', duration: DurationType.TEMPORARY, user: user01, requester: 'นายเก็บ', responsible: 'นางสาวเก็บ' },
+        { domain: 'trash1.nstru.ac.th', ip: '192.168.0.210', type: 'TRASHED', duration: DurationType.TEMPORARY, user: user02, requester: 'นายลบ1', responsible: 'นางลบ1' },
+        { domain: 'trash2.nstru.ac.th', ip: '192.168.0.211', type: 'TRASHED', duration: DurationType.TEMPORARY, user: user02, requester: 'นายลบ2', responsible: 'นางลบ2' },
 
-    // 🔄 Renewal Request (PENDING)
-    await prisma.renewalRequest.create({
-        data: {
-            domainId: expiredDomain.id,
-            newExpiryDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-            reason: 'จำเป็นต้องใช้งานต่อ',
-            status: RequestStatus.PENDING,
-            userId: user02.id
-        }
-    });
+        // 4 PENDING (TEMPORARY)
+        { domain: 'newrequest1.nstru.ac.th', ip: '192.168.0.212', type: 'PENDING', duration: DurationType.TEMPORARY, user: user02, requester: 'นางสาวรออนุมัติ', responsible: 'นายรออนุมัติ' },
+        { domain: 'newrequest2.nstru.ac.th', ip: '192.168.0.213', type: 'PENDING', duration: DurationType.TEMPORARY, user: user01, requester: 'นายขอใหม่', responsible: 'นางสาวขอใหม่' },
+        { domain: 'newrequest3.nstru.ac.th', ip: '192.168.0.214', type: 'PENDING', duration: DurationType.TEMPORARY, user: user01, requester: 'นางรอ', responsible: 'นายรอ' },
+        { domain: 'newrequest4.nstru.ac.th', ip: '192.168.0.215', type: 'PENDING', duration: DurationType.TEMPORARY, user: user02, requester: 'นายรอ', responsible: 'นางรอ' }
+    ];
 
-    // 🗑️ โดเมนในถังขยะ
-    const trashedRequest = await prisma.domainRequest.create({
-        data: {
-            domain: 'old.nstru.ac.th',
-            ipAddress: '192.168.0.30',
-            requesterName: 'นายเก่า',
-            responsibleName: 'นายเก่า',
-            position: 'เจ้าหน้าที่',
-            department: 'เก่า',
-            institution: 'NSTRU',
-            contactP: '0877777777',
-            contactE: 'old@nstru.ac.th',
-            responsibleContactP: '0888888888',
-            responsibleContactE: 'oldr@nstru.ac.th',
-            machineAdminType: 'requester',
-            machineAdminName: 'นายเก่า',
-            machineAdminPosition: 'เจ้าหน้าที่',
-            machineAdminContactP: '0899999999',
-            machineAdminContactE: 'old@nstru.ac.th',
-            durationType: DurationType.TEMPORARY,
-            expiresAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-            status: RequestStatus.APPROVED,
-            userId: user01.id
-        }
-    });
+    for (const entry of domainDataList) {
+        const domainRequest = await prisma.domainRequest.create({
+            data: {
+                domain: entry.domain,
+                ipAddress: entry.ip,
+                machineType: 'PC',
+                OS: 'Windows',
+                requesterName: entry.requester,
+                responsibleName: entry.responsible,
+                position: 'เจ้าหน้าที่',
+                department: 'ฝ่าย IT',
+                institution: 'NSTRU',
+                contactP: '0812345678',
+                contactE: `${entry.user.username}@nstru.ac.th`,
+                responsibleContactP: '0823456789',
+                responsibleContactE: `${entry.user.username}resp@nstru.ac.th`,
+                machineAdminType: 'requester',
+                machineAdminName: entry.requester,
+                machineAdminPosition: 'เจ้าหน้าที่',
+                machineAdminContactP: '0834567890',
+                machineAdminContactE: `${entry.user.username}admin@nstru.ac.th`,
+                property: Purpose.InNSTRU,
+                useType: Purpose.NoSever,
+                purpose: 'ใช้จัดเก็บข้อมูลภายในมหาวิทยาลัย',
+                durationType: entry.duration,
+                expiresAt: entry.duration === DurationType.TEMPORARY ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : null,
+                status: entry.type === 'PENDING' ? RequestStatus.PENDING : RequestStatus.APPROVED,
+                userId: entry.user.id
+            }
+        });
 
-    await prisma.domain.create({
-        data: {
-            domainRequestId: trashedRequest.id,
-            deletedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-            trashExpiresAt: new Date(Date.now() + 85 * 24 * 60 * 60 * 1000),
-            lastUsedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
-            status: DomainStatus.TRASHED,
-            // trashed → ยังไม่ set decideTime
-        }
-    });
+        const domain = await prisma.domain.create({
+            data: {
+                domainRequestId: domainRequest.id,
+                lastUsedAt: new Date(),
+                status: entry.type === 'ACTIVE' ? DomainStatus.ACTIVE :
+                    entry.type.startsWith('EXPIRED') ? DomainStatus.EXPIRED :
+                        entry.type === 'TRASHED' ? DomainStatus.TRASHED :
+                            DomainStatus.ACTIVE,
+                decideTime: entry.type === 'ACTIVE' || entry.type.startsWith('EXPIRED') ? new Date() : null,
+                deletedAt: entry.type === 'TRASHED' ? new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) : null,
+                trashExpiresAt: entry.type === 'TRASHED' ? new Date(Date.now() + 25 * 24 * 60 * 60 * 1000) : null
+            }
+        });
 
-    // 🧹 ล็อกการลบโดเมน
-    await prisma.deletedDomainLog.create({
-        data: {
-            domainName: 'archive.nstru.ac.th',
-            reason: 'ไม่ใช้งานแล้ว ลบทิ้ง',
+        // สร้าง RenewalRequest สำหรับ EXPIRED_RENEW
+        if (entry.type === 'EXPIRED_RENEW') {
+            await prisma.renewalRequest.create({
+                data: {
+                    domainId: domain.id,
+                    newExpiryDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+                    reason: 'ต้องใช้งานต่อ',
+                    status: RequestStatus.PENDING,
+                    userId: entry.user.id
+                }
+            });
         }
-    });
+    }
 
-    console.log('✅ Database seeded successfully with decideTime only for APPROVED/REJECTED!');
+    console.log('✅ Seed 20 domains พร้อม TEMPORARY ทุกตัวมี expiresAt และไม่ซ้ำ IP/Domain เรียบร้อย!');
 }
 
 main()

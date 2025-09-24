@@ -31,6 +31,7 @@ import {
   SortDesc,
   Settings2,
   ClockAlert,
+  CircleX,
   Server, Activity, AlertTriangle
 } from 'lucide-react'
 import NavBar from '@/components/nav'
@@ -138,10 +139,7 @@ export default function Home() {
   };
 
 
-  const handleShowRequestCancel = () => {
-    setShowDetailModal(false);  // ปิด modal
-    if (ipChanged) window.location.reload();
-  }
+
 
   const handleGenerateWord = async (id) => {
     try {
@@ -882,6 +880,7 @@ export default function Home() {
     }
   };
   const handleRequestCancel = () => {
+    setShowRequestModal(false)
     setRequestData({
       domain: '',
       machineType: '',
@@ -1503,6 +1502,14 @@ export default function Home() {
       {
         showRequestModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <button
+              onClick={handleRequestCancel}
+              className=' btn-close transition-colors absolute  top-9 left-105  transform -translate-x-1/2 -translate-y-1/2  rounded-4xl '>
+              <div >
+                <CircleX
+                  className='w-10 h-10 ' />
+              </div>
+            </button>
             <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
                 ขอใช้โดเมนใหม่
@@ -2037,6 +2044,18 @@ export default function Home() {
           const valueIP = requestData.ipAddress || domainData?.ipAddress || ''
           return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <button
+                onClick={() => {
+                  setShowDetailModal(false);
+                  if (ipChanged) window.location.reload();
+                }
+                }
+                className=' btn-close transition-colors absolute  top-9 left-93  transform -translate-x-1/2 -translate-y-1/2  rounded-4xl '>
+                <div >
+                  <CircleX
+                    className='w-10 h-10 ' />
+                </div>
+              </button>
               <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
                 <div>
                   <h1 className="text-xl font-semibold text-gray-900 mb-4">
@@ -2281,7 +2300,11 @@ export default function Home() {
                   </div>
                   <div className="flex justify-end space-x-3 mt-6">
                     <button
-                      onClick={handleShowRequestCancel}
+                      onClick={() => {
+                        setShowDetailModal(false);
+                        if (ipChanged) window.location.reload();
+                      }
+                      }
 
                       className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
                     >
@@ -2297,103 +2320,105 @@ export default function Home() {
         })()
       }
       {/* Restore Modal */}
-      {session?.user?.role === "ADMIN" && showRestoreModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
-              กู้คืนโดเมน
-            </h3>
+      {
+        session?.user?.role === "ADMIN" && showRestoreModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                กู้คืนโดเมน
+              </h3>
 
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">
-                โดเมน:{" "}
-                <span className="font-medium">
-                  {selectedDomain?.domainRequest?.domain || "ไม่ระบุโดเมน"}
-                </span>
-              </p>
-
-              <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                <p className="text-xs text-gray-500 mb-1">ข้อมูลเดิม:</p>
-                <p className="text-sm">
-                  ประเภท:{" "}
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-2">
+                  โดเมน:{" "}
                   <span className="font-medium">
-                    {selectedDomain?.domainRequest?.durationType === "PERMANENT"
-                      ? "ถาวร"
-                      : selectedDomain?.domainRequest?.durationType === "TEMPORARY"
-                        ? "ชั่วคราว"
-                        : "ไม่ระบุ"}
+                    {selectedDomain?.domainRequest?.domain || "ไม่ระบุโดเมน"}
                   </span>
                 </p>
-                <p className="text-sm">
-                  หมดอายุ:{" "}
-                  <span className="font-medium">
-                    {selectedDomain?.domainRequest?.expiresAt
-                      ? new Date(selectedDomain.domainRequest.expiresAt).toLocaleDateString("th-TH")
-                      : "-"}
-                  </span>
+
+                <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                  <p className="text-xs text-gray-500 mb-1">ข้อมูลเดิม:</p>
+                  <p className="text-sm">
+                    ประเภท:{" "}
+                    <span className="font-medium">
+                      {selectedDomain?.domainRequest?.durationType === "PERMANENT"
+                        ? "ถาวร"
+                        : selectedDomain?.domainRequest?.durationType === "TEMPORARY"
+                          ? "ชั่วคราว"
+                          : "ไม่ระบุ"}
+                    </span>
+                  </p>
+                  <p className="text-sm">
+                    หมดอายุ:{" "}
+                    <span className="font-medium">
+                      {selectedDomain?.domainRequest?.expiresAt
+                        ? new Date(selectedDomain.domainRequest.expiresAt).toLocaleDateString("th-TH")
+                        : "-"}
+                    </span>
+                  </p>
+                </div>
+
+                <p className="text-sm text-gray-600">
+                  กรุณาเลือกประเภทการใช้งานสำหรับโดเมนที่กู้คืน
                 </p>
               </div>
 
-              <p className="text-sm text-gray-600">
-                กรุณาเลือกประเภทการใช้งานสำหรับโดเมนที่กู้คืน
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              {/* เลือกประเภท */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ประเภทการใช้งาน *
-                </label>
-                <select
-                  value={restoreData?.durationType || "PERMANENT"}
-                  onChange={(e) =>
-                    handleRestoreDataChange("durationType", e.target.value)
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="PERMANENT">ถาวร</option>
-                  <option value="TEMPORARY">ชั่วคราว</option>
-                </select>
-              </div>
-
-              {/* ถ้าเลือกชั่วคราว → ใส่วันหมดอายุ */}
-              {restoreData?.durationType === "TEMPORARY" && (
+              <div className="space-y-4">
+                {/* เลือกประเภท */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ใช้ถึงวันที่ *
+                    ประเภทการใช้งาน *
                   </label>
-                  <input
-                    type="date"
-                    value={restoreData?.expiresAt || ""}
+                  <select
+                    value={restoreData?.durationType || "PERMANENT"}
                     onChange={(e) =>
-                      handleRestoreDataChange("expiresAt", e.target.value)
+                      handleRestoreDataChange("durationType", e.target.value)
                     }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    min={new Date().toISOString().split("T")[0]}
-                  />
+                  >
+                    <option value="PERMANENT">ถาวร</option>
+                    <option value="TEMPORARY">ชั่วคราว</option>
+                  </select>
                 </div>
-              )}
-            </div>
 
-            {/* ปุ่ม Action */}
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                onClick={handleRestoreCancel}
-                className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
-              >
-                ยกเลิก
-              </button>
-              <button
-                onClick={handleRestoreSubmit}
-                className="px-4 py-2 btn-emerald rounded-lg transition-colors"
-              >
-                กู้คืน
-              </button>
+                {/* ถ้าเลือกชั่วคราว → ใส่วันหมดอายุ */}
+                {restoreData?.durationType === "TEMPORARY" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ใช้ถึงวันที่ *
+                    </label>
+                    <input
+                      type="date"
+                      value={restoreData?.expiresAt || ""}
+                      onChange={(e) =>
+                        handleRestoreDataChange("expiresAt", e.target.value)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      min={new Date().toISOString().split("T")[0]}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* ปุ่ม Action */}
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  onClick={handleRestoreCancel}
+                  className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={handleRestoreSubmit}
+                  className="px-4 py-2 btn-emerald rounded-lg transition-colors"
+                >
+                  กู้คืน
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
     </div >
   );

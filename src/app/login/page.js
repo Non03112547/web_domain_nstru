@@ -152,15 +152,17 @@ export default function LoginPage() {
                         {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
                     </button>
                 </form>
-                {/* สมัครสมาชิก  */}
-                <div className="mt-6 text-center text-sm text-gray-500">
-                    <p><a href=''>สมัครใช้งาน</a></p>
-                </div>
+
                 {/* บัญชีทดสอบ */}
                 <div className="mt-6 text-center text-sm text-gray-500">
                     <p>บัญชีทดสอบ:</p>
                     <p>Admin: admin / admin123</p>
                     <p>User: user01 / passuser01</p>
+                </div>
+
+                {/* สมัครสมาชิก  */}
+                <div className="mt-6 text-center text-sm text-gray-500">
+                    <p><a href='/sign-up' className='text-blue-500'>สมัครใช้งาน</a></p>
                 </div>
             </motion.div>
         </div>

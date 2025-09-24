@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "generate": "prisma generate",
-    "seed4": "node prisma/seed4.js"
+    "cron": "node scripts/updateDomainStatus.js",
+    "seed4": "node prisma/seed4.js",
+    "dev:all": "concurrently \"npm run dev\" \"npm run cron\""
   },
   "dependencies": {
     "@prisma/client": "^6.11.1",
@@ -21,6 +23,7 @@
     "lucide-react": "^0.525.0",
     "next": "15.3.5",
     "next-auth": "^4.24.11",
+    "node-cron": "^4.2.1",
     "pizzip": "^3.2.0",
     "puppeteer": "^24.17.1",
     "react": "^19.0.0",
@@ -31,6 +34,7 @@
     "@tailwindcss/postcss": "^4",
     "@types/node": "24.0.13",
     "@types/react": "19.1.8",
+    "concurrently": "^9.2.1",
     "eslint": "^9",
     "eslint-config-next": "15.3.5",
     "tailwindcss": "^4"

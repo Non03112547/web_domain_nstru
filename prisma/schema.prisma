@@ -25,8 +25,24 @@ model User {
   position        Position? @relation(fields: [positionId], references: [id])
   domainRequests  DomainRequest[]
   renewalRequests RenewalRequest[]
+
+  signUpUser      SignUpUser?    @relation(fields: [signUpUserId], references: [id],onDelete: Cascade)
+  signUpUserId    String?   @unique// foreign key มาจาก SignUpUser
   
   @@map("users")
+}
+
+model SignUpUser{
+  id         String    @id @default(cuid())
+  username   String    @unique
+  password   String
+  contactP   String
+  contactE   String  
+  role       Role      @default(USER)
+  createdAt  DateTime  @default(now())
+  status     SignUp    @default(PENDING)
+  user_record User? 
+  @@map("signUpUsers")
 }
 
 model Position {
@@ -35,7 +51,8 @@ model Position {
   description String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
-  
+
+
   users User[]
   
   @@map("positions")
@@ -159,4 +176,9 @@ enum Purpose {
   NoSever
   Sever
   None
+}
+enum SignUp {
+  PENDING
+  APPROVED
+  REJECTED
 }
