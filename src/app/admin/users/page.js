@@ -81,7 +81,7 @@ export default function UsersManagementPage() {
             const response = await fetch('/api/admin/signUpUsers')
             if (response.ok) {
                 const data = await response.json()
-                setRequestUser(data)
+                setRequestUser(data.users)
             }
         } catch (error) {
             console.error('Error fetching signUp users:', error)
@@ -233,20 +233,34 @@ export default function UsersManagementPage() {
             user.username.toLowerCase().includes(filters.search.toLowerCase()) &&
             (filters.role === 'ALL' || user.role === filters.role)
         )
-        .sort((a, b) => (filters.sortOrder === 'asc'
-            ? new Date(a[filters.sortBy]) - new Date(b[filters.sortBy])
-            : new Date(b[filters.sortBy]) - new Date(a[filters.sortBy])
-        ))
+        .sort((a, b) => {
+            const fieldA = a[filters.sortBy];
+            const fieldB = b[filters.sortBy];
+
+            if (!isNaN(Date.parse(fieldA)) && !isNaN(Date.parse(fieldB))) {
+                return filters.sortOrder === 'asc'
+                    ? new Date(fieldA) - new Date(fieldB)
+                    : new Date(fieldB) - new Date(fieldA);
+            }
+
+            return filters.sortOrder === 'asc'
+                ? String(fieldA).localeCompare(String(fieldB))
+                : String(fieldB).localeCompare(String(fieldA));
+        });
 
     const tabData = activeTab === 'list' ? filteredUsers : filteredSignUpUsers
 
-    if (loading)
+    if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p>กำลังโหลด...</p>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">กำลังโหลด...</p>
+                </div>
             </div>
         )
+    }
+    console.log("tabData " + tabData)
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -395,7 +409,7 @@ export default function UsersManagementPage() {
 
                     {/* Tab Data */}
                     <div className="grid gap-4">
-                        {tabData.map((user) => (
+                        {activeTab === "list" && tabData.map((user) => (
                             <motion.div key={user.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
                                 <div className="flex items-center space-x-4">
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${user.role === 'ADMIN' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
@@ -420,6 +434,33 @@ export default function UsersManagementPage() {
                                 </div>
                             </motion.div>
                         ))}
+                        {activeTab !== "list" && tabData.map((user) => (
+                            <motion.div key={user.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
+                                <div className="flex items-center space-x-4">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${user.role === 'ADMIN' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
+                                        {user.role === 'ADMIN' ? <Shield className="w-5 h-5" /> : <User className="w-5 h-5" />}
+                                    </div>
+                                    <div>
+                                        <p className="font-medium">{user.username}</p>
+                                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                                            {user.position && <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">{user.position?.name}</span>}
+                                            <span className="flex items-center"><Calendar className="w-3 h-3 mr-1" />{formatDate(user.createdAt)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    {user.id !== session.user.id && (
+                                        <>
+                                            <button onClick={() => (user.id, user.username)} className="p-2 rounded-lg btn-indigo"><Plus className="w-4 h-4" /></button>
+                                            <button onClick={() => (user.id, user.username)} className="p-2 rounded-lg btn-rose"><Plus className="w-4 h-4" /></button>
+                                        </>
+                                    )}
+                                    {user.id === session.user.id && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">คุณ</span>}
+                                </div>
+                            </motion.div>
+
+
+                        ))}
 
                         {tabData.length === 0 && (
                             <div className="text-center py-12">
@@ -429,7 +470,7 @@ export default function UsersManagementPage() {
                         )}
                     </div>
                 </div>
-            </main>
-        </div>
+            </main >
+        </div >
     )
 }

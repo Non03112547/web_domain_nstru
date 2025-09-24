@@ -8,7 +8,7 @@ cron.schedule('0 0 * * *', async () => {
     const expiredDomains = await prisma.domain.updateMany({
         where: {
             status: 'ACTIVE',
-            lastUsedAt: { lastUsedAt: { lte: now } }
+            domainRequest: { expiresAt: { lte: now } }
         },
         data: { status: 'EXPIRED' }
     })

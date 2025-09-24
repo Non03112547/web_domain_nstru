@@ -17,6 +17,13 @@ export default function SignUpPage() {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
 
+    const handleChange = (e) => {
+        setCredentials({
+            ...credentials,
+            [e.target.name]: e.target.value
+        })
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         setLoading(true)
@@ -29,19 +36,19 @@ export default function SignUpPage() {
         }
 
         try {
-            const res = await fetch('/api/auth/register', {
+            const res = await fetch('/api/admin/signUpUsers', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username: credentials.username,
-                    password: credentials.password,
-                    contactP: credentials.contactP,
-                    contactE: credentials.contactE,
-                    role: 'USER' // หรือเลือก role อื่นถ้าต้องการ
-                })
+                body: JSON.stringify(credentials)
             })
 
-            const data = await res.json()
+            let data
+            const text = await res.text()
+            try {
+                data = JSON.parse(text)
+            } catch {
+                data = { error: text }
+            }
 
             if (!res.ok) {
                 setError(data.error || 'เกิดข้อผิดพลาด')
@@ -57,12 +64,6 @@ export default function SignUpPage() {
         }
     }
 
-    const handleChange = (e) => {
-        setCredentials({
-            ...credentials,
-            [e.target.name]: e.target.value
-        })
-    }
 
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">

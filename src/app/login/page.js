@@ -162,7 +162,7 @@ export default function LoginPage() {
 
                 {/* สมัครสมาชิก  */}
                 <div className="mt-6 text-center text-sm text-gray-500">
-                    <p><a href='/sign-up' className='text-blue-500'>สมัครใช้งาน</a></p>
+                    <p><a href='/signUp' className='text-blue-500'>สมัครใช้งาน</a></p>
                 </div>
             </motion.div>
         </div>

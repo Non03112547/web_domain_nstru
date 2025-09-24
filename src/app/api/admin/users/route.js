@@ -18,7 +18,7 @@ export async function GET() {
             orderBy: { createdAt: 'desc' }
         })
 
-        // ส่งกลับเป็น object รวมทั้งสอง array
+        // ส่งกลับเป็น object 
         return NextResponse.json(users)
     } catch (error) {
         console.error('Error fetching users:', error)
