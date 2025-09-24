@@ -13,43 +13,50 @@ export async function DELETE(request, { params }) {
 
         const userId = params.id
 
-        // Check if user exists
+        // หา user + signUpUser
         const user = await prisma.user.findUnique({
-            where: { id: userId }
+            where: { id: userId },
+            include: { signUpUser: true }
         })
 
         if (!user) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 })
         }
 
-        // Prevent deleting self
+        // ป้องกันลบตัวเอง
         if (user.id === session.user.id) {
             return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 })
         }
 
-        // Delete user and related data in a transaction
+        // ลบทั้งหมดใน transaction
         await prisma.$transaction([
-            // Delete domains associated with user's requests
+            // ลบ domains ที่เกี่ยวข้องกับ domainRequests ของ user
             prisma.domain.deleteMany({
-                where: {
-                    domainRequest: {
-                        userId: userId
-                    }
-                }
+                where: { domainRequest: { userId } }
             }),
-            // Delete user's domain requests
+
+            // ลบ domainRequests ของ user
             prisma.domainRequest.deleteMany({
-                where: {
-                    userId: userId
-                }
+                where: { userId }
             }),
-            // Delete user
-            prisma.user.delete({
+
+            // ลบ renewalRequests ของ user (ถ้ามี)
+            prisma.renewalRequest.deleteMany({
+                where: { userId }
+            }),
+
+            // ลบ user
+            prisma.user.deleteMany({
                 where: { id: userId }
+            }),
+
+            // ลบ signUpUser ถ้ามี
+            prisma.signUpUser.deleteMany({
+                where: { id: user.signUpUserId }
             })
         ])
 
-        return NextResponse.json({ message: 'User deleted successfully' })
+        return NextResponse.json({ message: 'User and related signUpUser deleted successfully' })
     } catch (error) {
         console.error('Error deleting user:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

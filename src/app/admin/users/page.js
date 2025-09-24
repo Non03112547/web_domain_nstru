@@ -260,6 +260,39 @@ export default function UsersManagementPage() {
             </div>
         )
     }
+
+    const handleApproveRequest = async (userID, action) => {
+        const confirmMessage = action === 'approve'
+            ? 'คุณแน่ใจหรือไม่ที่จะอนุมัติคำขอนี้?'
+            : 'คุณแน่ใจหรือไม่ที่จะไม่อนุมัติคำขอนี้?'
+
+        if (!confirm(confirmMessage)) return
+
+        try {
+            const response = await fetch(`/api/admin/signUpUsers/${userID}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action })
+            })
+
+            if (response.ok) {
+                const message = action === 'approve'
+                    ? 'อนุมัติบัญชีสำเร็จ'
+                    : 'ลบคำขอใช้บัญชีสำเร็จ'
+                alert(message)
+                window.location.reload()
+            } else {
+                const error = await response.json()
+                alert(`เกิดข้อผิดพลาด: ${error.error}`)
+            }
+        } catch (error) {
+            console.error('Error processing request:', error)
+            alert('เกิดข้อผิดพลาดในการดำเนินการ')
+        }
+    }
+
     console.log("tabData " + tabData)
 
     return (
@@ -451,8 +484,8 @@ export default function UsersManagementPage() {
                                 <div className="flex items-center space-x-2">
                                     {user.id !== session.user.id && (
                                         <>
-                                            <button onClick={() => (user.id, user.username)} className="p-2 rounded-lg btn-indigo"><Plus className="w-4 h-4" /></button>
-                                            <button onClick={() => (user.id, user.username)} className="p-2 rounded-lg btn-rose"><Plus className="w-4 h-4" /></button>
+                                            <button onClick={() => handleApproveRequest(user.id, "approve")} className="p-2 rounded-lg btn-indigo"><Plus className="w-4 h-4" /></button>
+                                            <button onClick={() => handleApproveRequest(user.id, "delete")} className="p-2 rounded-lg btn-rose"><Plus className="w-4 h-4" /></button>
                                         </>
                                     )}
                                     {user.id === session.user.id && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">คุณ</span>}

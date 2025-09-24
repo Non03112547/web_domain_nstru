@@ -373,7 +373,7 @@ export default function Home() {
           confirmMessage = 'คุณต้องการย้ายโดเมนที่ใช้งานไปยังถังขยะใช่หรือไม่?'
           break
         case 'EXPIRED':
-          confirmMessage = 'คุณต้องการย้ายโดเมนที่หมดอายุไปยังถังขยะใช่หรือไม่?'
+          confirmMessage = 'คุณต้องการย้ายโดเมนที่เลยวันใช้งานไปยังถังขยะใช่หรือไม่?'
           break
         case 'TRASHED':
           confirmMessage = 'คุณต้องการลบโดเมนในถังขยะออกจากระบบถาวรใช่หรือไม่?'
