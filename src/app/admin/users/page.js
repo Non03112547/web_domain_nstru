@@ -21,6 +21,8 @@ import {
     SortDesc,
     Globe2,
     UserRoundPlus,
+    Check,
+    X,
     UserRoundPen
 } from 'lucide-react'
 import NavBar from '@/components/nav'
@@ -366,7 +368,7 @@ export default function UsersManagementPage() {
                         <div className="flex items-center space-x-2">
                             <UserRoundPen className="w-4 h-4" />
                             <span>รายการผู้ใช้</span>
-                            <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-white/20 text-white">{filteredUsers.length}</span>
+                            <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-white/20 ">{filteredUsers.length}</span>
                         </div>
                     </button>
 
@@ -377,7 +379,7 @@ export default function UsersManagementPage() {
                         <div className="flex items-center space-x-2">
                             <UserRoundPlus className="w-4 h-4" />
                             <span>รายการสมัครบัญชีผู้ใช้</span>
-                            <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-white/20 text-white">{filteredSignUpUsers.length}</span>
+                            <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-white/20 ">{filteredSignUpUsers.length}</span>
                         </div>
                     </button>
                 </nav>
@@ -440,7 +442,7 @@ export default function UsersManagementPage() {
                         </motion.div>
                     )}
 
-                    {/* Tab Data */}
+                    {/* Tab Data*/}
                     <div className="grid gap-4">
                         {activeTab === "list" && tabData.map((user) => (
                             <motion.div key={user.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
@@ -467,6 +469,13 @@ export default function UsersManagementPage() {
                                 </div>
                             </motion.div>
                         ))}
+
+                        {activeTab !== 'list' && (
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-semibold">รายการสมัครบัญชีผู้ใช้({filteredSignUpUsers.length})</h2>
+                            </div>
+                        )}
+                        {/* Tab Data = nolist */}
                         {activeTab !== "list" && tabData.map((user) => (
                             <motion.div key={user.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
                                 <div className="flex items-center space-x-4">
@@ -484,8 +493,8 @@ export default function UsersManagementPage() {
                                 <div className="flex items-center space-x-2">
                                     {user.id !== session.user.id && (
                                         <>
-                                            <button onClick={() => handleApproveRequest(user.id, "approve")} className="p-2 rounded-lg btn-indigo"><Plus className="w-4 h-4" /></button>
-                                            <button onClick={() => handleApproveRequest(user.id, "delete")} className="p-2 rounded-lg btn-rose"><Plus className="w-4 h-4" /></button>
+                                            <button onClick={() => handleApproveRequest(user.id, "approve")} className="p-2 rounded-lg btn-indigo"><Check className="w-4 h-4" /></button>
+                                            <button onClick={() => handleApproveRequest(user.id, "delete")} className="p-2 rounded-lg btn-rose"><X className="w-4 h-4" /></button>
                                         </>
                                     )}
                                     {user.id === session.user.id && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">คุณ</span>}

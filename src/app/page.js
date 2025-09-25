@@ -38,21 +38,22 @@ import NavBar from '@/components/nav'
 import Link from 'next/link'
 import { SessionProvider } from 'next-auth/react'
 
-const StatusBadge = (status) => {
-  const statusConfig = {
-    ACTIVE: { color: 'bg-green-100 text-green-800', icon: CheckCircle, text: 'ใช้งาน' },
-    EXPIRED: { color: 'bg-yellow-100 text-yellow-800', icon: AlertCircle, text: 'หมดอายุ' },
-    TRASHED: { color: 'bg-red-100 text-red-800', icon: XCircle, text: 'ในถังขยะ' },
-  }
-  const config = statusConfig[status];
-  const Icon = config.icon
-  return (
-    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
-      <Icon className="w-3 h-3 mr-1" />
-      {config.text}
-    </span>
-  )
+const trashedDay = (trashExpiresAt) => {
+  if (!trashExpiresAt) return null
+  const now = new Date()
+  const trashDate = new Date(trashExpiresAt)
+  const diffMs = trashDate - now
+  return Math.floor(diffMs / (1000 * 60 * 60 * 24)) // จำนวนวัน
 }
+
+const expiredDay = (expiresAt) => {
+  if (!expiresAt) return null
+  const now = new Date()
+  const trashDate = new Date(expiresAt)
+  const diffMs = trashDate - now
+  return Math.floor(diffMs / (1000 * 60 * 60 * 24)) // จำนวนวัน
+}
+
 
 
 export default function Home() {
@@ -999,8 +1000,6 @@ export default function Home() {
             : activeTab === "trashed" ? trashed : allRenewalRequests;
 
 
-
-
   console.log('statusFilter:', statusFilter)
   console.log("selectedDomain :", selectedDomain)
   console.log("Domains :", domains)
@@ -1455,6 +1454,15 @@ export default function Home() {
                       `}>
                               {getStatusIcon(domain.status)}
                               <span>{statusConfig.text}</span>
+                              {domain.status === "TRASHED" ? (
+                                <span>{trashedDay(domain.trashExpiresAt) !== null
+                                  ? `จะลบใน ${trashedDay(domain.trashExpiresAt)} วัน`
+                                  : '-'}</span>
+                              ) : domain.status === "ACTIVE" ? (<span>{expiredDay(domain.domainRequest?.expiresAt) !== null
+                                ? `เหลืออีก ${expiredDay(domain.domainRequest?.expiresAt)} วัน`
+                                : '-'}</span>
+                              ) : (null)}
+
                             </div>
                           </div>
                         </div>
