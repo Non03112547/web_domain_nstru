@@ -14,7 +14,7 @@ export async function GET() {
         }
 
         const users = await prisma.user.findMany({
-            include: { position: true },
+            include: { position: true, signUpUser: true },
             orderBy: { createdAt: 'desc' }
         })
 

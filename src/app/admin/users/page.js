@@ -23,7 +23,9 @@ import {
     UserRoundPlus,
     Check,
     X,
-    UserRoundPen
+    UserRoundPen,
+    Mail,
+    Phone
 } from 'lucide-react'
 import NavBar from '@/components/nav'
 import Link from 'next/link'
@@ -455,8 +457,18 @@ export default function UsersManagementPage() {
                                         <div className="flex items-center space-x-4 text-sm text-gray-500">
                                             {user.position && <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">{user.position?.name}</span>}
                                             <span className="flex items-center"><Calendar className="w-3 h-3 mr-1" />{formatDate(user.createdAt)}</span>
+                                            {user.signUpUser &&
+                                                <span className="flex items-center">
+                                                    <span className="flex items-center"><Mail className="w-5 h-5 mr-2" />{user.signUpUser?.contactE}</span>
+                                                </span>
+                                            }
+                                            {user.signUpUser && <span>
+                                                <span className="flex items-center"> <Phone className="w-5 h-5 mr-2" />{user.signUpUser?.contactP}</span>
+                                            </span>}
+
                                         </div>
                                     </div>
+
                                 </div>
                                 <div className="flex items-center space-x-2">
                                     {user.id !== session.user.id && (
@@ -487,6 +499,8 @@ export default function UsersManagementPage() {
                                         <div className="flex items-center space-x-4 text-sm text-gray-500">
                                             {user.position && <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">{user.position?.name}</span>}
                                             <span className="flex items-center"><Calendar className="w-3 h-3 mr-1" />{formatDate(user.createdAt)}</span>
+                                            <span className="flex items-center"><Mail className="w-5 h-5 mr-2" />{user.contactE}</span>
+                                            <span className="flex items-center"><Phone className="w-5 h-5 mr-2" />{user.contactP}</span>
                                         </div>
                                     </div>
                                 </div>

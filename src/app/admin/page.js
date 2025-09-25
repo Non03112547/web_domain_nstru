@@ -144,7 +144,7 @@ export default function AdminPage() {
                             <div className="flex items-center">
                                 <Globe className="w-6 h-6 text-indigo-600 mr-2" />
                                 <div>
-                                    <p className="text-sm text-indigo-600">คำขอ Domain / ต่ออายุ</p>
+                                    <p className="text-sm text-indigo-600">คำขอ Domain / กู้คืน Domain</p>
                                     <p className="font-semibold text-indigo-900">จัดการคำขอทั้งหมด</p>
                                 </div>
                             </div>
@@ -168,10 +168,10 @@ export default function AdminPage() {
                             </ul>
                         </div>
                         <div>
-                            <h4 className="font-medium text-gray-900 mb-2">คำขอ Domain / คำขอ ต่ออายุ</h4>
+                            <h4 className="font-medium text-gray-900 mb-2">คำขอ Domain / กู้คืน Domain</h4>
                             <ul className="space-y-1">
                                 <li>• อนุมัติ/ปฏิเสธคำขอใช้โดเมน</li>
-                                <li>• อนุมัติ/ปฏิเสธคำขอต่ออายุ</li>
+                                <li>• กู้คืนโดเมน</li>
                                 <li>• ดูรายละเอียดคำขอทั้งหมด</li>
                                 <li>• จัดการโดเมนที่อนุมัติแล้ว</li>
                             </ul>

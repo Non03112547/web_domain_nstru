@@ -90,12 +90,10 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('domains')
   const [showRestoreModal, setShowRestoreModal] = useState(false)
-  const [showRenewalModal, setShowRenewalModal] = useState(false)
   const [showRequestModal, setShowRequestModal] = useState(false)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [selectedDomain, setSelectedDomain] = useState('')
   const [requests, setRequests] = useState([])
-  const [renewalRequests, setRenewalRequests] = useState([])
   const [activeStatus, setActiveStatus] = useState('')
   const [policy, setPolicy] = useState(false); // false = ยังไม่ยอมรับ
   const [showPreview, setShowPreview] = useState(false)
@@ -234,7 +232,6 @@ export default function Home() {
   useEffect(() => {
     if (session) {
       fetchMyRequests()
-      fetchMyRenewalRequests()
     }
   }, [session])
 
@@ -251,36 +248,6 @@ export default function Home() {
       setLoading(false)
     }
   }
-
-  const fetchMyRenewalRequests = async () => {
-    try {
-      const response = await fetch('/api/renewal-requests?my=true');
-      const text = await response.text();
-
-      if (!response.ok) {
-        let errorData;
-        try {
-          errorData = JSON.parse(text);
-        } catch {
-          errorData = { error: text || 'Unknown error' };
-        }
-        console.error('Failed to fetch renewal requests:', errorData.error);
-        return;
-      }
-
-      if (!text) {
-        console.error('Response body is empty');
-        return;
-      }
-
-      const data = JSON.parse(text);
-      setRenewalRequests(data);
-    } catch (error) {
-      console.error('Error fetching renewal requests:', error);
-    }
-  }
-
-
 
   const handlePolicyChange = (e) => {
     setPolicy(e.target.checked);
@@ -340,55 +307,6 @@ export default function Home() {
     }
   })
 
-  // Filter and sort renewal requests
-  const filteredRenewalRequests = renewalRequests.filter(request => {
-    const matchesSearch = request.domain.domainRequest.domain.toLowerCase().includes(filters.search.toLowerCase()) ||
-      request.user.username.toLowerCase().includes(filters.search.toLowerCase()) ||
-      request.domain.domainRequest.department.toLowerCase().includes(filters.search.toLowerCase())
-
-    const matchesStatus = filters.status === 'ALL' || request.status === filters.status
-
-    return matchesSearch && matchesStatus
-  }).sort((a, b) => {
-    const field = filters.sortBy
-    let aValue = ''
-    let bValue = ''
-
-    switch (field) {
-      case 'domain':
-        aValue = a.domain.domainRequest.domain
-        bValue = b.domain.domainRequest.domain
-        break
-      case 'requesterName':
-        aValue = a.user.username
-        bValue = b.user.username
-        break
-      case 'department':
-        aValue = a.domain.domainRequest.department
-        bValue = b.domain.domainRequest.department
-        break
-      case 'requestedAt':
-        aValue = a.requestedAt
-        bValue = b.requestedAt
-        break
-      case 'newExpiryDate':
-        aValue = a.newExpiryDate
-        bValue = b.newExpiryDate
-        break
-      default:
-        aValue = a.requestedAt
-        bValue = b.requestedAt
-    }
-
-    if (filters.sortOrder === 'asc') {
-      return aValue.localeCompare(bValue)
-    } else {
-      return bValue.localeCompare(aValue)
-    }
-  })
-
-
-
   const handleDeleteRequest = async (requestId) => {
     const request = requests.find(r => r.id === requestId)
     const isApproved = request?.status === 'APPROVED'
@@ -420,6 +338,7 @@ export default function Home() {
       if (response.ok) {
         const result = await response.json()
         alert(result.message || 'ดำเนินการสำเร็จ')
+        setShowDetailModal(false)
         fetchMyRequests()
       } else {
         const error = await response.json()
@@ -440,26 +359,6 @@ export default function Home() {
       sortBy: 'requestedAt',
       sortOrder: 'desc'
     })
-  }
-
-  const handleDeleteRenewalRequest = async (requestId) => {
-    if (!confirm('คุณต้องการลบคำขอต่ออายุนี้ใช่หรือไม่?')) return
-
-    try {
-      const response = await fetch(`/api/renewal-requests/${requestId}`, {
-        method: 'DELETE'
-      })
-
-      if (response.ok) {
-        fetchMyRenewalRequests()
-      } else {
-        const error = await response.json()
-        alert(error.error || 'เกิดข้อผิดพลาดในการลบคำขอต่ออายุ')
-      }
-    } catch (error) {
-      console.error('Error deleting renewal request:', error)
-      alert('เกิดข้อผิดพลาดในการลบคำขอต่ออายุ')
-    }
   }
 
   const handleApproveRequest = async (requestId, action) => {
@@ -485,7 +384,8 @@ export default function Home() {
           : 'ไม่อนุมัติคำขอสำเร็จ'
         alert(message)
         fetchMyRequests()
-        window.location.reload()
+        fetchDomains()
+        //window.location.reload()
       } else {
         const error = await response.json()
         alert(`เกิดข้อผิดพลาด: ${error.error}`)
@@ -495,41 +395,6 @@ export default function Home() {
       alert('เกิดข้อผิดพลาดในการดำเนินการ')
     }
   }
-
-  const handleApproveRenewalRequest = async (requestId, action) => {
-    const confirmMessage = action === 'approve'
-      ? 'คุณแน่ใจหรือไม่ที่จะอนุมัติคำขอต่ออายุนี้?'
-      : 'คุณแน่ใจหรือไม่ที่จะไม่อนุมัติคำขอต่ออายุนี้?'
-
-    if (!confirm(confirmMessage)) return
-
-    try {
-      const response = await fetch(`/api/renewal-requests/${requestId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ action })
-      })
-
-      if (response.ok) {
-        const message = action === 'approve'
-          ? 'อนุมัติคำขอต่ออายุสำเร็จ'
-          : 'ไม่อนุมัติคำขอต่ออายุสำเร็จ'
-        alert(message)
-        fetchMyRenewalRequests()
-        window.location.reload()
-      } else {
-        const error = await response.json()
-        alert(`เกิดข้อผิดพลาด: ${error.error}`)
-      }
-    } catch (error) {
-      console.error('Error processing renewal request:', error)
-      alert('เกิดข้อผิดพลาดในการดำเนินการ')
-    }
-  }
-
-
 
   // Domain requests by status
   const pendingRequests = filteredRequests.filter(r => r.status === 'PENDING')
@@ -548,14 +413,6 @@ export default function Home() {
   const approvedTrashedRequests = approvedRequests.filter(r =>
     r.domain_record?.status === 'TRASHED'
   )
-
-  // Renewal requests by status
-  const pendingRenewalRequests = filteredRenewalRequests.filter(r => r.status === 'PENDING')
-  const approvedRenewalRequests = filteredRenewalRequests.filter(r => r.status === 'APPROVED')
-  const rejectedRenewalRequests = filteredRenewalRequests.filter(r => r.status === 'REJECTED')
-
-
-
 
   const [restoreData, setRestoreData] = useState({
     durationType: 'PERMANENT',
@@ -693,6 +550,7 @@ export default function Home() {
         } else if (result.action === 'permanently_deleted') {
           alert(`โดเมน "${domainName}" ถูกลบถาวรแล้ว`)
         }
+        setShowDetailModal(false)
         fetchDomains()
       } else {
         const error = await response.json()
@@ -761,7 +619,8 @@ export default function Home() {
         setSelectedDomain(null)
         setRestoreData({ durationType: 'PERMANENT', expiresAt: '' })
         fetchDomains()
-        window.location.reload()
+        fetchMyRequests
+        //window.location.reload()
       } else {
         alert(`เกิดข้อผิดพลาด: ${result.error || 'ไม่ทราบสาเหตุ'}`)
       }
@@ -784,54 +643,6 @@ export default function Home() {
     setSelectedDomain(null)
     setRestoreData({ durationType: 'PERMANENT', expiresAt: '' })
   }
-
-  const handleRenewDomain = (domainId, domainName) => {
-    const domain = domains.find(d => d.id === domainId)
-    if (!domain) {
-      alert('ไม่พบโดเมนที่ต้องการต่ออายุ')
-      return
-    }
-
-    setRenewalData({
-      domainId,
-      newExpiryDate: '',
-      reason: ''
-    })
-    setShowRenewalModal(true)
-  }
-
-  const handleRenewalSubmit = async () => {
-    try {
-      const response = await fetch('/api/renewal-requests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(renewalData),
-      });
-
-      if (response.ok) {
-        alert('ส่งคำขอต่ออายุสำเร็จ');
-      } else {
-        let errorMessage = 'Unknown error';
-        const contentType = response.headers.get('content-type');
-        if (contentType?.includes('application/json')) {
-          const error = await response.json();
-          errorMessage = error.error || errorMessage;
-        } else {
-          errorMessage = await response.text();
-        }
-        alert(`เกิดข้อผิดพลาด: ${errorMessage}`);
-      }
-    } catch (err) {
-      console.error('Error submitting renewal request:', err);
-      alert('เกิดข้อผิดพลาดในการส่งคำขอต่ออายุ');
-    }
-  };
-
-  const handleRenewalCancel = () => {
-    setShowRenewalModal(false)
-    setRenewalData({ domainId: '', newExpiryDate: '', reason: '' })
-  }
-
   const handleRequestSubmit = async () => {
     const {
       domain, machineType, OS, position,
@@ -903,7 +714,9 @@ export default function Home() {
           durationType: 'PERMANENT',
           expiresAt: ''
         })
-        window.location.reload()
+        fetchMyRequests()
+        fetchDomains()
+        //window.location.reload()
       } else {
         const error = await response.json()
         alert(`เกิดข้อผิดพลาด: ${error.error}`)
@@ -1071,7 +884,6 @@ export default function Home() {
     ...rejectedRequests
   ]
 
-  const allRenewalRequests = renewalRequests
 
   const trashed = [
     ...trashedDomains
@@ -1081,12 +893,12 @@ export default function Home() {
     ...expiredDomains
   ]
 
-  const tab = activeTab === 'trashed' ? trashed : activeTab === 'expired' ? expired : activeTab === 'renewals' ? allRenewalRequests : allStatusRequests
+  const tab = activeTab === 'trashed' ? trashed : activeTab === 'expired' ? expired : allStatusRequests
 
-  const P = activeTab === "domains" ? pendingRequests : allRenewalRequests
+  const P = activeTab === "domains" ? pendingRequests : null
   const A = activeTab === "domains" ? activeDomains : []
-  const R = activeTab === "domains" ? rejectedRequests : rejectedRenewalRequests
-  const t = activeTab === "domains" ? "" : "การต่ออายุ"
+  const R = activeTab === "domains" ? rejectedRequests : null
+  const t = activeTab === "domains" ? "" : null
 
   const handleStatusChange = (status) => {
     setActiveStatus(prevStatus => (prevStatus === status ? '' : status));
@@ -1104,6 +916,7 @@ export default function Home() {
   console.log('statusFilter:', statusFilter)
   console.log("selectedDomain :", selectedDomain)
   console.log("Domains :", domains)
+  console.log("requests: ", requests)
   return (
 
     <div>
@@ -2066,88 +1879,6 @@ export default function Home() {
         )
       }
 
-      {/* Renewal Modal */}
-      {
-        showRenewalModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                ขอต่ออายุโดเมน
-              </h3>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    เลือกโดเมนที่ต้องการต่ออายุ *
-                  </label>
-                  <select
-                    value={renewalData.domainId}
-                    onChange={(e) => setRenewalData(prev => ({ ...prev, domainId: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">-- เลือกโดเมน --</option>
-                    {[...activeDomains, ...expiredDomains, ...trashedDomains]
-                      .filter(domain => domain.domainRequest.durationType !== 'PERMANENT') // ไม่แสดงโดเมนถาวร
-                      .map((domain) => (
-                        <option key={domain.id} value={domain.id}>
-                          {domain.domainRequest.domain}
-                          {domain.status === 'EXPIRED' ? ' (หมดอายุ)' : ''}
-                          {domain.status === 'TRASHED' ? ' (ในถังขยะ)' : ''}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    วันหมดอายุใหม่ *
-                  </label>
-                  <input
-                    type="date"
-                    value={renewalData.newExpiryDate}
-                    onChange={(e) => setRenewalData(prev => ({ ...prev, newExpiryDate: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    min={new Date().toISOString().split('T')[0]}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    เหตุผลในการต่อเวลาใช้งาน
-                  </label>
-                  <textarea
-                    value={renewalData.reason}
-                    onChange={(e) => setRenewalData(prev => ({ ...prev, reason: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    rows={3}
-                    placeholder="ระบุเหตุผล (ไม่บังคับ)"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-3 mt-6">
-                <button
-                  onClick={handleRenewalCancel}
-                  className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  onClick={
-                    handleRenewalSubmit
-                  }
-                  className="px-4 py-2 btn-emerald rounded-lg transition-colors"
-                >
-                  ส่งคำขอ
-                </button>
-              </div>
-            </div>
-          </div>
-        )
-      }
-
-
-
       {/*show detail model */}
       {
         showDetailModal && selectedDomain && (() => {
@@ -2158,7 +1889,7 @@ export default function Home() {
               <button
                 onClick={() => {
                   setShowDetailModal(false);
-                  if (ipChanged) window.location.reload();
+                  //if (ipChanged) window.location.reload();
                 }
                 }
                 className=' btn-close transition-colors absolute  top-9 left-93  transform -translate-x-1/2 -translate-y-1/2  rounded-4xl '>
@@ -2391,24 +2122,35 @@ export default function Home() {
                         )}
                     </div>
 
+                    {session?.user?.role === 'ADMIN' && selectedDomain && selectedDomain.domainRequest?.status === "REJECTED" && (
+                      <div className="space-x-3 mt-6">
+                        <button
+                          onClick={() => handleDeleteRequest(
+                            selectedDomain.domainRequest?.id
+                          )}
+                          className="px-4 py-2 btn-rose rounded-lg transition-colors"
+                        >
+                          <Trash2 />
+                        </button>
+                      </div>
+                    )}
 
-                    <div className=''>
-                      {session?.user?.role === 'ADMIN' && selectedDomain && selectedDomain.status !== "PENDING" && (
-                        <div className="space-x-3 mt-6">
-                          <button
-                            onClick={() => handleDeleteDomain(
-                              domainData?.id || selectedDomain?.id,           // domainId
-                              domainData?.domain || selectedDomain?.domain,   // domainName
-                              ['TRASHED', 'EXPIRED'].includes(domainData?.status || selectedDomain?.status) // true = ลบถาวร
-                            )}
-                            className="px-4 py-2 btn-rose rounded-lg transition-colors"
-                            title={['TRASHED', 'EXPIRED'].includes(selectedDomain?.status) ? 'ลบถาวร' : 'ย้ายไปถังขยะ'}
-                          >
-                            <Trash2 />
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                    {session?.user?.role === 'ADMIN' && selectedDomain && selectedDomain.status !== "PENDING" && selectedDomain.domainRequest?.status !== "REJECTED" && (
+                      <div className="space-x-3 mt-6">
+                        <button
+                          onClick={() => handleDeleteDomain(
+                            domainData?.id || selectedDomain?.id,           // domainId
+                            domainData?.domain || selectedDomain?.domain,   // domainName
+                            ['TRASHED', 'EXPIRED'].includes(domainData?.status || selectedDomain?.status) // true = ลบถาวร
+                          )}
+                          className="px-4 py-2 btn-rose rounded-lg transition-colors"
+                          title={['TRASHED', 'EXPIRED'].includes(selectedDomain?.status) ? 'ลบถาวร' : 'ย้ายไปถังขยะ'}
+                        >
+                          <Trash2 />
+                        </button>
+                      </div>
+                    )}
+
 
 
                   </div>
@@ -2416,7 +2158,7 @@ export default function Home() {
                     <button
                       onClick={() => {
                         setShowDetailModal(false);
-                        if (ipChanged) window.location.reload();
+                        //if (ipChanged) window.location.reload();
                       }
                       }
 
@@ -2783,7 +2525,7 @@ export default function Home() {
 
               <button
                 onClick={handleRequestEdit}
-                className={`px-4 py-2 btn-emerald rounded-lg`}
+                className={`px-4 py-2 btn- rounded-lg`}
               >
                 บันทึก
               </button>
