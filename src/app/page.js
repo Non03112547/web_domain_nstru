@@ -32,7 +32,8 @@ import {
   Settings2,
   ClockAlert,
   CircleX,
-  Server, Activity, AlertTriangle
+  Server, Activity, AlertTriangle,
+  X
 } from 'lucide-react'
 import NavBar from '@/components/nav'
 import Link from 'next/link'
@@ -2122,11 +2123,11 @@ export default function Home() {
                         )}
                     </div>
 
-                    {session?.user?.role === 'ADMIN' && selectedDomain && selectedDomain.domainRequest?.status === "REJECTED" && (
+                    {session?.user?.role === 'ADMIN' && selectedDomain && selectedDomain.status === "REJECTED" && (
                       <div className="space-x-3 mt-6">
                         <button
                           onClick={() => handleDeleteRequest(
-                            selectedDomain.domainRequest?.id
+                            selectedDomain.id
                           )}
                           className="px-4 py-2 btn-rose rounded-lg transition-colors"
                         >
@@ -2135,7 +2136,7 @@ export default function Home() {
                       </div>
                     )}
 
-                    {session?.user?.role === 'ADMIN' && selectedDomain && selectedDomain.status !== "PENDING" && selectedDomain.domainRequest?.status !== "REJECTED" && (
+                    {session?.user?.role === 'ADMIN' && selectedDomain && selectedDomain.status !== "PENDING" && selectedDomain.status !== "REJECTED" && (
                       <div className="space-x-3 mt-6">
                         <button
                           onClick={() => handleDeleteDomain(
