@@ -35,7 +35,19 @@ export async function DELETE(request, { params }) {
             await prisma.domain.delete({ where: { id: domain.id } }) // ใช้ Domain.id ลบจริง
             action = 'permanently_deleted'
         } else {
-            await prisma.domain.update({ where: { id: domain.id }, data: { status: 'TRASHED' } })
+            const trashDate = new Date()
+            const now = new Date()
+            trashDate.setDate(trashDate.getDate() + 30)
+
+            // อัปเดต status เป็น TRASHED และตั้ง trashExpiresAt
+            await prisma.domain.update({
+                where: { id: domain.id },
+                data: {
+                    deletedAt: now,
+                    status: 'TRASHED',
+                    trashExpiresAt: trashDate
+                }
+            })
         }
 
         return NextResponse.json({ action, domain })

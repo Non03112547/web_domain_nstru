@@ -39,19 +39,47 @@ import Link from 'next/link'
 import { SessionProvider } from 'next-auth/react'
 
 const trashedDay = (trashExpiresAt) => {
-  if (!trashExpiresAt) return null
-  const now = new Date()
-  const trashDate = new Date(trashExpiresAt)
-  const diffMs = trashDate - now
-  return Math.floor(diffMs / (1000 * 60 * 60 * 24)) // จำนวนวัน
+  if (!trashExpiresAt) return null;
+
+  const now = new Date();
+  const trashDate = new Date(trashExpiresAt);
+
+  // ตั้งเวลาเป็นเที่ยงคืนทั้งสองวัน
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const target = new Date(trashDate.getFullYear(), trashDate.getMonth(), trashDate.getDate());
+
+  const diffMs = target - today;
+  return Math.floor(diffMs / (1000 * 60 * 60 * 24));
 }
 
+// จำนวนวันที่เหลือหลังจากหมดอายุ เพื่อเปลี่ยนจาก EXPIRED -> TRASHED
 const expiredDay = (expiresAt) => {
-  if (!expiresAt) return null
-  const now = new Date()
-  const trashDate = new Date(expiresAt)
-  const diffMs = trashDate - now
-  return Math.floor(diffMs / (1000 * 60 * 60 * 24)) // จำนวนวัน
+  if (!expiresAt) return null;
+
+  const now = new Date();
+  const expireDate = new Date(expiresAt);
+
+  // บวก 30 วันหลังหมดอายุ
+  const target = new Date(expireDate.getFullYear(), expireDate.getMonth(), expireDate.getDate());
+  target.setDate(target.getDate() + 30);
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffMs = target - today;
+  return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+}
+
+// จำนวนวันที่เหลือก่อนหมดอายุ (ACTIVE -> EXPIRED)
+const activeDay = (expiresAt) => {
+  if (!expiresAt) return null;
+
+  const now = new Date();
+  const expireDate = new Date(expiresAt);
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const target = new Date(expireDate.getFullYear(), expireDate.getMonth(), expireDate.getDate());
+
+  const diffMs = target - today;
+  return Math.floor(diffMs / (1000 * 60 * 60 * 24));
 }
 
 
@@ -1458,13 +1486,15 @@ export default function Home() {
                                 <span>{trashedDay(domain.trashExpiresAt) !== null
                                   ? `จะลบใน ${trashedDay(domain.trashExpiresAt)} วัน`
                                   : '-'}</span>
-                              ) : domain.status === "ACTIVE" ? (<span>{expiredDay(domain.domainRequest?.expiresAt) !== null
-                                ? `เหลืออีก ${expiredDay(domain.domainRequest?.expiresAt)} วัน`
+                              ) : domain.status === "ACTIVE" ? (<span>{activeDay(domain.domainRequest?.expiresAt) !== null
+                                ? `เหลืออีก ${activeDay(domain.domainRequest?.expiresAt)} วัน`
                                 : '-'}</span>
-                              ) : (null)}
-
+                              ) : (<span>{expiredDay(domain.domainRequest?.expiresAt) !== null
+                                ? `อีก ${expiredDay(domain.domainRequest?.expiresAt)} วันเตรียมโดนลบ`
+                                : '-'}</span>)}
                             </div>
                           </div>
+
                         </div>
 
                         {/* Hover Effect */}
@@ -2173,6 +2203,7 @@ export default function Home() {
                     <div><strong>วันที่ขอ:</strong> {domainData?.requestedAt ? new Date(domainData.requestedAt).toLocaleString() : '-'}</div>
                     <div><strong>ระยะเวลาใช้งาน:</strong> {domainData?.durationType === "PERMANENT" ? "ถาวร" : "ชั่วคราว" || '-'}</div>
                     <div><strong>ใช้ถึงวันที่:</strong> {domainData?.expiresAt ? new Date(domainData.expiresAt).toLocaleDateString() : '-'}</div>
+                    {selectedDomain.status === "TRASHED" && (<div><strong>ลงถังขยะวันที่:</strong> {selectedDomain.deletedAt ? new Date(selectedDomain.deletedAt).toLocaleDateString() : '-'}</div>)}
                     <div><strong>สถานะ:</strong> {selectedDomain.status === "ACTIVE"
                       ? <span className="text-green-500">ใช้งานอยู่</span>
                       : selectedDomain.status === "PENDING" ? <span className="text-yellow-500">กำลังรอการอนุมัติ</span>

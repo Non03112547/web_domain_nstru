@@ -2,13 +2,14 @@
   "name": "web_domain",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "generate": "prisma generate",
-    "cron": "node scripts/updateDomainStatus.js",
+    "cron": "node src/scripts/updateDomainStatus.js",
     "seed4": "node prisma/seed4.js",
     "dev:all": "concurrently \"npm run dev\" \"npm run cron\""
   },
