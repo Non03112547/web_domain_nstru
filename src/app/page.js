@@ -640,6 +640,39 @@ export default function Home() {
     setShowPreview(false);
   }, [selectedDomain?.id]);
 
+  useEffect(() => {
+    if (selectedDomain?.domainRequest) {
+      setRequestData({
+        domain: selectedDomain.domainRequest.domain || '',
+        ipAddress: selectedDomain.domainRequest.ipAddress || '',
+        machineType: selectedDomain.domainRequest.machineType || '',
+        OS: selectedDomain.domainRequest.OS || '',
+        otherMachineType: selectedDomain.domainRequest.otherMachineType || '',
+        otherOS: selectedDomain.domainRequest.otherOS || '',
+        purpose: selectedDomain.domainRequest.purpose || '',
+        requesterName: selectedDomain.domainRequest.requesterName || '',
+        position: selectedDomain.domainRequest.position || '',
+        responsibleName: selectedDomain.domainRequest.responsibleName || '',
+        department: selectedDomain.domainRequest.department || '',
+        institution: selectedDomain.domainRequest.institution || '',
+        contactP: selectedDomain.domainRequest.contactP || '',
+        contactE: selectedDomain.domainRequest.contactE || '',
+        responsibleContactP: selectedDomain.domainRequest.responsibleContactP || '',
+        responsibleContactE: selectedDomain.domainRequest.responsibleContactE || '',
+        machineAdminType: selectedDomain.domainRequest.machineAdminType || '',
+        machineAdminName: selectedDomain.domainRequest.machineAdminName || '',
+        machineAdminPosition: selectedDomain.domainRequest.machineAdminPosition || '',
+        machineAdminContactP: selectedDomain.domainRequest.machineAdminContactP || '',
+        machineAdminContactE: selectedDomain.domainRequest.machineAdminContactE || '',
+        machineRoom: selectedDomain.domainRequest.machineRoom || '',
+        machinePlace: selectedDomain.domainRequest.machinePlace || '',
+        property: selectedDomain.domainRequest.property || '',
+        useType: selectedDomain.domainRequest.useType || '',
+        durationType: selectedDomain.domainRequest.durationType || 'PERMANENT',
+        expiresAt: selectedDomain.domainRequest.expiresAt || ''
+      });
+    }
+  }, [selectedDomain]);
 
   const handleDeleteDomain = async (domainId, domainName, isInTrash) => {
     const confirmMessage = isInTrash
@@ -2095,9 +2128,11 @@ export default function Home() {
                 </div>
               </button>
               <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
+
                 <div>
                   <h1 className="text-xl font-semibold text-gray-900 mb-4">
                     <strong>รายการโดเมน</strong>
+
                   </h1>
                 </div>
                 <div className="space-y-4">
@@ -2359,105 +2394,347 @@ export default function Home() {
         })()
       }
       {/* Restore Modal */}
-      {
-        session?.user?.role === "ADMIN" && showRestoreModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                กู้คืนโดเมน
-              </h3>
+      {session?.user?.role === "ADMIN" && showRestoreModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto relative">
+            {/* ปุ่มปิด */}
+            <button
+              onClick={handleRestoreCancel}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <CircleX className="w-6 h-6" />
+            </button>
 
-              <div className="mb-4">
-                <p className="text-sm text-gray-600 mb-2">
-                  โดเมน:{" "}
-                  <span className="font-medium">
-                    {selectedDomain?.domainRequest?.domain || "ไม่ระบุโดเมน"}
-                  </span>
-                </p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">กู้คืนโดเมน</h3>
+            <p className="text-sm text-gray-600 mb-2">
+              โดเมน:{" "}
+              <span className="font-medium">
+                {selectedDomain?.domainRequest?.domain || "ไม่ระบุโดเมน"}
+              </span>
+            </p>
+            {/* useEffect สำหรับเซ็ตค่าเริ่มต้น */}
+            {/* ควรใส่ useEffect ด้านบน component */}
 
-                <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                  <p className="text-xs text-gray-500 mb-1">ข้อมูลเดิม:</p>
-                  <p className="text-sm">
-                    ประเภท:{" "}
-                    <span className="font-medium">
-                      {selectedDomain?.domainRequest?.durationType === "PERMANENT"
-                        ? "ถาวร"
-                        : selectedDomain?.domainRequest?.durationType === "TEMPORARY"
-                          ? "ชั่วคราว"
-                          : "ไม่ระบุ"}
-                    </span>
-                  </p>
-                  <p className="text-sm">
-                    หมดอายุ:{" "}
-                    <span className="font-medium">
-                      {selectedDomain?.domainRequest?.expiresAt
-                        ? new Date(selectedDomain.domainRequest.expiresAt).toLocaleDateString("th-TH")
-                        : "-"}
-                    </span>
-                  </p>
+            {/* ฟอร์มหลัก */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">ยืนยันข้อมูลโดเมน</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                {/* ชื่อโดเมน */}
+                <div>
+
+                  <label className="block text-sm font-medium text-black mb-2">ชื่อโดเมน *</label>
+                  <input
+                    type="text"
+                    value={requestData.domain}
+                    onChange={(e) => handleRequestDataChange('domain', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="example.nstru.ac.th"
+                  />
                 </div>
 
-                <p className="text-sm text-gray-600">
-                  กรุณาเลือกประเภทการใช้งานสำหรับโดเมนที่กู้คืน
-                </p>
+                {/* IP Address */}
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">IP Address</label>
+                  <input
+                    type="text"
+                    value={requestData.ipAddress}
+                    onChange={(e) => handleRequestDataChange('ipAddress', e.target.value.replace(/[^\d.]/g, ''))}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="192.168.1.1"
+                  />
+                </div>
+
+                {/* ประเภทเครื่อง */}
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">ประเภทเครื่อง *</label>
+                  <select
+                    value={requestData.machineType}
+                    onChange={(e) => handleRequestDataChange('machineType', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">--เลือก--</option>
+                    <option>PC/Mac</option>
+                    <option>Unix Workstation</option>
+                    <option value="other">อื่นๆ</option>
+                  </select>
+                  {requestData.machineType === 'other' && (
+                    <input
+                      type="text"
+                      value={requestData.otherMachineType}
+                      onChange={(e) => handleRequestDataChange('otherMachineType', e.target.value)}
+                      className="w-full px-3 py-2 border rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  )}
+                </div>
+
+                {/* ระบบปฏิบัติการ */}
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">ระบบปฏิบัติการ *</label>
+                  <select
+                    value={requestData.OS}
+                    onChange={(e) => handleRequestDataChange('OS', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">--เลือก--</option>
+                    <option>Linux</option>
+                    <option>Unix</option>
+                    <option>MS Windows</option>
+                    <option value="other">อื่นๆ</option>
+                  </select>
+                  {requestData.OS === 'other' && (
+                    <input
+                      type="text"
+                      value={requestData.otherOS}
+                      onChange={(e) => handleRequestDataChange('otherOS', e.target.value)}
+                      className="w-full px-3 py-2 border rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  )}
+                </div>
               </div>
 
-              <div className="space-y-4">
-                {/* เลือกประเภท */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ประเภทการใช้งาน *
-                  </label>
-                  <select
-                    value={restoreData?.durationType || "PERMANENT"}
-                    onChange={(e) =>
-                      handleRestoreDataChange("durationType", e.target.value)
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="PERMANENT">ถาวร</option>
-                    <option value="TEMPORARY">ชั่วคราว</option>
-                  </select>
-                </div>
+              {/* วัตถุประสงค์และการใช้งาน */}
+              <div>
+                <label className="block text-sm font-medium text-black mb-2">วัตถุประสงค์ *</label>
+                <select
+                  value={requestData.property}
+                  onChange={(e) => handleRequestDataChange('property', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">--เลือก--</option>
+                  <option value="InNSTRU">ใช้งานเฉพาะเครือข่ายภายในมหาวิทยาลัยราชภัฏนครศรีธรรมราช (Intranet)</option>
+                  <option value="InOutNSTRU">ใช้งานทั้งภายในและภายนอกมหาวิทยาลัย</option>
+                </select>
 
-                {/* ถ้าเลือกชั่วคราว → ใส่วันหมดอายุ */}
-                {restoreData?.durationType === "TEMPORARY" && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ใช้ถึงวันที่ *
-                    </label>
-                    <input
-                      type="date"
-                      value={restoreData?.expiresAt || ""}
-                      onChange={(e) =>
-                        handleRestoreDataChange("expiresAt", e.target.value)
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      min={new Date().toISOString().split("T")[0]}
-                    />
-                  </div>
+                <label className="block text-sm font-medium text-black mb-2 mt-2">การใช้งาน *</label>
+                <select
+                  value={requestData.useType}
+                  onChange={(e) => handleRequestDataChange('useType', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">--เลือก--</option>
+                  <option value="NoSever">ใช้ทั่วไปโดยไม่ได้เป็นเซอร์ฟเวอร์</option>
+                  <option value="Sever">ใช้เป็นเซอร์ฟเวอร์ให้บริการ</option>
+                </select>
+                {requestData.useType === 'Sever' && (
+                  <textarea
+                    value={requestData.purpose}
+                    onChange={(e) => handleRequestDataChange('purpose', e.target.value)}
+                    rows={3}
+                    placeholder="ระบุวัตถุประสงค์ในการใช้เป็นเซอร์ฟเวอร์ให้บริการ"
+                    className="w-full px-3 py-2 border rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                 )}
               </div>
 
-              {/* ปุ่ม Action */}
-              <div className="flex justify-end space-x-3 mt-6">
-                <button
-                  onClick={handleRestoreCancel}
-                  className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
+              {/* ข้อมูลผู้ขอและผู้รับผิดชอบ */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">ชื่อผู้ขอโดเมน *</label>
+                  <input
+                    type="text"
+                    value={requestData.requesterName}
+                    onChange={(e) => handleRequestDataChange('requesterName', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">ชื่อผู้รับผิดชอบโดเมน *</label>
+                  <input
+                    type="text"
+                    value={requestData.responsibleName}
+                    onChange={(e) => handleRequestDataChange('responsibleName', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* ตำแหน่ง แผนก คณะ */}
+              <div>
+                <label className="block text-sm font-medium text-black mb-2">ตำแหน่งงานผู้ขอโดเมน *</label>
+                <input
+                  type="text"
+                  value={requestData.position}
+                  onChange={(e) => handleRequestDataChange('position', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-black mb-2">ภาควิชา/ฝ่าย/แผนก *</label>
+                <input
+                  type="text"
+                  value={requestData.department}
+                  onChange={(e) => handleRequestDataChange('department', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-black mb-2">คณะ/สำนัก/สถาบัน/กอง *</label>
+                <input
+                  type="text"
+                  value={requestData.institution}
+                  onChange={(e) => handleRequestDataChange('institution', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* ข้อมูลติดต่อ */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">เบอร์โทรศัพท์ ผู้ขอโดเมน *</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={requestData.contactP}
+                    onChange={(e) => handleRequestDataChange('contactP', e.target.value.replace(/\D/g, ''))}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <label className="block text-sm font-medium text-black mt-2 mb-2">E-mail ผู้ขอโดเมน</label>
+                  <input
+                    type="email"
+                    value={requestData.contactE}
+                    onChange={(e) => handleRequestDataChange('contactE', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">เบอร์โทรศัพท์ ผู้รับผิดชอบโดเมน *</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={requestData.responsibleContactP}
+                    onChange={(e) => handleRequestDataChange('responsibleContactP', e.target.value.replace(/\D/g, ''))}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <label className="block text-sm font-medium text-black mt-2 mb-2">E-mail ผู้รับผิดชอบโดเมน</label>
+                  <input
+                    type="email"
+                    value={requestData.responsibleContactE}
+                    onChange={(e) => handleRequestDataChange('responsibleContactE', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* ที่ตั้งเครื่อง */}
+              <div>
+                <label className="block text-sm font-medium text-black mb-2">ห้อง *</label>
+                <input
+                  type="text"
+                  value={requestData.machineRoom}
+                  onChange={(e) => handleRequestDataChange('machineRoom', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <label className="block text-sm font-medium text-black mt-2 mb-2">อาคาร *</label>
+                <input
+                  type="text"
+                  value={requestData.machinePlace}
+                  onChange={(e) => handleRequestDataChange('machinePlace', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* ผู้ดูแลเครื่อง */}
+              <div>
+                <label className="block text-sm font-medium text-black mb-2">ผู้ดูแลเครื่อง *</label>
+                <select
+                  value={requestData.machineAdminType}
+                  onChange={(e) => handleRequestDataChange('machineAdminType', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  ยกเลิก
-                </button>
+                  <option value="">--เลือก--</option>
+                  <option value="requester">บุคคลเดียวกับผู้ขอจดทะเบียน</option>
+                  <option value="MachineAdmin">มีผู้ดูแลเครื่องโดยเฉพาะ</option>
+                </select>
+              </div>
+
+              {requestData.machineAdminType === 'MachineAdmin' && (
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">ชื่อผู้ดูแลเครื่อง</label>
+                  <input
+                    type="text"
+                    value={requestData.machineAdminName}
+                    onChange={(e) => handleRequestDataChange('machineAdminName', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <label className="block text-sm font-medium text-black mb-2">ตำแหน่งผู้ดูแลเครื่อง</label>
+                  <input
+                    type="text"
+                    value={requestData.machineAdminPosition}
+                    onChange={(e) => handleRequestDataChange('machineAdminPosition', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <label className="block text-sm font-medium text-black mb-2">เบอร์โทรศัพท์ผู้ดูแลเครื่อง</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={requestData.machineAdminContactP}
+                    onChange={(e) => handleRequestDataChange('machineAdminContactP', e.target.value.replace(/\D/g, ''))}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <label className="block text-sm font-medium text-black mb-2">E-mail ผู้ดูแลเครื่อง</label>
+                  <input
+                    type="email"
+                    value={requestData.machineAdminContactE}
+                    onChange={(e) => handleRequestDataChange('machineAdminContactE', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              )}
+
+              {/* ประเภทการใช้งาน */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-black mb-2">ประเภทการใช้งาน *</label>
+                <select
+                  value={requestData.durationType}
+                  onChange={(e) => handleRequestDataChange('durationType', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="PERMANENT">ถาวร</option>
+                  <option value="TEMPORARY">ชั่วคราว</option>
+                </select>
+                {requestData.durationType === 'TEMPORARY' && (
+                  <input
+                    type="date"
+                    value={requestData.expiresAt}
+                    onChange={(e) => handleRequestDataChange('expiresAt', e.target.value)}
+                    min={new Date().toISOString().split("T")[0]}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+                  />
+                )}
+              </div>
+              <button
+                onClick={handleRequestSubmit}
+                className={`px-4 py-2 btn-emerald rounded-lg`}
+              >
+                กู้คืน
+              </button>
+              <div>
+
+              </div>
+              {/* Policy */}
+              <div className="mt-4">
+                <label className="text-red-500">
+                  <input type="checkbox" checked={policy} onChange={handlePolicyChange} className="mr-2 scale-125" />
+                  **ข้าพเจ้าจะปฏิบัติตามระเบียบ พ.ร.บ. ว่าด้วยการกระทำผิดทางคอมพิวเตอร์ พ.ศ.2550 และเงื่อนไขการใช้บริการ
+                </label>
+              </div>
+
+              {/* ปุ่ม Action */}
+              <div className="flex justify-end gap-3 mt-6">
+                <button onClick={handleRestoreCancel} className="px-4 py-2 btn-cool-gray rounded-lg">ยกเลิก</button>
                 <button
-                  onClick={handleRestoreSubmit}
-                  className="px-4 py-2 btn-emerald rounded-lg transition-colors"
+                  onClick={policy ? handleRestoreSubmit : () => alert("กรุณายอมรับนโยบายก่อนส่งคำขอ")}
+                  className={`px-4 py-2 btn-emerald rounded-lg`}
                 >
                   กู้คืน
                 </button>
               </div>
             </div>
           </div>
-        )
-      }
+        </div>
+      )}
 
     </div >
   );
