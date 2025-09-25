@@ -1,45 +1,35 @@
-import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/lib/auth'
-import prisma from '@/lib/db'
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+import prisma from '@/lib/db';
 
 export async function GET() {
     try {
-        const session = await getServerSession(authOptions)
-
+        const session = await getServerSession(authOptions);
         if (!session) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const requests = await prisma.domainRequest.findMany({
-            include: {
-                user: {
-                    select: {
-                        username: true
-                    }
-                }
-            },
-            orderBy: {
-                requestedAt: 'desc'
-            }
-        })
+            include: { user: { select: { username: true } } },
+            orderBy: { requestedAt: 'desc' },
+        });
 
-        return NextResponse.json(requests)
+        return NextResponse.json(requests);
     } catch (error) {
-        console.error('Error fetching requests:', error)
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+        console.error('Error fetching requests:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
 
 export async function POST(request) {
     try {
-        const session = await getServerSession(authOptions)
-
+        const session = await getServerSession(authOptions);
         if (!session) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const body = await request.json()
+        const body = await request.json();
         const {
             domain,
             purpose,
@@ -67,37 +57,52 @@ export async function POST(request) {
             machineRoom,
             machinePlace,
             property,
-            useType
-        } = body
+            useType,
+        } = body;
 
         // Validate required fields
-        if (!domain || !machineType || !OS || !requesterName || !responsibleName || !position || !department || !institution || !contactP || !contactE || !responsibleContactP || !responsibleContactE || !machineRoom || !machinePlace || !property || !useType) {
-            return NextResponse.json({ error: 'กรุณากรอกข้อมูลให้ครบถ้วน' }, { status: 400 })
+        if (
+            !domain ||
+            !machineType ||
+            !OS ||
+            !requesterName ||
+            !responsibleName ||
+            !position ||
+            !department ||
+            !institution ||
+            !contactP ||
+            !contactE ||
+            !responsibleContactP ||
+            !responsibleContactE ||
+            !machineRoom ||
+            !machinePlace ||
+            !property ||
+            !useType
+        ) {
+            return NextResponse.json({ error: 'กรุณากรอกข้อมูลให้ครบถ้วน' }, { status: 400 });
         }
 
         // Check if domain already exists
         const existingDomain = await prisma.domainRequest.findFirst({
-            where: {
-                domain: domain.toLowerCase()
-            }
-        })
-
+            where: { domain: domain.toLowerCase() },
+        });
         if (existingDomain) {
-            return NextResponse.json({ error: 'โดเมนนี้ถูกขอใช้งานแล้ว' }, { status: 400 })
+            return NextResponse.json({ error: 'โดเมนนี้ถูกขอใช้งานแล้ว' }, { status: 400 });
         }
 
         // Check if IP address already exists
-        const existingIP = await prisma.domainRequest.findFirst({
-            where: {
-                AND: [
-                    { ipAddress: ipAddress },     // ตรงกับ IP ที่ส่งมา
-                    { NOT: { ipAddress: "" } }   // ยกเว้นค่าที่ว่าง
-                ]
+        if (ipAddress) {
+            const existingIP = await prisma.domainRequest.findFirst({
+                where: {
+                    AND: [
+                        { ipAddress: ipAddress },
+                        { NOT: { ipAddress: '' } },
+                    ],
+                },
+            });
+            if (existingIP) {
+                return NextResponse.json({ error: 'IP Address นี้ถูกใช้งานโดยโดเมนอื่นแล้ว' }, { status: 400 });
             }
-        });
-
-        if (existingIP) {
-            return NextResponse.json({ error: 'IP Address นี้ถูกใช้งานโดยโดเมนอื่นแล้ว' }, { status: 400 })
         }
 
         const requestData = {
@@ -110,7 +115,8 @@ export async function POST(request) {
             department,
             contactP,
             contactE,
-            durationType, machineType,
+            durationType,
+            machineType,
             OS,
             otherMachineType,
             otherOS,
@@ -126,33 +132,24 @@ export async function POST(request) {
             machinePlace,
             property,
             useType,
-            expiresAt,
-            userId: session.user.id
-        }
+            userId: session.user.id,
+        };
 
-        // Handle expiry date for temporary domains
         if (durationType === 'TEMPORARY') {
             if (!expiresAt) {
-                return NextResponse.json({ error: 'กรุณาระบุวันหมดอายุสำหรับโดเมนชั่วคราว' }, { status: 400 })
+                return NextResponse.json({ error: 'กรุณาระบุวันหมดอายุสำหรับโดเมนชั่วคราว' }, { status: 400 });
             }
-            requestData.expiresAt = new Date(expiresAt)
+            requestData.expiresAt = new Date(expiresAt);
         }
 
         const newRequest = await prisma.domainRequest.create({
             data: requestData,
-            include: {
-                user: {
-                    select: {
-                        username: true
-                    }
-                }
-            }
-        })
+            include: { user: { select: { username: true } } },
+        });
 
-        return NextResponse.json(newRequest, { status: 201 })
+        return NextResponse.json(newRequest, { status: 201 });
     } catch (error) {
-        console.error('Error creating request:', error)
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-
+        console.error('Error creating request:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

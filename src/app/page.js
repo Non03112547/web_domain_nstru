@@ -761,6 +761,7 @@ export default function Home() {
         setSelectedDomain(null)
         setRestoreData({ durationType: 'PERMANENT', expiresAt: '' })
         fetchDomains()
+        window.location.reload()
       } else {
         alert(`เกิดข้อผิดพลาด: ${result.error || 'ไม่ทราบสาเหตุ'}`)
       }
@@ -912,6 +913,45 @@ export default function Home() {
       alert('เกิดข้อผิดพลาดในการส่งคำขอ')
     }
   }
+
+  const handleRequestEdit = async () => {
+    if (!selectedDomain?.domainRequest?.id) {
+      alert("ไม่พบ id ของโดเมน");
+      return;
+    }
+
+    const payload = {
+      id: selectedDomain.domainRequest.id,
+      ...requestData, // ทุก field จาก state requestData
+    };
+
+    try {
+      const res = await fetch("/api/requester-edit", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        data = null;
+      }
+
+      if (!res.ok) {
+        alert(data?.error || "เกิดข้อผิดพลาดในการแก้ไขข้อมูล");
+        return;
+      }
+
+      alert("แก้ไขข้อมูลสำเร็จ");
+      fetchDomains(); // รีเฟรชรายการ
+    } catch (error) {
+      console.error("Error editing request:", error);
+      alert("เกิดข้อผิดพลาดในการแก้ไขข้อมูล");
+    }
+  };
+
 
 
   const handleRequestSubmitIP = async () => {
@@ -2400,9 +2440,9 @@ export default function Home() {
             {/* ปุ่มปิด */}
             <button
               onClick={handleRestoreCancel}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              className=" btn-close absolute top-4 right-4  rounded-4xl"
             >
-              <CircleX className="w-6 h-6" />
+              <CircleX className="w-10 h-10" />
             </button>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-4">กู้คืนโดเมน</h3>
@@ -2683,49 +2723,79 @@ export default function Home() {
                 </div>
               )}
 
-              {/* ประเภทการใช้งาน */}
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-black mb-2">ประเภทการใช้งาน *</label>
-                <select
-                  value={requestData.durationType}
-                  onChange={(e) => handleRequestDataChange('durationType', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="PERMANENT">ถาวร</option>
-                  <option value="TEMPORARY">ชั่วคราว</option>
-                </select>
-                {requestData.durationType === 'TEMPORARY' && (
-                  <input
-                    type="date"
-                    value={requestData.expiresAt}
-                    onChange={(e) => handleRequestDataChange('expiresAt', e.target.value)}
-                    min={new Date().toISOString().split("T")[0]}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
-                  />
+              <p className="text-sm">
+                ประเภท:{" "}
+                <span className="font-medium">
+                  {selectedDomain?.domainRequest?.durationType === "PERMANENT"
+                    ? "ถาวร"
+                    : selectedDomain?.domainRequest?.durationType === "TEMPORARY"
+                      ? "ชั่วคราว"
+                      : "ไม่ระบุ"}
+                </span>
+              </p>
+
+              <p className="text-sm">
+                หมดอายุ:{" "}
+                <span className="font-medium">
+                  {selectedDomain?.domainRequest?.expiresAt
+                    ? new Date(selectedDomain.domainRequest.expiresAt).toLocaleDateString("th-TH")
+                    : "-"}
+                </span>
+              </p>
+
+              <p className="text-sm text-gray-600">
+                กรุณาเลือกประเภทการใช้งานสำหรับโดเมนที่กู้คืน
+              </p>
+
+              <div className="space-y-4">
+                {/* เลือกประเภท */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ประเภทการใช้งาน *
+                  </label>
+                  <select
+                    value={restoreData?.durationType || "PERMANENT"}
+                    onChange={(e) => handleRestoreDataChange("durationType", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="PERMANENT">ถาวร</option>
+                    <option value="TEMPORARY">ชั่วคราว</option>
+                  </select>
+                </div>
+
+                {/* ถ้าเลือกชั่วคราว → ใส่วันหมดอายุ */}
+                {restoreData?.durationType === "TEMPORARY" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ใช้ถึงวันที่ *
+                    </label>
+                    <input
+                      type="date"
+                      value={restoreData?.expiresAt || ""}
+                      onChange={(e) => handleRestoreDataChange("expiresAt", e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      min={new Date().toISOString().split("T")[0]}
+                    />
+                  </div>
                 )}
               </div>
+
+
               <button
-                onClick={handleRequestSubmit}
+                onClick={handleRequestEdit}
                 className={`px-4 py-2 btn-emerald rounded-lg`}
               >
-                กู้คืน
+                บันทึก
               </button>
               <div>
 
-              </div>
-              {/* Policy */}
-              <div className="mt-4">
-                <label className="text-red-500">
-                  <input type="checkbox" checked={policy} onChange={handlePolicyChange} className="mr-2 scale-125" />
-                  **ข้าพเจ้าจะปฏิบัติตามระเบียบ พ.ร.บ. ว่าด้วยการกระทำผิดทางคอมพิวเตอร์ พ.ศ.2550 และเงื่อนไขการใช้บริการ
-                </label>
               </div>
 
               {/* ปุ่ม Action */}
               <div className="flex justify-end gap-3 mt-6">
                 <button onClick={handleRestoreCancel} className="px-4 py-2 btn-cool-gray rounded-lg">ยกเลิก</button>
                 <button
-                  onClick={policy ? handleRestoreSubmit : () => alert("กรุณายอมรับนโยบายก่อนส่งคำขอ")}
+                  onClick={handleRestoreSubmit}
                   className={`px-4 py-2 btn-emerald rounded-lg`}
                 >
                   กู้คืน
