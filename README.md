@@ -47,10 +47,9 @@ mysql -u root -p < dev_db.sql
 
 ```bash
 git clone https://github.com/Non03112547/web_domain_nstru.git
-<<<<<<< HEAD
+
 cd web_domain
-=======
->>>>>>> d06a0d5050b570cf84bed2bfccc6dd9c3eafb3bc
+
 
 # ติดตั้ง dependencies
 npm install
