@@ -46,8 +46,7 @@ mysql -u root -p < dev_db.sql
 ### ขั้นตอนที่ 2: ติดตั้ง Dependencies
 
 ```bash
-# เข้าไปในโฟลเดอร์โปรเจค
-cd "D:\fire\jampan\The_Jober\test_job\DOfix\web_domain - Copy"
+git clon [https://github.com/Non03112547/web_domain_nstru.git](https://github.com/Non03112547/web_domain_nstru.git)
 
 # ติดตั้ง dependencies
 npm install
