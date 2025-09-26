@@ -30,7 +30,7 @@
 
 ```bash
 # หากใช้ git
-git clone [repository-url]
+git clone [[repository-url](https://github.com/Non03112547/web_domain_nstru/tree/Release-V-3.5)]
 cd web_domain
 
 # หรือ copy folder ที่มีอยู่แล้ว
