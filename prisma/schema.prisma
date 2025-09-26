@@ -1,47 +1,27 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  seed     = "node prisma/seed.js"
+  seed     = "node prisma/seedBase.js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "mysql"
+  url      = "mysql://root@localhost:3306/dev_db"
 }
 
 model User {
-  id         String    @id @default(cuid())
-  username   String    @unique
-  password   String
-  role       Role      @default(USER)
-  positionId String?
-  createdAt  DateTime  @default(now())
-  
-  position        Position? @relation(fields: [positionId], references: [id])
-  domainRequests  DomainRequest[]
+  id             String          @id @default(cuid())
+  username       String          @unique
+  password       String
+  role           Role            @default(USER)
+  positionId     String?
+  createdAt      DateTime        @default(now())
+  signUpUserId   String?         @unique
+  domainRequests DomainRequest[]
+  position       Position?       @relation(fields: [positionId], references: [id])
+  signUpUser     signupusers?    @relation(fields: [signUpUserId], references: [id], onDelete: Cascade)
 
-  signUpUser      SignUpUser?    @relation(fields: [signUpUserId], references: [id],onDelete: Cascade)
-  signUpUserId    String?   @unique// foreign key มาจาก SignUpUser
-  
+  @@index([positionId], map: "users_positionId_fkey")
   @@map("users")
-}
-
-model SignUpUser{
-  id         String    @id @default(cuid())
-  username   String    @unique
-  password   String
-  contactP   String
-  contactE   String  
-  role       Role      @default(USER)
-  createdAt  DateTime  @default(now())
-  status     SignUp    @default(PENDING)
-  user_record User? 
-  @@map("signUpUsers")
 }
 
 model Position {
@@ -50,63 +30,50 @@ model Position {
   description String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
+  users       User[]
 
-
-  users User[]
-  
   @@map("positions")
 }
 
 model DomainRequest {
-  id                     String         @id @default(cuid())
-  domain                 String
-  ipAddress              String?         
-  machineType            String         @default("PC/Mac")
-  OS                     String         @default("MS Windows")
-  otherMachineType       String         @default("NO")
-  otherOS                String         @default("No")
+  id                   String        @id @default(cuid())
+  domain               String
+  ipAddress            String?
+  machineType          String        @default("PC/Mac")
+  OS                   String        @default("MS Windows")
+  otherMachineType     String        @default("NO")
+  otherOS              String        @default("No")
+  requesterName        String
+  responsibleName      String
+  position             String
+  department           String
+  institution          String
+  contactP             String
+  contactE             String
+  responsibleContactP  String
+  responsibleContactE  String
+  machineAdminType     String        @default("requester")
+  machineAdminName     String
+  machineAdminPosition String
+  machineAdminContactP String
+  machineAdminContactE String
+  machineRoom          String?
+  machinePlace         String?
+  property             Purpose       @default(InNSTRU)
+  useType              Purpose       @default(NoSever)
+  purpose              String        @default("NO")
+  requestedAt          DateTime      @default(now())
+  durationType         DurationType
+  expiresAt            DateTime?
+  status               RequestStatus @default(PENDING)
+  approvalCooldownAt   DateTime?
+  userId               String
+  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  domain_record        Domain?
 
-  requesterName          String
-  responsibleName        String
-  position               String
-  department             String
-  institution            String
-  contactP               String
-  contactE               String  
-
-  responsibleContactP     String        
-  responsibleContactE     String    
-
-  //ข้อมูลผู้ดูแลเครื่อง
-  machineAdminType       String         @default("requester")
-  machineAdminName       String        // ชื่อ-สกุล
-  machineAdminPosition   String        // ตำแหน่ง
-  machineAdminContactP   String        // โทรศัพท์ 
-  machineAdminContactE   String        // E-mail
-
-  //ที่ตั้งเครื่อง
-  machineRoom            String?        
-  machinePlace           String?   
-
-  //วัตถุประสงค์
-  property               Purpose        @default(InNSTRU)
-  useType                Purpose        @default(NoSever)
-  purpose                String         @default("NO")
-
-  requestedAt            DateTime       @default(now())
-  durationType           DurationType
-  expiresAt              DateTime?
-  status                 RequestStatus  @default(PENDING)
-  approvalCooldownAt     DateTime?
-  
-  userId                 String
-  user                   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  domain_record          Domain?
-
+  @@index([userId], map: "domain_requests_userId_fkey")
   @@map("domain_requests")
 }
-
 
 model Domain {
   id              String        @id @default(cuid())
@@ -115,22 +82,32 @@ model Domain {
   deletedAt       DateTime?
   trashExpiresAt  DateTime?
   status          DomainStatus  @default(ACTIVE)
-  decideTime      DateTime?     //เวลาอณุมัต หรือ ปฎิเสธ
+  decideTime      DateTime?
   domainRequest   DomainRequest @relation(fields: [domainRequestId], references: [id], onDelete: Cascade)
-  
+
   @@map("domains")
 }
 
 model DeletedDomainLog {
-  id              String   @id @default(cuid())
-  domainName      String
-  deletedAt       DateTime @default(now())
-  reason          String
-  
+  id         String   @id @default(cuid())
+  domainName String
+  deletedAt  DateTime @default(now())
+  reason     String
+
   @@map("deleted_domain_logs")
 }
 
-
+model signupusers {
+  id          String             @id
+  username    String             @unique(map: "signUpUsers_username_key")
+  password    String
+  contactP    String
+  contactE    String
+  role        signupusers_role   @default(USER)
+  createdAt   DateTime           @default(now())
+  status      signupusers_status @default(PENDING)
+  user_record User?
+}
 
 enum Role {
   ADMIN
@@ -161,7 +138,13 @@ enum Purpose {
   Sever
   None
 }
-enum SignUp {
+
+enum signupusers_role {
+  ADMIN
+  USER
+}
+
+enum signupusers_status {
   PENDING
   APPROVED
   REJECTED

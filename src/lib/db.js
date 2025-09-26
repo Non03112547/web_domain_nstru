@@ -7,4 +7,16 @@ globalForPrisma.prisma = globalForPrisma.prisma || new PrismaClient()
 
 const prisma = globalForPrisma.prisma
 
+if (process.env.NODE_ENV === 'development') {
+    (async () => {
+        try {
+            await prisma.$connect()
+            console.log('✅ Database connected successfully (dev mode)')
+        } catch (err) {
+            console.error('❌ Database connection error (dev mode):', err)
+        }
+    })()
+}
+
+
 export default prisma

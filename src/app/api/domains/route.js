@@ -4,10 +4,13 @@ import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/db'
 
 export async function GET(request) {
+
     try {
+
         const session = await getServerSession(authOptions)
 
         if (!session || !session.user?.id || !session.user?.role) {
+
             return NextResponse.json({ error: 'Unauthorized or invalid session' }, { status: 401 })
         }
 

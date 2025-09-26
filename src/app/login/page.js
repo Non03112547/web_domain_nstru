@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -34,7 +33,7 @@ export default function LoginPage() {
                 password: credentials.password,
                 redirect: false
             })
-
+            console.log(result);
             if (result?.error) {
                 setError('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง')
             } else {
