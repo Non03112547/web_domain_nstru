@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 
 async function main() {
     // ล้างข้อมูลเก่า
-    await prisma.renewalRequest.deleteMany();
     await prisma.domain.deleteMany();
     await prisma.domainRequest.deleteMany();
     await prisma.deletedDomainLog.deleteMany();

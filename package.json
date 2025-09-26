@@ -11,6 +11,7 @@
     "generate": "prisma generate",
     "cron": "node src/scripts/updateDomainStatus.js",
     "seed4": "node prisma/seed4.js",
+    "seedBase": "node prisma/seedBase.js",
     "dev:all": "concurrently \"npm run dev\" \"npm run cron\""
   },
   "dependencies": {

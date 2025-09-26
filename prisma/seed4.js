@@ -1,4 +1,3 @@
-
 import { PrismaClient, Role, DurationType, RequestStatus, DomainStatus, Purpose, SignUp } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
@@ -6,7 +5,6 @@ const prisma = new PrismaClient();
 
 async function main() {
     // ล้างข้อมูลเก่า
-    await prisma.renewalRequest.deleteMany();
     await prisma.domain.deleteMany();
     await prisma.domainRequest.deleteMany();
     await prisma.deletedDomainLog.deleteMany();
@@ -92,16 +90,16 @@ async function main() {
         { domain: 'hr.nstru.ac.th', ip: '192.168.0.104', type: 'ACTIVE', duration: DurationType.PERMANENT, user: user02, requester: 'นางสาวบุคคล', responsible: 'นายฝ่ายบุคคล' },
         { domain: 'admin.nstru.ac.th', ip: '192.168.0.105', type: 'ACTIVE', duration: DurationType.PERMANENT, user: admin, requester: 'admin', responsible: 'admin' },
 
-        // 4 EXPIRED_RENEW
-        { domain: 'expired.nstru.ac.th', ip: '192.168.0.201', type: 'EXPIRED_RENEW', duration: DurationType.TEMPORARY, user: user02, requester: 'นางสาวลืมต่อ', responsible: 'นายลืมต่อ' },
-        { domain: 'oldserver.nstru.ac.th', ip: '192.168.0.202', type: 'EXPIRED_RENEW', duration: DurationType.TEMPORARY, user: user01, requester: 'นายเก่า', responsible: 'นางสาวเก่า' },
-        { domain: 'labexpired.nstru.ac.th', ip: '192.168.0.203', type: 'EXPIRED_RENEW', duration: DurationType.TEMPORARY, user: user01, requester: 'นางสาวทดลอง', responsible: 'นายทดลอง' },
-        { domain: 'testexpired.nstru.ac.th', ip: '192.168.0.204', type: 'EXPIRED_RENEW', duration: DurationType.TEMPORARY, user: user02, requester: 'นายทดสอบ', responsible: 'นางสาวทดสอบ' },
+        // 4 EXPIRED
+        { domain: 'expired.nstru.ac.th', ip: '192.168.0.201', type: 'EXPIRED', duration: DurationType.TEMPORARY, user: user02, requester: 'นางสาวลืมต่อ', responsible: 'นายลืมต่อ' },
+        { domain: 'oldserver.nstru.ac.th', ip: '192.168.0.202', type: 'EXPIRED', duration: DurationType.TEMPORARY, user: user01, requester: 'นายเก่า', responsible: 'นางสาวเก่า' },
+        { domain: 'labexpired.nstru.ac.th', ip: '192.168.0.203', type: 'EXPIRED', duration: DurationType.TEMPORARY, user: user01, requester: 'นางสาวทดลอง', responsible: 'นายทดลอง' },
+        { domain: 'testexpired.nstru.ac.th', ip: '192.168.0.204', type: 'EXPIRED', duration: DurationType.TEMPORARY, user: user02, requester: 'นายทดสอบ', responsible: 'นางสาวทดสอบ' },
 
         // 3 EXPIRED_NO_RENEW
-        { domain: 'expired2.nstru.ac.th', ip: '192.168.0.205', type: 'EXPIRED_NO_RENEW', duration: DurationType.TEMPORARY, user: user02, requester: 'นายหมดอายุ', responsible: 'นางหมดอายุ' },
-        { domain: 'expired3.nstru.ac.th', ip: '192.168.0.206', type: 'EXPIRED_NO_RENEW', duration: DurationType.TEMPORARY, user: user01, requester: 'นางสาวหมดอายุ', responsible: 'นายหมดอายุ' },
-        { domain: 'expired4.nstru.ac.th', ip: '192.168.0.207', type: 'EXPIRED_NO_RENEW', duration: DurationType.TEMPORARY, user: user02, requester: 'นายไม่ได้ต่อ', responsible: 'นางไม่ได้ต่อ' },
+        { domain: 'expired2.nstru.ac.th', ip: '192.168.0.205', type: 'EXPIRED', duration: DurationType.TEMPORARY, user: user02, requester: 'นายหมดอายุ', responsible: 'นางหมดอายุ' },
+        { domain: 'expired3.nstru.ac.th', ip: '192.168.0.206', type: 'EXPIRED', duration: DurationType.TEMPORARY, user: user01, requester: 'นางสาวหมดอายุ', responsible: 'นายหมดอายุ' },
+        { domain: 'expired4.nstru.ac.th', ip: '192.168.0.207', type: 'EXPIRED', duration: DurationType.TEMPORARY, user: user02, requester: 'นายไม่ได้ต่อ', responsible: 'นางไม่ได้ต่อ' },
 
         // 4 TRASHED
         { domain: 'old.nstru.ac.th', ip: '192.168.0.208', type: 'TRASHED', duration: DurationType.TEMPORARY, user: user01, requester: 'นายเก่า', responsible: 'นายเก่า' },
@@ -147,7 +145,7 @@ async function main() {
             }
         });
 
-        const domain = await prisma.domain.create({
+        await prisma.domain.create({
             data: {
                 domainRequestId: domainRequest.id,
                 lastUsedAt: new Date(),
@@ -160,21 +158,9 @@ async function main() {
                 trashExpiresAt: entry.type === 'TRASHED' ? new Date(Date.now() + 25 * 24 * 60 * 60 * 1000) : null
             }
         });
-
-        if (entry.type === 'EXPIRED_RENEW') {
-            await prisma.renewalRequest.create({
-                data: {
-                    domainId: domain.id,
-                    newExpiryDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
-                    reason: 'ต้องใช้งานต่อ',
-                    status: RequestStatus.PENDING,
-                    userId: entry.user.id
-                }
-            });
-        }
     }
 
-    console.log('✅ Seed สำเร็จครบทุก SignUpUser, User, DomainRequest, Domain, RenewalRequest!');
+    console.log('✅ Seed สำเร็จครบทุก SignUpUser, User, DomainRequest, Domain!');
 }
 
 main()
