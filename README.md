@@ -46,7 +46,7 @@ mysql -u root -p < dev_db.sql
 ### ขั้นตอนที่ 2: ติดตั้ง Dependencies
 
 ```bash
-git clon [https://github.com/Non03112547/web_domain_nstru.git](https://github.com/Non03112547/web_domain_nstru.git)
+git clone https://github.com/Non03112547/web_domain_nstru.git
 
 # ติดตั้ง dependencies
 npm install
