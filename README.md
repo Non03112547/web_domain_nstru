@@ -30,7 +30,8 @@
 
 ```bash
 # หากใช้ git
-git clone [[[repository-url](https://github.com/Non03112547/web_domain_nstru/tree/Release-V-3.5)](https://github.com/Non03112547/web_domain_nstru.git)]
+git clone -b Release-V-3.5 https://github.com/Non03112547/web_domain_nstru.git
+
 cd web_domain
 
 
