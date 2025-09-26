@@ -12,6 +12,7 @@ import {
 import LogoutButton from '@/components/LogoutButton'
 export default function NavBar() {
     const { data: session } = useSession()
+
     return (
         <header className="bg-white shadow-sm mb-3 ">
             <div className="max-w-7xl mx-auto px-4 py-6 ">

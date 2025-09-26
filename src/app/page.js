@@ -2526,7 +2526,7 @@ export default function Home() {
 
               <button
                 onClick={handleRequestEdit}
-                className={`px-4 py-2 btn- rounded-lg`}
+                className={`px-4 py-2 btn-indigo rounded-lg`}
               >
                 บันทึก
               </button>
