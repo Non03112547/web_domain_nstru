@@ -30,11 +30,10 @@
 
 ```bash
 # หากใช้ git
-git clone [repository-url]
+git clone -b Release-V-3.5 https://github.com/Non03112547/web_domain_nstru.git
 cd web_domain
 
-# หรือ copy folder ที่มีอยู่แล้ว
-cd "D:\fire\jampan\The_Jober\test_job\DOfix\web_domain - Copy (2)"
+
 ```
 
 #### 2. ติดตั้ง Dependencies
