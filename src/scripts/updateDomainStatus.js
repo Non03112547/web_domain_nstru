@@ -1,7 +1,8 @@
 import cron from 'node-cron'
 import prisma from '../lib/db.js'
 
-cron.schedule('30 7 * * *', async () => {
+cron.schedule('*/1 * * * *', async () => {
+    console.log("Cron running at", new Date().toISOString())
     const now = new Date()
     try {
         // 1) ACTIVE -> EXPIRED
