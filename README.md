@@ -23,8 +23,25 @@
 - Node.js 18 หรือสูงกว่า
 - npm หรือ yarn
 - SQLite (มีมาให้แล้ว) หรือ MySQL (เพิ่มเติม)
+- LibreOffice
 
 ### ขั้นตอนการติดตั้ง
+
+การติดตั้ง LibreOffice
+1. ดาวน์โหลดและติดตั้ง
+Windows:
+bash# ดาวน์โหลดจาก https://www.libreoffice.org/download/
+# หรือใช้ winget
+winget install TheDocumentFoundation.LibreOffice
+
+# หรือใช้ chocolatey
+choco install libreoffice
+Mac:
+bash# ใช้ Homebrew
+brew install --cask libreoffice
+Linux (Ubuntu/Debian):
+bashsudo apt update
+sudo apt install libreoffice
 
 #### 1. Clone หรือ Copy โปรเจค
 
