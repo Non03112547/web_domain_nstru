@@ -20,13 +20,29 @@
 - **MySQL** เวอร์ชัน 8.0 หรือใหม่กว่า
 - **npm** หรือ **yarn** สำหรับจัดการแพ็คเกจ
 - **Git** (ถ้าต้องการ clone จาก repository)
-
+- **LibreOffice** เพื่อใช้ฟีเจอร์ Preview PDF
 ### ข้อกำหนดเซิร์ฟเวอร์
 - RAM: 2GB ขึ้นไป
 - HDD: 5GB ว่าง
 - Internet connection (สำหรับตรวจสอบสถานะโดเมน)
 
 ## การติดตั้ง
+
+การติดตั้ง LibreOffice
+1. ดาวน์โหลดและติดตั้ง
+Windows:
+bash# ดาวน์โหลดจาก https://www.libreoffice.org/download/
+# หรือใช้ winget
+winget install TheDocumentFoundation.LibreOffice
+
+# หรือใช้ chocolatey
+choco install libreoffice
+Mac:
+bash# ใช้ Homebrew
+brew install --cask libreoffice
+Linux (Ubuntu/Debian):
+bashsudo apt update
+sudo apt install libreoffice
 
 ### ขั้นตอนที่ 1: เตรียมฐานข้อมูล MySQL
 

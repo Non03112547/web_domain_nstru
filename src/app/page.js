@@ -767,7 +767,6 @@ export default function Home() {
   };
 
 
-
   const handleRequestSubmitIP = async () => {
     setIpChanged(false)
     try {
@@ -884,7 +883,6 @@ export default function Home() {
     ...activeDomains,
     ...rejectedRequests
   ]
-
 
   const trashed = [
     ...trashedDomains
