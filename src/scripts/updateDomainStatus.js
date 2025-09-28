@@ -1,7 +1,7 @@
 import cron from 'node-cron'
 import prisma from '../lib/db.js'
 
-cron.schedule('*/1 * * * *', async () => {
+cron.schedule('* */8 * * *', async () => {
     console.log("Cron running at", new Date().toISOString())
     const now = new Date()
     try {
