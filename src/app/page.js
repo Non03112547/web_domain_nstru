@@ -1427,15 +1427,16 @@ export default function Home() {
       {
         showRequestModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <button
-              onClick={handleRequestCancel}
-              className=' btn-close transition-colors absolute  top-9 left-105  transform -translate-x-1/2 -translate-y-1/2  rounded-4xl '>
-              <div >
-                <CircleX
-                  className='w-10 h-10 ' />
-              </div>
-            </button>
-            <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="bg-white relative rounded-xl shadow-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+              <button
+                onClick={handleRequestCancel}
+                className=' btn-close transition-colors absolute top-4 right-4 rounded-4xl'>
+                <div >
+                  <CircleX
+                    className='w-10 h-10 ' />
+                </div>
+              </button>
+
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
                 ขอใช้โดเมนใหม่
               </h3>
@@ -1887,20 +1888,20 @@ export default function Home() {
           const valueIP = requestData.ipAddress || domainData?.ipAddress || ''
           return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <button
-                onClick={() => {
-                  setShowDetailModal(false);
-                  //if (ipChanged) window.location.reload();
-                }
-                }
-                className=' btn-close transition-colors absolute  top-9 left-93  transform -translate-x-1/2 -translate-y-1/2  rounded-4xl '>
-                <div >
-                  <CircleX
-                    className='w-10 h-10 ' />
-                </div>
-              </button>
-              <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
 
+              <div className="bg-white relative rounded-xl shadow-xl p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
+                <button
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    //if (ipChanged) window.location.reload();
+                  }
+                  }
+                  className=' btn-close transition-colors absolute top-4 right-4 rounded-4xl'>
+                  <div >
+                    <CircleX
+                      className='w-10 h-10 ' />
+                  </div>
+                </button>
                 <div>
                   <h1 className="text-xl font-semibold text-gray-900 mb-4">
                     <strong>รายการโดเมน</strong>
