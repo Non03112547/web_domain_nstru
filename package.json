@@ -12,7 +12,8 @@
     "cron": "node src/scripts/updateDomainStatus.js",
     "seed4": "node prisma/seed4.js",
     "seedBase": "node prisma/seedBase.js",
-    "dev:all": "concurrently \"npm run dev\" \"npm run cron\""
+    "dev:all": "concurrently \"npm run dev\" \"npm run cron\"",
+    "build:all": "next build && npm run cron"
   },
   "dependencies": {
     "@prisma/client": "^6.11.1",
