@@ -48,10 +48,7 @@ sudo apt install libreoffice
 ```bash
 # หากใช้ git
 git clone -b Release-V-3.5 https://github.com/Non03112547/web_domain_nstru.git
-<<<<<<< HEAD
-=======
 
->>>>>>> ffb07646eacf586ffa2814a07f58b06b393c6827
 cd web_domain
 
 
