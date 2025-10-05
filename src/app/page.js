@@ -759,7 +759,37 @@ export default function Home() {
       }
 
       alert("แก้ไขข้อมูลสำเร็จ");
+      setRequestData({
+        domain: '',
+        machineType: '',
+        OS: '',
+        otherMachineType: '',
+        otherOS: '',
+        purpose: '',
+        ipAddress: '',
+        requesterName: '',
+        position: '',
+        responsibleName: '',
+        department: '',
+        institution: '',
+        contactP: '',
+        contactE: '',
+        responsibleContactP: '',
+        responsibleContactE: '',
+        machineAdminType: '',
+        machineAdminName: '',
+        machineAdminPosition: '',
+        machineAdminContactP: '',
+        machineAdminContactE: '',
+        machineRoom: '',
+        machinePlace: '',
+        property: '',
+        useType: '',
+        durationType: 'PERMANENT',
+        expiresAt: ''
+      })
       fetchDomains(); // รีเฟรชรายการ
+      fetchMyRequests();
     } catch (error) {
       console.error("Error editing request:", error);
       alert("เกิดข้อผิดพลาดในการแก้ไขข้อมูล");
